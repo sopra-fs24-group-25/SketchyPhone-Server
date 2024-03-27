@@ -2,13 +2,13 @@ package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 
-public class GameRoomGetDTO {
+public class GameGetDTO {
 
   private Long id;
   private String name;
   private String link;
   private String status;
-  private Long admin;
+  private User admin;
 
   public Long getId() {
     return id;
@@ -42,11 +42,11 @@ public class GameRoomGetDTO {
     this.status = status;
   }
 
-  public Long getAdmin() {
+  public User getAdmin() {
     return admin;
   }
 
-  public void setAdmin(Long admin) {
+  public void setAdmin(User admin) {
     this.admin = admin;
   }
 }
