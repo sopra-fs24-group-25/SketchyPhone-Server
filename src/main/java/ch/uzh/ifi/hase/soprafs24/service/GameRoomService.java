@@ -31,7 +31,7 @@ public class GameRoomService {
   private final GameRoomRepository gameRoomRepository;
 
   @Autowired
-  public GameRoomService(@Qualifier("userRepository") GameRoomRepository gameRoomRepository) {
+  public GameRoomService(@Qualifier("gameRoomRepository") GameRoomRepository gameRoomRepository) {
     this.gameRoomRepository = gameRoomRepository;
   }
 

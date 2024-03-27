@@ -37,6 +37,10 @@ public class User implements Serializable {
   @Column(nullable = false)
   private UserStatus status;
 
+  @ManyToOne
+  @JoinColumn(name = "game_room_id")
+  private GameRoom gameRoom;
+
   public Long getId() {
     return id;
   }

@@ -17,7 +17,7 @@ import java.util.List;
  * the primary key
  */
 @Entity
-@Table(name = "USER")
+@Table(name = "GAMEROOM")
 public class GameRoom implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -32,7 +32,7 @@ public class GameRoom implements Serializable {
   @Column(nullable = false, unique = true)
   private LocalDate creationDate;
 
-  @Column(nullable = false)
+  @OneToMany(mappedBy = "gameRoom")
   private List<User> users;
 
   @Column(nullable = false)
