@@ -5,8 +5,6 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 public class GameGetDTO {
 
   private Long id;
-  private String name;
-  private String link;
   private String status;
   private User admin;
 
@@ -16,22 +14,6 @@ public class GameGetDTO {
 
   public void setId(Long id) {
     this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getLink() {
-    return link;
-  }
-
-  public void setLink(String link) {
-    this.link = link;
   }
 
   public String getStatus() {

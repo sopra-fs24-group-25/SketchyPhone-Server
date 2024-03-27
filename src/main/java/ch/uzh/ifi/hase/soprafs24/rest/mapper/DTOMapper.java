@@ -35,14 +35,11 @@ public interface DTOMapper {
   @Mapping(source = "status", target = "status")
   UserGetDTO convertEntityToUserGetDTO(User user);
 
-  @Mapping(source = "name", target = "name")
   @Mapping(source = "admin", target = "admin")
-  Game convertGameRoomPostDTOtoEntity(GamePostDTO GamePostDTO);
+  Game convertGamePostDTOtoEntity(GamePostDTO GamePostDTO);
 
   @Mapping(source = "id", target = "id")
-  @Mapping(source = "name", target = "name")
-  @Mapping(source = "link", target = "link")
   @Mapping(source = "status", target = "status")
   @Mapping(source = "admin", target = "admin")
-  GameGetDTO convertEntityToGameRoomGetDTO(Game game);
+  GameGetDTO convertEntityToGameGetDTO(Game game);
 }

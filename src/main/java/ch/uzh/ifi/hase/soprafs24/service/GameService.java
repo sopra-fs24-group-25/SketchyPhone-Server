@@ -51,7 +51,7 @@ public class GameService {
 
 
     public GameResponse joinGame(Long submittePin) {
-        Game game = gameRepository.findByGamePIN(submittePin);
+        Game game = gameRepository.findByGamePin(submittePin);
         if (game == null) {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
@@ -70,7 +70,7 @@ public class GameService {
     }
 
     public Game getGameByGamePIN(Long gamePin) {
-        return gameRepository.findByGamePIN(gamePin);
+        return gameRepository.findByGamePin(gamePin);
     }
 
     public void deleteGame(Long gamePin) {
