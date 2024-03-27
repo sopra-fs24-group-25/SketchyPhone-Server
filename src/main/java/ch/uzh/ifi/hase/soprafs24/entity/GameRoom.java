@@ -26,26 +26,26 @@ public class GameRoom implements Serializable {
   @GeneratedValue
   private Long id;
 
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String name;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = true, unique = true)
   private LocalDate creationDate;
 
   @OneToMany(mappedBy = "gameRoom")
   private List<User> users;
 
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String link;
 
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String token;
 
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String status;
 
-  @Column(nullable = false)
-  private User admin;
+  @Column(nullable = true)
+  private Long admin;
 
   public Long getId() {
     return id;
@@ -103,11 +103,11 @@ public class GameRoom implements Serializable {
     this.status = status;
   }
 
-  public User getAdmin() {
+  public Long getAdmin() {
     return admin;
   }
 
-  public void setAdmin(User admin) {
+  public void setAdmin(Long admin) {
     this.admin = admin;
   }
 
