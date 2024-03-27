@@ -107,6 +107,7 @@ public class GameRoom implements Serializable {
     return admin;
   }
 
+  // code
   public void setAdmin(Long admin) {
     this.admin = admin;
   }
