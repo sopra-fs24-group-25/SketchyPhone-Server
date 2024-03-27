@@ -1,9 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
-import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-
 import javax.persistence.*;
+
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Internal User Representation
@@ -16,8 +17,8 @@ import java.io.Serializable;
  * the primary key
  */
 @Entity
-@Table(name = "USER")
-public class User implements Serializable {
+@Table(name = "GAMEROOM")
+public class GameRoom implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
@@ -29,17 +30,22 @@ public class User implements Serializable {
   private String name;
 
   @Column(nullable = false, unique = true)
-  private String username;
+  private LocalDate creationDate;
 
-  @Column(nullable = false, unique = true)
+  @OneToMany(mappedBy = "gameRoom")
+  private List<User> users;
+
+  @Column(nullable = false)
+  private String link;
+
+  @Column(nullable = false)
   private String token;
 
   @Column(nullable = false)
-  private UserStatus status;
+  private String status;
 
-  @ManyToOne
-  @JoinColumn(name = "game_room_id")
-  private GameRoom gameRoom;
+  @Column(nullable = false)
+  private User admin;
 
   public Long getId() {
     return id;
@@ -57,12 +63,28 @@ public class User implements Serializable {
     this.name = name;
   }
 
-  public String getUsername() {
-    return username;
+  public LocalDate getCreationDate() {
+    return creationDate;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
+  public void setCreationDate(LocalDate creationDate) {
+    this.creationDate = creationDate;
+  }
+
+  public List<User> getUsers() {
+    return users;
+  }
+
+  public void setUsers(List<User> users) {
+    this.users = users;
+  }
+
+  public String getLink() {
+    return link;
+  }
+
+  public void setLink(String link) {
+    this.link = link;
   }
 
   public String getToken() {
@@ -73,11 +95,20 @@ public class User implements Serializable {
     this.token = token;
   }
 
-  public UserStatus getStatus() {
+  public String getStatus() {
     return status;
   }
 
-  public void setStatus(UserStatus status) {
+  public void setStatus(String status) {
     this.status = status;
   }
+
+  public User getAdmin() {
+    return admin;
+  }
+
+  public void setAdmin(User admin) {
+    this.admin = admin;
+  }
+
 }
