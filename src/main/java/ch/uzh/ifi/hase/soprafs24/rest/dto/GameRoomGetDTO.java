@@ -8,7 +8,7 @@ public class GameRoomGetDTO {
   private String name;
   private String link;
   private String status;
-  private User admin;
+  private Long admin;
 
   public Long getId() {
     return id;
@@ -42,11 +42,11 @@ public class GameRoomGetDTO {
     this.status = status;
   }
 
-  public User getAdmin() {
+  public Long getAdmin() {
     return admin;
   }
 
-  public void setAdmin(User admin) {
+  public void setAdmin(Long admin) {
     this.admin = admin;
   }
 }

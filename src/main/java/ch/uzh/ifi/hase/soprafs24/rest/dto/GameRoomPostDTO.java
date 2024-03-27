@@ -6,7 +6,7 @@ public class GameRoomPostDTO {
 
   private String name;
 
-  private User admin;
+  private Long admin;
 
   public String getName() {
     return name;
@@ -16,11 +16,11 @@ public class GameRoomPostDTO {
     this.name = name;
   }
 
-  public User getAdmin() {
+  public Long getAdmin() {
     return admin;
   }
 
-  public void setAdmin(User admin) {
+  public void setAdmin(Long admin) {
     this.admin = admin;
   }
 }

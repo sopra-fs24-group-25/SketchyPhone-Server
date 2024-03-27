@@ -3,6 +3,8 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.entity.GameRoom;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRoomRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.time.LocalDate;
 
 /**
  * User Service
@@ -44,8 +48,19 @@ public class GameRoomService {
     if (admin.getName() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Game Room couldn't be created.");
     }
-    newRoom.setAdmin(admin);
+    // doesn't work since we're not creating the user, i.e. user won't get assigned an id
+    newRoom.setAdmin(admin.getId());
+
     newRoom.setToken(UUID.randomUUID().toString());
+    //creates list and adds it to the gameroom
+    List<User> users = new ArrayList<>();
+    users.add(admin);
+    newRoom.setUsers(users);
+
+    // gets the current date and sets it in the gameroom
+    LocalDate today = LocalDate.now();
+    newRoom.setCreationDate(today);
+    
     // saves the given entity but data is only persisted in the database once
     // flush() is called
     newRoom = gameRoomRepository.save(newRoom);
