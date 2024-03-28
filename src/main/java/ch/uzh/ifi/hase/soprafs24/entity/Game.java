@@ -6,6 +6,9 @@ import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 
 import java.io.Serializable;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Entity
 @Table(name = "GAME")
 public class Game implements Serializable{
@@ -17,6 +20,9 @@ public class Game implements Serializable{
 
     @Column(unique = true)
     private Long gamePin;
+
+    @Column(nullable = true, unique = true)
+    private LocalDate creationDate;
 
     @Column(nullable = false)
     private String token;
@@ -36,6 +42,14 @@ public class Game implements Serializable{
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public LocalDate getCreationDate() {
+    return creationDate;
+    }
+
+    public void setCreationDate(LocalDate creationDate) {
+    this.creationDate = creationDate;
     }
 
     public String getToken() {
