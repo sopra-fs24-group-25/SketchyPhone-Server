@@ -34,7 +34,7 @@ public class Game implements Serializable{
     private List<User> users;
     
     @Column(nullable = false)
-    private User admin;
+    private Long admin;
 
     public Long getId() {
         return id;
@@ -68,11 +68,11 @@ public class Game implements Serializable{
         this.status = status;
     }
 
-    public User getAdmin() {
+    public Long getAdmin() {
         return admin;
       }
     
-    public void setAdmin(User admin) {
+    public void setAdmin(Long admin) {
     this.admin = admin;
     }
 

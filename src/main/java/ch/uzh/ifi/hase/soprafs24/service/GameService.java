@@ -15,6 +15,8 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.GameResponse;
 
 import java.util.List;
 import java.util.UUID;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
 @Service
 @Transactional
@@ -22,10 +24,12 @@ public class GameService {
     
     private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final GameRepository gameRepository;
+    private final UserService userService;
     
     @Autowired
-    public GameService(@Qualifier("gameRepository") GameRepository gameRepository) {
+    public GameService(GameRepository gameRepository, UserService userService) {
         this.gameRepository = gameRepository;
+        this.userService = userService;
       }
 
     public List<Game> getGame() {
@@ -33,20 +37,25 @@ public class GameService {
     }
 
     public Game createGame(User admin) {
+        User savedUser = userService.createUser(admin);
+
         Game newGame = new Game();
         if (admin.getName() == null) {
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Game Room couldn't be created.");
         }
-        newGame.setAdmin(admin);
+        newGame.setAdmin(savedUser.getId());
         newGame.setToken(UUID.randomUUID().toString());
         //creates list and adds it to the gameroom
         List<User> users = new ArrayList<>();
-        users.add(admin);
-        newRoom.setUsers(users);
+        users.add(savedUser);
+        newGame.setUsers(users);
 
         // gets the current date and sets it in the gameroom
         LocalDate today = LocalDate.now();
-        newRoom.setCreationDate(today);
+        newGame.setCreationDate(today);
+
+        //sets the game room status
+        newGame.setStatus(GameStatus.OPEN);
         
         // saves the given entity but data is only persisted in the database once
         // flush() is called

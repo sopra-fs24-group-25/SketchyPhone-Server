@@ -1,17 +1,15 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-
 public class GamePostDTO {
 
 
-  private User admin;
+  private Long admin;
 
-  public User getAdmin() {
+  public Long getAdmin() {
     return admin;
   }
 
-  public void setAdmin(User admin) {
+  public void setAdmin(Long admin) {
     this.admin = admin;
   }
 }

@@ -6,7 +6,7 @@ public class GameGetDTO {
 
   private Long id;
   private String status;
-  private User admin;
+  private Long admin;
 
   public Long getId() {
     return id;
@@ -24,11 +24,11 @@ public class GameGetDTO {
     this.status = status;
   }
 
-  public User getAdmin() {
+  public Long getAdmin() {
     return admin;
   }
 
-  public void setAdmin(User admin) {
+  public void setAdmin(Long admin) {
     this.admin = admin;
   }
 }
