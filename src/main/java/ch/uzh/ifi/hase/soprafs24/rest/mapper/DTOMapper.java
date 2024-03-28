@@ -1,9 +1,9 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
-import ch.uzh.ifi.hase.soprafs24.entity.GameRoom;
+import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.GameRoomGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.GameRoomPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GamePostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import org.mapstruct.*;
@@ -35,14 +35,11 @@ public interface DTOMapper {
   @Mapping(source = "status", target = "status")
   UserGetDTO convertEntityToUserGetDTO(User user);
 
-  @Mapping(source = "name", target = "name")
   @Mapping(source = "admin", target = "admin")
-  GameRoom convertGameRoomPostDTOtoEntity(GameRoomPostDTO GameRoomPostDTO);
+  Game convertGamePostDTOtoEntity(GamePostDTO GamePostDTO);
 
   @Mapping(source = "id", target = "id")
-  @Mapping(source = "name", target = "name")
-  @Mapping(source = "link", target = "link")
   @Mapping(source = "status", target = "status")
   @Mapping(source = "admin", target = "admin")
-  GameRoomGetDTO convertEntityToGameRoomGetDTO(GameRoom gameRoom);
+  GameGetDTO convertEntityToGameGetDTO(Game game);
 }
