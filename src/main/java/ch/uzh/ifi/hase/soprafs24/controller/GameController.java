@@ -1,10 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
-import ch.uzh.ifi.hase.soprafs24.entity.GameRoom;
+import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs24.service.GameRoomService;
+import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,21 +16,21 @@ import org.springframework.web.bind.annotation.*;
  * UserService and finally return the result.
  */
 @RestController
-public class GameRoomController {
+public class GameController {
 
-  private final GameRoomService gameRoomService;
+  private final GameService gameService;
 
-  GameRoomController(GameRoomService gameRoomService) {
-    this.gameRoomService = gameRoomService;
+  GameController(GameService gameService) {
+    this.gameService = gameService;
   }
 
   // Post Mapping to create a game room
   @PostMapping("/gameRooms/create")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public GameRoom createGameRoom(@RequestBody UserPostDTO userPostDTO) {
+  public Game createRoom(@RequestBody UserPostDTO userPostDTO) {
     User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
-    GameRoom newRoom = gameRoomService.createGameRoom(userInput);
+    Game newRoom = gameService.createGame(userInput);
     return newRoom;
   }
 }

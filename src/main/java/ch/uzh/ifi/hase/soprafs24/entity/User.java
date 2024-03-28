@@ -39,7 +39,7 @@ public class User implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "game_room_id")
-  private GameRoom gameRoom;
+  private Game gameRoom;
 
   public Long getId() {
     return id;
