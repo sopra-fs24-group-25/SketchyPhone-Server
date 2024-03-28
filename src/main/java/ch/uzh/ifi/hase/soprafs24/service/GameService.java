@@ -14,9 +14,12 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameResponse;
 
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 @Service
 @Transactional
@@ -25,6 +28,7 @@ public class GameService {
     private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final GameRepository gameRepository;
     private final UserService userService;
+    private static final Set<Long> generatedPins = new HashSet<>();
     
     @Autowired
     public GameService(GameRepository gameRepository, UserService userService) {
@@ -36,14 +40,32 @@ public class GameService {
         return this.gameRepository.findAll();
     }
 
+    // function to generate unique game pin
+    public long generateGamePin() {
+        Random random = new Random();
+        long pin;
+        do {
+            pin = random.nextLong(900000) + 100000L;
+        } while (!generatedPins.add(pin));
+        return pin;
+    }
+
     public Game createGame(User admin) {
         User savedUser = userService.createUser(admin);
 
         Game newGame = new Game();
+        // redundant code since userService.createUser already checks whether the name is passed or not
+        // should think about why a room creation should fail
         if (admin.getName() == null) {
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Game Room couldn't be created.");
         }
+        // assign unique gamePin to game room        
+        long gamePin = generateGamePin();
+        newGame.setGamePin(gamePin); 
+
+        // set the admin to the admin's ID so the info can be pulled from the userRepository
         newGame.setAdmin(savedUser.getId());
+
         newGame.setToken(UUID.randomUUID().toString());
         //creates list and adds it to the gameroom
         List<User> users = new ArrayList<>();

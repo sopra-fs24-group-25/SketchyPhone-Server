@@ -7,6 +7,7 @@ public class GameGetDTO {
   private Long id;
   private String status;
   private Long admin;
+  private Long gamePin;
 
   public Long getId() {
     return id;
@@ -14,6 +15,14 @@ public class GameGetDTO {
 
   public void setId(Long id) {
     this.id = id;
+  }
+
+  public Long getGamePin() {
+    return gamePin;
+  }
+
+  public void setGamePin(Long gamePin) {
+    this.gamePin = gamePin;
   }
 
   public String getStatus() {

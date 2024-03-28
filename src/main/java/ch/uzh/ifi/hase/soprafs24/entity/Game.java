@@ -18,10 +18,10 @@ public class Game implements Serializable{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private Long gamePin;
 
-    @Column(nullable = true, unique = true)
+    @Column(nullable = true)
     private LocalDate creationDate;
 
     @Column(nullable = false)
@@ -42,6 +42,14 @@ public class Game implements Serializable{
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getGamePin() {
+        return gamePin;
+    }
+
+    public void setGamePin(Long gamePin) {
+        this.gamePin = gamePin;
     }
 
     public LocalDate getCreationDate() {
