@@ -24,6 +24,9 @@ public class Game implements Serializable{
     @Column(nullable = false)
     private GameStatus status; // State of the game: OPEN, IN-PLAY, CLOSED
 
+    @OneToMany(mappedBy = "gameRoom")
+    private List<User> users;
+    
     @Column(nullable = false)
     private User admin;
 
@@ -57,6 +60,14 @@ public class Game implements Serializable{
     
     public void setAdmin(User admin) {
     this.admin = admin;
+    }
+
+    public List<User> getUsers() {
+    return users;
+    }
+
+    public void setUsers(List<User> users) {
+    this.users = users;
     }
 
 }
