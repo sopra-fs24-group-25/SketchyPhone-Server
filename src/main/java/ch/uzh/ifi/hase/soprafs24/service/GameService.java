@@ -39,6 +39,15 @@ public class GameService {
         }
         newGame.setAdmin(admin);
         newGame.setToken(UUID.randomUUID().toString());
+        //creates list and adds it to the gameroom
+        List<User> users = new ArrayList<>();
+        users.add(admin);
+        newRoom.setUsers(users);
+
+        // gets the current date and sets it in the gameroom
+        LocalDate today = LocalDate.now();
+        newRoom.setCreationDate(today);
+        
         // saves the given entity but data is only persisted in the database once
         // flush() is called
         newGame = gameRepository.save(newGame);
