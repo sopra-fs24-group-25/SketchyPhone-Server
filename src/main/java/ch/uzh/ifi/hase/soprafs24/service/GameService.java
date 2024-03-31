@@ -4,7 +4,6 @@ import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameResponse;
 
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,10 +41,12 @@ public class GameService {
 
     // function to generate unique game pin
     public long generateGamePin() {
-        Random random = new Random();
+        final long MIN_PIN = 100000L;
+        final long MAX_PIN = 999999L;
+        SecureRandom secureRandom = new SecureRandom();
         long pin;
         do {
-            pin = random.nextLong(900000) + 100000L;
+            pin = MIN_PIN + secureRandom.nextLong() % (MAX_PIN - MIN_PIN + 1);
         } while (!generatedPins.add(pin));
         return pin;
     }
