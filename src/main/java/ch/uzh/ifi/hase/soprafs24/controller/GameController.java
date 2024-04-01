@@ -33,4 +33,12 @@ public class GameController {
     Game newGame = gameService.createGame(userInput);
     return newGame;
   }
+
+  // Post Mapping to get the text prompt from the user 
+  @PostMapping("/gameRooms/{gameId}/textPrompt")
+  @ResponseStatus(HttpStatus.CREATED)
+  @ResponseBody
+  public void createTextPrompt(@PathVariable Long gamesessionId, @PathVariable Long userId, @RequestBody String textPrompt) {
+    gameService.createTextPrompt(gamesessionId, userId, textPrompt);
+  }
 }
