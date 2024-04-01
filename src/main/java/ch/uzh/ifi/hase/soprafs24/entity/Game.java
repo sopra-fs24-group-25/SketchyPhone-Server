@@ -14,6 +14,10 @@ import java.util.List;
 public class Game implements Serializable{
     private static final long serialVersionUID = 1L;
 
+    // one game can have multiple game sessions
+    @OneToMany(mappedBy = "game")
+    private List<GameSession> gameSessions;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,6 +39,14 @@ public class Game implements Serializable{
     
     @Column(nullable = false)
     private Long admin;
+
+    public void setGameSessions(List<GameSession> gameSessions) {
+        this.gameSessions = gameSessions;
+    }
+
+    public List<GameSession> getGameSessions() {
+        return gameSessions;
+    }
 
     public Long getId() {
         return id;
