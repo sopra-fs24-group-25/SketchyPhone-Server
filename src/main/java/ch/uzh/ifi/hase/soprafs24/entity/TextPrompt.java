@@ -17,11 +17,11 @@ public class TextPrompt implements Serializable{
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_user_id")
+    @JoinColumn(name = "userId")
     private User creator;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_session_id")
+    @JoinColumn(name = "gameId")
     private GameSession gameSession;
 
     public Long getId() {
@@ -55,5 +55,5 @@ public class TextPrompt implements Serializable{
     public void setGameSession(GameSession gameSession) {
         this.gameSession = gameSession;
     }
-    
+
 }

@@ -1,9 +1,11 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
+import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GamePostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import org.mapstruct.*;
@@ -42,4 +44,11 @@ public interface DTOMapper {
   @Mapping(source = "status", target = "status")
   @Mapping(source = "admin", target = "admin")
   GameGetDTO convertEntityToGameGetDTO(Game game);
+
+  @Mapping(source = "content", target = "content")
+  TextPrompt convertTextPromptDTOtoEntity(TextPromptDTO textPromptDTO);
+
+  @Mapping(source = "content", target = "content")
+  TextPromptDTO convertEntityToTextPromptDTO(TextPrompt textPrompt);
+
 }
