@@ -30,8 +30,8 @@ public class GameController {
   @ResponseBody
   public Game createRoom(@RequestBody UserPostDTO userPostDTO) {
     User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
-    Game newRoom = gameService.createGame(userInput);
-    return newRoom;
+    Game newGame = gameService.createGame(userInput);
+    return newGame;
   }
 
   // Post Mapping to get the text prompt from the user 
