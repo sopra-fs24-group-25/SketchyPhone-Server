@@ -10,7 +10,6 @@ import ch.uzh.ifi.hase.soprafs24.repository.TextPromptRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +19,12 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameResponse;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 
 @Service
@@ -32,6 +34,7 @@ public class GameService {
     private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final GameRepository gameRepository;
     private final UserService userService;
+    private static final Set<Long> generatedPins = new HashSet<>();
     
     @Autowired
     public GameService(GameRepository gameRepository, UserService userService) {
@@ -43,14 +46,35 @@ public class GameService {
         return this.gameRepository.findAll();
     }
 
+    // function to generate unique game pin
+    public long generateGamePin() {
+        final long MIN_PIN = 100000L;
+        final long MAX_PIN = 999999L;
+        SecureRandom secureRandom = new SecureRandom();
+        long pin;
+        do {
+            pin = MIN_PIN + secureRandom.nextLong() % (MAX_PIN - MIN_PIN + 1);
+        } while (!generatedPins.add(pin));
+        return pin;
+    }
+
     public Game createGame(User admin) {
         User savedUser = userService.createUser(admin);
 
         Game newGame = new Game();
+        // redundant code since userService.createUser already checks whether the name is passed or not
+        // should think about why a room creation should fail
         if (admin.getName() == null) {
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Game Room couldn't be created.");
         }
+        // assign unique gamePin to game room        
+        long gamePin = generateGamePin();
+        newGame.setGamePin(gamePin); 
+
+        // set the admin to the admin's ID so the info can be pulled from the userRepository
+        
         newGame.setAdmin(savedUser.getId());
+        
         newGame.setToken(UUID.randomUUID().toString());
         //creates list and adds it to the gameroom
         List<User> users = new ArrayList<>();
