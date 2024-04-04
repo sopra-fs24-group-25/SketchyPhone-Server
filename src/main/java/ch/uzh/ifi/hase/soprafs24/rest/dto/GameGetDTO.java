@@ -1,20 +1,18 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-
 public class GameGetDTO {
 
-  private Long id;
+  private Long gameId;
   private String status;
   private Long admin;
   private Long gamePin;
 
-  public Long getId() {
-    return id;
+  public Long getGameId() {
+    return gameId;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public void setGameId(Long gameId) {
+    this.gameId = gameId;
   }
 
   public Long getGamePin() {
