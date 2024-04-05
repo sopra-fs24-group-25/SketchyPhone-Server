@@ -1,7 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
+import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
@@ -53,6 +56,25 @@ public class GameController {
     
     gameService.createTextPrompt(gamesessionId, userId, textPrompt);
 
+  }
+
+  // Get Mapping to get the current settings
+  @GetMapping("/gameRooms/{gameRoomId}/settings")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public GameSettings getGameSettings(@PathVariable Long gameRoomId) {
+    
+    return gameService.getGameSettings(gameRoomId);
+  }
+
+  // Put Mapping to update current settings
+  @PutMapping("/gameRooms/{gameRoomId}/settings")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public Game updateGameSettings(@PathVariable Long gameRoomId, @RequestBody GameSettingsPostDTO gameSettingsPostDTO) { 
+    GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsPostDTOtoEntity(gameSettingsPostDTO);
+
+    return gameService.updateGameSettings(gameRoomId, gameSettings);
   }
 
 }

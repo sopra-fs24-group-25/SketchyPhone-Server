@@ -40,6 +40,9 @@ public class Game implements Serializable{
     @Column(nullable = false)
     private Long admin;
 
+    @Column(nullable = false)
+    private Long gameSettingsId;
+
 
     public void setGameSessions(List<GameSession> gameSessions) {
         this.gameSessions = gameSessions;}
@@ -103,6 +106,14 @@ public class Game implements Serializable{
 
     public void setUsers(List<User> users) {
     this.users = users;
+    }
+
+    public Long getGameSettingsId() {
+    return gameSettingsId;
+    }
+
+    public void setGameSettingsId(Long gameSettingsId) {
+    this.gameSettingsId = gameSettingsId;
     }
 
 }

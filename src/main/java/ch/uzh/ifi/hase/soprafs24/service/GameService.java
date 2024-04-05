@@ -2,10 +2,12 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
+import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.GameSessionRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.GameSettingsRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.TextPromptRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
@@ -32,10 +34,12 @@ public class GameService {
     
     private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final GameRepository gameRepository;
+    private final GameSettingsRepository gameSettingsRepository;
     private final UserService userService;
     private static final Set<Long> generatedPins = new HashSet<>();
     
-    public GameService(GameRepository gameRepository, UserService userService) {
+    public GameService(GameRepository gameRepository, UserService userService, GameSettingsRepository gameSettingsRepository) {
+        this.gameSettingsRepository = gameSettingsRepository;
         this.gameRepository = gameRepository;
         this.userService = userService;
       }
@@ -84,11 +88,20 @@ public class GameService {
 
         //sets the game room status
         newGame.setStatus(GameStatus.OPEN);
+
+        // create game settings with some standard values
+        GameSettings gameSettings = new GameSettings();
+        gameSettings.setGameSpeed(40);
+        gameSettings.setNumCycles(4);
+        gameSettings.setEnableTextToSpeech(false);
+        gameSettingsRepository.save(gameSettings);
+        gameSettingsRepository.flush();
+        newGame.setGameSettingsId(gameSettings.getGameSettingsId());
         
         // saves the given entity but data is only persisted in the database once
         // flush() is called
         newGame = gameRepository.save(newGame);
-        gameRepository.flush();
+        gameRepository.flush();        
     
         log.debug("Created Information for Game Room: {}", newGame);
     
@@ -133,6 +146,22 @@ public class GameService {
         }
 
         return gameRoom.getUsers();
+    }
+
+    public GameSettings getGameSettings(Long gameRoomId){
+        Game game = gameRepository.findByGameId(gameRoomId);
+        Long gameSettingsId = game.getGameSettingsId();
+        return gameSettingsRepository.findByGameSettingsId(gameSettingsId);
+    }
+
+    public Game updateGameSettings(Long gameRoomId, GameSettings gameSettings){
+        Game game = gameRepository.findByGameId(gameRoomId);
+        GameSettings oldSettings = gameSettingsRepository.findByGameSettingsId(game.getGameSettingsId());
+        oldSettings.setEnableTextToSpeech(gameSettings.getEnableTextToSpeech());
+        oldSettings.setGameSpeed(gameSettings.getGameSpeed());
+        oldSettings.setNumCycles(gameSettings.getNumCycles());
+
+        return game;
     }
         
 
