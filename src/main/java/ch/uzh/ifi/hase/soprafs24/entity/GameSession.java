@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import java.util.List;
 
 @Entity
@@ -26,6 +27,13 @@ public class GameSession implements Serializable{
 
     @Column(nullable = false)
     private String token;
+
+    @Column(nullable = false)
+    private String message;
+
+    @Column(nullable = false)
+    private GameStatus status;
+
 
     public Game getGame() {
         return game;
@@ -57,5 +65,21 @@ public class GameSession implements Serializable{
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public GameStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(GameStatus status) {
+        this.status = status;
     }
 }

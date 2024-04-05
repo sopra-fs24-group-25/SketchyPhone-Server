@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
+// successfully tested endpoint with Postman
+
 public class UserPostDTO {
 
   private String name;
