@@ -26,7 +26,7 @@ public class UserController {
   UserController(UserService userService) {
     this.userService = userService;
   }
-
+  // Get Mapping to get a list of all users  
   @GetMapping("/users")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
@@ -42,6 +42,7 @@ public class UserController {
     return userGetDTOs;
   }
 
+  // Post Mapping to create a user - when testing with Postman, the body should be a JSON object with the key "username" and 'name' as the value
   @PostMapping("/users")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody

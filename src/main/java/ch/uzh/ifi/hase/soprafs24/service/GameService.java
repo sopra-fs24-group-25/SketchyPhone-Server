@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
@@ -18,7 +19,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 
 import java.util.List;
 import java.util.Set;
@@ -37,6 +45,13 @@ public class GameService {
     private final GameRepository gameRepository;
     private final UserService userService;
     private static final Set<Long> generatedPins = new HashSet<>();
+    
+    @Autowired
+    private GameSessionRepository gameSessionRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private TextPromptRepository textPromptRepository;
     
     public GameService(GameRepository gameRepository, UserService userService, GameSettingsRepository gameSettingsRepository) {
         this.gameSettingsRepository = gameSettingsRepository;
@@ -64,6 +79,7 @@ public class GameService {
         User savedUser = userService.createUser(admin);
 
         Game newGame = new Game();
+
         // redundant code since userService.createUser already checks whether the name is passed or not
         // should think about why a room creation should fail
         if (admin.getName() == null) {
@@ -88,7 +104,7 @@ public class GameService {
 
         //sets the game room status
         newGame.setStatus(GameStatus.OPEN);
-        
+
         // create game settings with some standard values
         GameSettings gameSettings = new GameSettings();
         gameSettings.setGameSpeed(40);
@@ -97,6 +113,39 @@ public class GameService {
         gameSettingsRepository.save(gameSettings);
         gameSettingsRepository.flush();
         newGame.setGameSettingsId(gameSettings.getGameSettingsId());
+
+        //Gamesession 
+        // Create a new GameGetDTO instance
+        GameGetDTO game = new GameGetDTO();
+
+        // Set the other fields of game...
+
+        // Create a list of GameSessionGetDTO instances
+        List<GameSessionGetDTO> gameSessions = new ArrayList<>();
+
+        // Populate the list with GameSessionGetDTO instances
+        // For example:
+        GameSessionGetDTO session = new GameSessionGetDTO();
+        session.setStatus(GameStatus.OPEN);
+        session.setGameSessionId(1L);
+        session.setToken("session-pin-here");
+        gameSessions.add(session);
+
+        // Set the gameSessions field of game
+        game.setGameSessions(gameSessions);
+        // Convert game to JSON
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(game);
+        } catch (JsonProcessingException e) {
+            // Handle JSON processing exception
+            e.printStackTrace();
+            json = ""; // or some default value
+        }
+
+        // Now json contains the JSON representation of the game object
+        System.out.println(json); 
 
         // saves the given entity but data is only persisted in the database once
         // flush() is called
@@ -107,26 +156,74 @@ public class GameService {
     
         return newGame;
       }
+    
+    @Transactional
+    public GameSession createGameSession(Long gameId, GameSession gameSession) {
+        // Find the game by ID
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> 
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found"));
+    
+        // Set the game in the gameSession entity
+        gameSession.setGame(game);
 
+        GameSession savedGameSession = gameSessionRepository.save(gameSession);
+        game.getGameSessions().add(savedGameSession);
+        gameRepository.save(game);
+    
+        return savedGameSession;
+    }
 
-    public GameSessionDTO joinGame(Long submittePin) {
-        Game game = gameRepository.findByGamePin(submittePin);
+    @Transactional(readOnly = true)
+    public List<GameSession> getGameSessionsByGameId(Long gameId) {
+        // Find the game by its ID to ensure it exists
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found"));
+
+        // Return the game sessions associated with the game
+        return gameSessionRepository.findByGame_GameId(gameId);
+    }
+      
+
+    @Transactional
+    public GameSessionDTO joinGame(Long submittedPin, User user) {
+        Game game = gameRepository.findByGamePin(submittedPin);
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
+    
+        // If the game is CLOSED or IN_PLAY, return an informative message
+        if (game.getStatus() == GameStatus.CLOSED) {
+            return new GameSessionDTO(GameStatus.CLOSED);
+        } else if (game.getStatus() == GameStatus.IN_PLAY) {
+            return new GameSessionDTO(GameStatus.IN_PLAY);
+        }
+    
+        // If the game is OPEN, continue with the logic to add a user to the game
+        if (game.getStatus() == GameStatus.OPEN) {
+            // Logic to find or save the user
+            User managedUser = userRepository.findByUsername(user.getUsername());
+            if (managedUser == null) {
+                // If not found, generate a token, set status, and save the user
+                user.setToken(UUID.randomUUID().toString());
+                user.setStatus(UserStatus.OFFLINE);
+                managedUser = userRepository.save(user);
+            }
 
-        switch (game.getStatus()) {
-            case IN_PLAY:
-                return new GameSessionDTO(GameStatus.IN_PLAY, "The game is currently in play");
-            case OPEN:
-                return new GameSessionDTO(GameStatus.OPEN, "The game is currently open");
-            case CLOSED:
-                return new GameSessionDTO(GameStatus.CLOSED, "The game is currently closed");
-            default:
-                throw new IllegalStateException("Unhandled game status: " + game.getStatus());
+            // Make sure managedUser is not null before proceeding
+            final User finalManagedUser = managedUser;
+            boolean userAlreadyInGame = game.getUsers().stream()
+                .anyMatch(existingUser -> existingUser.getUsername().equals(finalManagedUser.getUsername()));
+            gameRepository.save(game);
+            
+            // Return a successful join message
+            return new GameSessionDTO(GameStatus.OPEN);
+        } else {
+            // Handle any other unexpected statuses
+            throw new IllegalStateException("Unhandled game status: " + game.getStatus());
         }
     }
-
+      
+        
     public Game getGameByGamePIN(Long gamePin) {
         return gameRepository.findByGamePin(gamePin);
     }
@@ -134,7 +231,6 @@ public class GameService {
     public void deleteGame(Long gamePin) {
         Game game = getGameByGamePIN(gamePin);
         gameRepository.delete(game);
-
     }
 
     public List<User> getGameRoomUsers(Long gameId){
@@ -162,14 +258,6 @@ public class GameService {
 
         return game;
     }
-        
-
-    @Autowired
-    private GameSessionRepository gameSessionRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private TextPromptRepository textPromptRepository;
 
 
     public TextPrompt createTextPrompt(Long gameSessionId, Long userId, String textPromptContent) {
@@ -202,5 +290,6 @@ public class GameService {
         textPromptRepository.deleteByGameSession_GameSessionId(gameSessionId);
         
     }
+    
 
 }

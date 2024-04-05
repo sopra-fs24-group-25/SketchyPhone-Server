@@ -39,7 +39,7 @@ public class User implements Serializable {
   private String token;
 
   @Column(nullable = false)
-  private UserStatus status;
+  private UserStatus status = UserStatus.OFFLINE; // Default value
 
   @ManyToOne(fetch = FetchType.EAGER)
   private Game gameRoom;

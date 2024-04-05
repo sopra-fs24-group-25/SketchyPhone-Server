@@ -53,7 +53,8 @@ public class GameSettings implements Serializable {
   }
 
   public void setNumCycles(int numCycles){
-    this.numCycles = numCycles;
+    // Ensure numCycles is at least 1
+    this.numCycles = Math.max(numCycles,1);
   }
 
   public Boolean getEnableTextToSpeech(){

@@ -12,6 +12,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionGetDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -49,15 +50,21 @@ public interface DTOMapper {
   @Mapping(source = "status", target = "status")
   @Mapping(source = "admin", target = "admin")
   @Mapping(source = "gamePin", target = "gamePin")
+  @Mapping(source = "gameSessions", target = "gameSessions")
   GameGetDTO convertEntityToGameGetDTO(Game game);
 
   @Mapping(source = "status", target = "status")
-  @Mapping(source = "message", target = "message")
+  @Mapping(source = "gameSessionId", target = "gameSessionId")
   GameSessionDTO gameSessionToGameSessionDTO(GameSession gameSession);
 
   @Mapping(source = "status", target = "status")
-  @Mapping(source = "message", target = "message")
+  @Mapping(source = "gameSessionId", target = "gameSessionId")
   GameSession gameSessionDTOToGameSession(GameSessionDTO dto);
+
+  @Mapping(source = "status", target = "status")
+  @Mapping(source = "gameSessionId", target = "gameSessionId")
+  @Mapping(source = "token", target = "token")
+  GameSessionGetDTO gameSessionToGameSessionGetDTO(GameSession gameSession);
 
   @Mapping(source = "content", target = "content")
   @Mapping(source = "gameSession", target = "gameSession")

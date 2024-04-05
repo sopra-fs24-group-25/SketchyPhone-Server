@@ -29,11 +29,7 @@ public class GameSession implements Serializable{
     private String token;
 
     @Column(nullable = false)
-    private String message;
-
-    @Column(nullable = false)
-    private GameStatus status;
-
+    private GameStatus status;  
 
     public Game getGame() {
         return game;
@@ -47,16 +43,16 @@ public class GameSession implements Serializable{
         return gameSessionId;
     }
 
-    public void setGameSessionId(Long gameSessionId) {
-        this.gameSessionId = gameSessionId;
+    public void setGameSessionId(Long id) {
+        this.gameSessionId = id;
     }
 
     public LocalDate getCreationDate() {
-    return creationDate;
+        return creationDate;
     }
 
     public void setCreationDate(LocalDate creationDate) {
-    this.creationDate = creationDate;
+        this.creationDate = creationDate;
     }
 
     public String getToken() {
@@ -65,14 +61,6 @@ public class GameSession implements Serializable{
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public GameStatus getStatus() {
