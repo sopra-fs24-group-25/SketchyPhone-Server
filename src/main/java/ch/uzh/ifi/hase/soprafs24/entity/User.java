@@ -41,8 +41,7 @@ public class User implements Serializable {
   @Column(nullable = false)
   private UserStatus status;
 
-  @ManyToOne
-  @JoinColumn(name = "game_room_id")
+  @ManyToOne(fetch = FetchType.EAGER)
   private Game gameRoom;
 
   public Long getId() {

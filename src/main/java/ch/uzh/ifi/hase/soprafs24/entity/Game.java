@@ -20,21 +20,22 @@ public class Game implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long gameId;
 
     @Column(unique = true, nullable = false)
     private Long gamePin;
 
     @Column(nullable = true)
-    private LocalDate creationDate;
+    private LocalDate gameCreationDate;
 
     @Column(nullable = false)
-    private String token;
+    private String gameToken;
 
     @Column(nullable = false)
     private GameStatus status; // State of the game: OPEN, IN-PLAY, CLOSED
 
-    @OneToMany(mappedBy = "gameRoom")
+    @OneToMany()
+    @JoinColumn(name = "GAME_ID", referencedColumnName = "gameId")
     private List<User> users;
     
     @Column(nullable = false)
@@ -56,28 +57,29 @@ public class Game implements Serializable{
         return gameSessions;
     }
 
-    public Long getId() {
-        return id;
+    public Long getGameId() {
+        return gameId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setGameId(Long gameId) {
+        this.gameId = gameId;
     }
 
-    public LocalDate getCreationDate() {
-    return creationDate;
+    public LocalDate getGameCreationDate() {
+        return gameCreationDate;
     }
 
-    public void setCreationDate(LocalDate creationDate) {
-    this.creationDate = creationDate;
+    public void setGameCreationDate(LocalDate gameCreationDate) {
+        this.gameCreationDate = gameCreationDate;
     }
 
-    public String getToken() {
-        return token;
+    public String getGameToken() {
+        return gameToken;
+
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setGameToken(String gameToken) {
+        this.gameToken = gameToken;
     }
 
     public GameStatus getStatus() {

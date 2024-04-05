@@ -8,6 +8,8 @@ import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * User Controller
  * This class is responsible for handling all REST request that are related to
@@ -33,6 +35,15 @@ public class GameController {
     Game newGame = gameService.createGame(userInput);
     return newGame;
   }
+
+   // Get Mapping to get a list of all users in a game room
+   @GetMapping("/gameRooms/{gameRoomId}/users")
+   @ResponseStatus(HttpStatus.OK)
+   @ResponseBody
+   public List<User> getGameRoomUsers(@PathVariable Long gameRoomId) {
+ 
+     return gameService.getGameRoomUsers(gameRoomId);
+   }
 
   // Post Mapping to get the text prompt from the user 
   @PostMapping("/gameRooms/{gameId}/textPrompt")
