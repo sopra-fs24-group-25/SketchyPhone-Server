@@ -36,14 +36,14 @@ public class GameController {
     return newGame;
   }
 
-   // Get Mapping to get a list of all users in a game room
-   @GetMapping("/gameRooms/{gameRoomId}/users")
-   @ResponseStatus(HttpStatus.OK)
-   @ResponseBody
-   public List<User> getGameRoomUsers(@PathVariable Long gameRoomId) {
- 
-     return gameService.getGameRoomUsers(gameRoomId);
-   }
+  // Get Mapping to get a list of all users in a game room
+  @GetMapping("/gameRooms/{gameRoomId}/users")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public List<User> getGameRoomUsers(@PathVariable Long gameRoomId) {
+    
+    return gameService.getGameRoomUsers(gameRoomId);
+  }
 
   // Post Mapping to get the text prompt from the user 
   @PostMapping("/gameRooms/{gameId}/textPrompt")
