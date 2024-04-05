@@ -71,12 +71,6 @@ public class Game implements Serializable{
     public void setGameCreationDate(LocalDate gameCreationDate) {
         this.gameCreationDate = gameCreationDate;
 
-        return gameCreationDate;
-    }
-
-    public void setGameCreationDate(LocalDate gameCreationDate) {
-        this.gameCreationDate = gameCreationDate;
-
     }
 
     public String getGameToken() {
