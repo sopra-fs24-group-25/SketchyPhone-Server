@@ -5,13 +5,12 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "TextPrompt")
-public class TextPrompt implements Serializable{
+public class TextPrompt implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    // TextPrompt extends the user entity
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long textPromptId;
+    private Long textPromptId; // Corrected variable name
 
     @Column(nullable = false)
     private String content;
@@ -55,5 +54,4 @@ public class TextPrompt implements Serializable{
     public void setGameSession(GameSession gameSession) {
         this.gameSession = gameSession;
     }
-
 }

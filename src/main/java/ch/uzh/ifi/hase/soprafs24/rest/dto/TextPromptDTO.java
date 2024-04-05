@@ -1,32 +1,35 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
+import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
+
 public class TextPromptDTO {
-    private Long userId;
-    private Long gameSessionId;
+    private User creator;
+    private GameSession gameSession;
     private String content;
 
     public TextPromptDTO() {}
 
-    public TextPromptDTO(Long userId, String content) {
-        this.userId = userId;
+    public TextPromptDTO(User creator, String content) {
+        this.creator = creator;
         this.content = content;
     }
 
     // Getters and Setters
-    public Long getUserId() {
-        return userId;
+    public User getcreator() {
+        return creator;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setcreator(User creator) {
+        this.creator = creator;
     }
 
-    public Long getGameSessionId() {
-        return gameSessionId;
+    public GameSession getGameSession() {
+        return gameSession;
     }
 
-    public void setGameSessionId(Long gameSessionId) {
-        this.gameSessionId = gameSessionId;
+    public void setGameSession(GameSession gameSession) {
+        this.gameSession = gameSession;
     }
     
     public String getContent() {

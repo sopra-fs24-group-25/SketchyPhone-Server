@@ -5,6 +5,9 @@ import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsPostDTO;
+import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
+
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
@@ -49,14 +52,13 @@ public class GameController {
   }
 
   // Post Mapping to get the text prompt from the user 
-  @PostMapping("/gameRooms/{gameId}/textPrompt")
+  @PostMapping("/gameRooms/{gameSessionId}/{userId}/textPrompt")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public void createTextPrompt(@PathVariable Long gamesessionId, @PathVariable Long userId, @RequestBody String textPrompt) {
-    
-    gameService.createTextPrompt(gamesessionId, userId, textPrompt);
-
-  }
+  public TextPromptDTO createTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestBody TextPromptDTO textPromptDTO) {
+    TextPrompt newTextPrompt = gameService.createTextPrompt(gameSessionId, userId, textPromptDTO.getContent());
+    return DTOMapper.INSTANCE.convertEntityToTextPromptDTO(newTextPrompt);
+    }
 
   // Get Mapping to get the current settings
   @GetMapping("/gameRooms/{gameRoomId}/settings")
