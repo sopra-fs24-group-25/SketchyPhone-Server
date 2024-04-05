@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Internal User Representation
@@ -20,6 +21,9 @@ import java.io.Serializable;
 public class User implements Serializable {
 
   private static final long serialVersionUID = 1L;
+
+  @OneToMany(mappedBy = "creator")
+  private List<TextPrompt> textPrompts;
 
   @Id
   @GeneratedValue

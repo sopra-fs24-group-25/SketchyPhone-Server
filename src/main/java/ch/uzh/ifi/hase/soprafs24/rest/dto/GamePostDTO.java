@@ -21,4 +21,5 @@ public class GamePostDTO {
   public void setGamePin(Long gamePin) {
     this.gamePin = gamePin;
   }
+  
 }
