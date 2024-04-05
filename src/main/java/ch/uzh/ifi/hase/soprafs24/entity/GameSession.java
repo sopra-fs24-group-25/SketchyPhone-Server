@@ -19,7 +19,7 @@ public class GameSession implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long gameSessionId;
 
     @Column(nullable = true, unique = true)
     private LocalDate creationDate;
@@ -35,12 +35,12 @@ public class GameSession implements Serializable{
         this.game = game;
     }
 
-    public Long getId() {
-        return id;
+    public Long getGameSessionId() {
+        return gameSessionId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setGameSessionId(Long gameSessionId) {
+        this.gameSessionId = gameSessionId;
     }
 
     public LocalDate getCreationDate() {

@@ -11,7 +11,7 @@ public class TextPrompt implements Serializable{
     // TextPrompt extends the user entity
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long textPromptId;
 
     @Column(nullable = false)
     private String content;
@@ -24,12 +24,12 @@ public class TextPrompt implements Serializable{
     @JoinColumn(name = "gameId")
     private GameSession gameSession;
 
-    public Long getId() {
-        return id;
+    public Long getTextPromptId() {
+        return textPromptId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setTextPromptId(Long textPromptId) {
+        this.textPromptId = textPromptId;
     }
 
     public String getContent() {

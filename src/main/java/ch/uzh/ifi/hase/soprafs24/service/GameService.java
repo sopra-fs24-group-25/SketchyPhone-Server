@@ -145,7 +145,7 @@ public class GameService {
 
 
     public void createTextPrompt(Long gameSessionId, Long userId, String textPromptContent) {
-        GameSession gameSession = gameSessionRepository.findById(gameSessionId)
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "GameSession not found"));
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
@@ -159,11 +159,11 @@ public class GameService {
 
     public void endGameSessionAndDeleteTextPrompts(Long gameSessionId) {
         // Check if the game session exists and whether it can be ended
-        gameSessionRepository.findById(gameSessionId)
+        gameSessionRepository.findByGameSessionId(gameSessionId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Game session not found"));
 
         // Delete text prompts related to the game session
-        textPromptRepository.deleteByGameSessionId(gameSessionId);
+        textPromptRepository.deleteByGameSession_GameSessionId(gameSessionId);
         
     }
 
