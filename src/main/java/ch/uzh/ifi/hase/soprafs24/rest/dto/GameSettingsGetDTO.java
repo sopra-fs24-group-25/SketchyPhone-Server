@@ -7,36 +7,36 @@ public class GameSettingsGetDTO {
   private int numCycles;
   private Boolean enableTextToSpeech;
 
-
-  public Long getGameSettingsId() {
+  public Long getGameSettingsId(){
     return gameSettingsId;
   }
 
-  public void setGameSettingsid(Long gameSettingsid) {
-    this.gameSettingsId = gameSettingsid;
+  public void setGameSettingsId(Long gameSettingsId){
+    this.gameSettingsId = gameSettingsId;
   }
 
-  public int getGameSpeed() {
+  public int getGameSpeed(){
     return gameSpeed;
   }
 
-  public void setGameSpeed(int gameSpeed) {
+  public void setGameSpeed(int gameSpeed){
     this.gameSpeed = gameSpeed;
   }
 
-  public int getNumCycles() {
+  public int getNumCycles(){
     return numCycles;
   }
 
-  public void setNumCycles(int numCycles) {
+  public void setNumCycles(int numCycles){
     this.numCycles = numCycles;
   }
 
-  public Boolean getEnableTextToSpeech() {
+  public Boolean getEnableTextToSpeech(){
     return enableTextToSpeech;
   }
 
-  public void setEnableTextToSpeech(Boolean enableTextToSpeech) {
+  public void setEnableTextToSpeech(Boolean enableTextToSpeech){
     this.enableTextToSpeech = enableTextToSpeech;
   }
+
 }
