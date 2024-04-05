@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.GameResponse;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
 
 import java.util.List;
 import java.util.Set;
@@ -96,23 +96,22 @@ public class GameService {
       }
 
 
-    public GameResponse joinGame(Long submittePin) {
+    public GameSessionDTO joinGame(Long submittePin) {
         Game game = gameRepository.findByGamePin(submittePin);
         if (game == null) {
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
-        }
-        
-        switch (game.getStatus()) {
-        case IN_PLAY:
-            return new GameResponse(GameStatus.IN_PLAY, "The game is currently in play");
-        case OPEN:
-            return new GameResponse(GameStatus.OPEN, "The game is currently open");
-        case CLOSED:
-            return new GameResponse(GameStatus.CLOSED, "The game is currently closed");
-        default:
-            throw new IllegalStateException("Unhandled game status: " + game.getStatus());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
 
+        switch (game.getStatus()) {
+            case IN_PLAY:
+                return new GameSessionDTO(GameStatus.IN_PLAY, "The game is currently in play");
+            case OPEN:
+                return new GameSessionDTO(GameStatus.OPEN, "The game is currently open");
+            case CLOSED:
+                return new GameSessionDTO(GameStatus.CLOSED, "The game is currently closed");
+            default:
+                throw new IllegalStateException("Unhandled game status: " + game.getStatus());
+        }
     }
 
     public Game getGameByGamePIN(Long gamePin) {
@@ -144,7 +143,7 @@ public class GameService {
     private TextPromptRepository textPromptRepository;
 
 
-    public void createTextPrompt(Long gameSessionId, Long userId, String textPromptContent) {
+    public TextPrompt createTextPrompt(Long gameSessionId, Long userId, String textPromptContent) {
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "GameSession not found"));
         User user = userRepository.findById(userId)
@@ -154,7 +153,15 @@ public class GameService {
         text.setContent(textPromptContent);
         text.setGameSession(gameSession);
         text.setCreator(user);
-        textPromptRepository.save(text);
+        return textPromptRepository.save(text);
+    }
+
+    public List<TextPrompt> getTextPrompts(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        return textPromptRepository.findByCreatorId(user.getId());
+
     }
 
     public void endGameSessionAndDeleteTextPrompts(Long gameSessionId) {

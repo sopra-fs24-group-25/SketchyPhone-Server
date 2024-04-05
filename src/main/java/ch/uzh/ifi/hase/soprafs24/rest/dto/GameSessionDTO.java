@@ -1,12 +1,17 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
+// gamesession 
 
-public class GameResponse {
+public class GameSessionDTO {
     private GameStatus status;
     private String message;
 
-    public GameResponse(GameStatus status, String message) {
+    public GameSessionDTO() {
+        // Empty constructor
+    }
+
+    public GameSessionDTO(GameStatus status, String message) {
         this.status = status;
         this.message = message;
     }
@@ -21,19 +26,12 @@ public class GameResponse {
     }
 
     // Setters
-    public void setStatus(GameStatus status) {
-        this.status = status;
-    }
 
     public void setMessage(String message) {
         this.message = message;
     }
 
-    @Override
-    public String toString() {
-        return "GameSessionResponse{" +
-               "status='" + status + '\'' +
-               ", message='" + message + '\'' +
-               '}';
+    public void setStatus(GameStatus status) {
+        this.status = status;
     }
 }
