@@ -4,7 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
@@ -71,8 +71,8 @@ public class GameController {
   @PutMapping("/gameRooms/{gameRoomId}/settings")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public Game updateGameSettings(@PathVariable Long gameRoomId, @RequestBody GameSettingsPostDTO gameSettingsPostDTO) { 
-    GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsPostDTOtoEntity(gameSettingsPostDTO);
+  public Game updateGameSettings(@PathVariable Long gameRoomId, @RequestBody GameSettingsDTO gameSettingsDTO) { 
+    GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsDTOtoEntity(gameSettingsDTO);
 
     return gameService.updateGameSettings(gameRoomId, gameSettings);
   }

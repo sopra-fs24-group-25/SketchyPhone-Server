@@ -1,6 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
-public class GameSettingsPostDTO {
+public class GameSettingsDTO {
 
   private Long gameSettingsId;
   private int gameSpeed;
@@ -11,7 +11,7 @@ public class GameSettingsPostDTO {
     return gameSettingsId;
   }
 
-  public void setGameSettingsid(Long gameSettingsId){
+  public void setGameSettingsId(Long gameSettingsId){
     this.gameSettingsId = gameSettingsId;
   }
 
@@ -38,4 +38,5 @@ public class GameSettingsPostDTO {
   public void setEnableTextToSpeech(Boolean enableTextToSpeech){
     this.enableTextToSpeech = enableTextToSpeech;
   }
+
 }
