@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
+import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
@@ -10,6 +11,9 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsPostDTO;
+
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -66,5 +70,15 @@ public interface DTOMapper {
   @Mapping(source = "gameSession", target = "gameSession")
   @Mapping(source = "creator", target = "creator")
   TextPromptDTO convertEntityToTextPromptDTO(TextPrompt textPrompt);
+
+  @Mapping(source = "gameSpeed", target = "gameSpeed")
+  @Mapping(source = "numCycles", target = "numCycles")
+  @Mapping(source = "enableTextToSpeech", target = "enableTextToSpeech")
+  GameSettings convertGameSettingsPostDTOtoEntity(GameSettingsPostDTO GameSettingsPostDTO);
+
+  @Mapping(source = "gameSpeed", target = "gameSpeed")
+  @Mapping(source = "numCycles", target = "numCycles")
+  @Mapping(source = "enableTextToSpeech", target = "enableTextToSpeech")
+  GameSettingsGetDTO convertEntityToGameSettingsGetDTO(GameSettings gameSettings);
 
 }

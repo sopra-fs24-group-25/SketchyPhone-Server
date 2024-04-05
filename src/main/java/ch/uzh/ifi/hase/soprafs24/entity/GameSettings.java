@@ -20,7 +20,7 @@ public class GameSettings implements Serializable {
   private static final long serialVersionUID = 1L;
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long gameSettingsId;
 
   @Column(nullable = false)
@@ -31,10 +31,6 @@ public class GameSettings implements Serializable {
 
   @Column(nullable = false)
   private Boolean enableTextToSpeech;
-
-  @OneToOne
-  @JoinColumn(name = "game_room_id")
-  private Game gameRoom;
 
   public Long getGameSettingsId() {
     return gameSettingsId;
@@ -56,7 +52,7 @@ public class GameSettings implements Serializable {
     return numCycles;
   }
 
-  public void setUsername(int numCycles) {
+  public void setNumCycles(int numCycles) {
     this.numCycles = numCycles;
   }
 
@@ -64,7 +60,7 @@ public class GameSettings implements Serializable {
     return enableTextToSpeech;
   }
 
-  public void setToken(Boolean enableTextToSpeech) {
+  public void setEnableTextToSpeech(Boolean enableTextToSpeech) {
     this.enableTextToSpeech = enableTextToSpeech;
   }
 }
