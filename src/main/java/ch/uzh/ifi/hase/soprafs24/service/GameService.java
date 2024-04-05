@@ -1,8 +1,14 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
+import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
+import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.GameSessionRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.TextPromptRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
@@ -29,7 +35,6 @@ public class GameService {
     private final UserService userService;
     private static final Set<Long> generatedPins = new HashSet<>();
     
-    @Autowired
     public GameService(GameRepository gameRepository, UserService userService) {
         this.gameRepository = gameRepository;
         this.userService = userService;
@@ -128,7 +133,36 @@ public class GameService {
         }
 
         return gameRoom.getUsers();
+    }
         
+
+    @Autowired
+    private GameSessionRepository gameSessionRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private TextPromptRepository textPromptRepository;
+
+
+    public void createTextPrompt(Long gameSessionId, Long userId, String textPromptContent) {
+        GameSession gameSession = gameSessionRepository.findById(gameSessionId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "GameSession not found"));
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        TextPrompt text = new TextPrompt();
+        text.setContent(textPromptContent);
+        text.setGameSession(gameSession);
+        text.setCreator(user);
+        textPromptRepository.save(text);
     }
 
-}
+    public void endGameSessionAndDeleteTextPrompts(Long gameSessionId) {
+        // Check if the game session exists and whether it can be ended
+        gameSessionRepository.findById(gameSessionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Game session not found"));
+
+        // Delete text prompts related to the game session
+        textPromptRepository.deleteByGameSessionId(gameSessionId);
+    }
+    }
