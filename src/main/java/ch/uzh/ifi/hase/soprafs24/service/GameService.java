@@ -42,11 +42,11 @@ public class GameService {
     // function to generate unique game pin
     public long generateGamePin() {
         final long MIN_PIN = 100000L;
-        final long MAX_PIN = 999999L;
+        final long MAX_PIN = 900000L;
         SecureRandom secureRandom = new SecureRandom();
         long pin;
         do {
-            pin = MIN_PIN + secureRandom.nextLong() % (MAX_PIN - MIN_PIN + 1);
+            pin = MIN_PIN + secureRandom.nextLong(MAX_PIN) + 100000L;
         } while (!generatedPins.add(pin));
         return pin;
     }
@@ -67,7 +67,7 @@ public class GameService {
         // set the admin to the admin's ID so the info can be pulled from the userRepository
         newGame.setAdmin(savedUser.getId());
 
-        newGame.setToken(UUID.randomUUID().toString());
+        newGame.setGameToken(UUID.randomUUID().toString());
         //creates list and adds it to the gameroom
         List<User> users = new ArrayList<>();
         users.add(savedUser);
@@ -75,7 +75,7 @@ public class GameService {
 
         // gets the current date and sets it in the gameroom
         LocalDate today = LocalDate.now();
-        newGame.setCreationDate(today);
+        newGame.setGameCreationDate(today);
 
         //sets the game room status
         newGame.setStatus(GameStatus.OPEN);
@@ -118,6 +118,17 @@ public class GameService {
         Game game = getGameByGamePIN(gamePin);
         gameRepository.delete(game);
 
+    }
+
+    public List<User> getGameRoomUsers(Long gameId){
+        Game gameRoom = gameRepository.findByGameId(gameId);
+
+        if (gameRoom == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Room doesn't exist");
+        }
+
+        return gameRoom.getUsers();
+        
     }
 
 }

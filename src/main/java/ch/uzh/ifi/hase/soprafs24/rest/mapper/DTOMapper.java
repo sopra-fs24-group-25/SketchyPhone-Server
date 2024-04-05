@@ -39,7 +39,7 @@ public interface DTOMapper {
   @Mapping(source = "gamePin", target = "gamePin")
   Game convertGamePostDTOtoEntity(GamePostDTO GamePostDTO);
 
-  @Mapping(source = "id", target = "id")
+  @Mapping(source = "gameId", target = "gameId")
   @Mapping(source = "status", target = "status")
   @Mapping(source = "admin", target = "admin")
   @Mapping(source = "gamePin", target = "gamePin")
