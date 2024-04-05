@@ -40,6 +40,7 @@ public class Game implements Serializable{
     @Column(nullable = false)
     private Long admin;
 
+
     public void setGameSessions(List<GameSession> gameSessions) {
         this.gameSessions = gameSessions;}
     
@@ -69,6 +70,13 @@ public class Game implements Serializable{
 
     public void setGameCreationDate(LocalDate gameCreationDate) {
         this.gameCreationDate = gameCreationDate;
+
+        return gameCreationDate;
+    }
+
+    public void setGameCreationDate(LocalDate gameCreationDate) {
+        this.gameCreationDate = gameCreationDate;
+
     }
 
     public String getGameToken() {

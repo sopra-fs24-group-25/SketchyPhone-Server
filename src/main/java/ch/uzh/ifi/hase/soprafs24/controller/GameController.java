@@ -54,4 +54,5 @@ public class GameController {
     gameService.createTextPrompt(gamesessionId, userId, textPrompt);
 
   }
+
 }

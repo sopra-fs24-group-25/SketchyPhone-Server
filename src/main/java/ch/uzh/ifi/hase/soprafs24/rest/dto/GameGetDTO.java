@@ -1,7 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-
 public class GameGetDTO {
 
   private Long gameId;

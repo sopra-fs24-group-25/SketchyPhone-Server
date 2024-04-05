@@ -164,5 +164,7 @@ public class GameService {
 
         // Delete text prompts related to the game session
         textPromptRepository.deleteByGameSessionId(gameSessionId);
+        
     }
-    }
+
+}
