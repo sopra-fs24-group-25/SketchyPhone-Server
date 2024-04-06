@@ -11,5 +11,6 @@ public interface TextPromptRepository extends JpaRepository<TextPrompt, Long> {
     // Find all text prompts by a specific user
     List<TextPrompt> findByCreatorId(@Param("creatorId") Long creatorId);
 
-    void deleteByGameSession_GameSessionId(@Param("gameSessionId") Long gameSessionId);
+    // Delete all TextPrompts associated with a specific GameSession ID
+    void deleteByGameSession_GameSessionId (Long gameSessionId);
 }

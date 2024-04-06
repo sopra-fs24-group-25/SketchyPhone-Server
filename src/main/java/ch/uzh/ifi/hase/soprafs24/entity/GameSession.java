@@ -1,5 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
@@ -13,6 +16,7 @@ public class GameSession implements Serializable{
     // Game session extends the game entity
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")
+    @JsonBackReference
     private Game game;
 
     @OneToMany(mappedBy = "gameSession")
@@ -22,18 +26,14 @@ public class GameSession implements Serializable{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long gameSessionId;
 
-    @Column(nullable = true, unique = true)
+    @Column(nullable = false)
     private LocalDate creationDate;
 
     @Column(nullable = false)
     private String token;
 
     @Column(nullable = false)
-    private String message;
-
-    @Column(nullable = false)
-    private GameStatus status;
-
+    private GameStatus status;  
 
     public Game getGame() {
         return game;
@@ -47,16 +47,16 @@ public class GameSession implements Serializable{
         return gameSessionId;
     }
 
-    public void setGameSessionId(Long gameSessionId) {
-        this.gameSessionId = gameSessionId;
+    public void setGameSessionId(Long id) {
+        this.gameSessionId = id;
     }
 
     public LocalDate getCreationDate() {
-    return creationDate;
+        return creationDate;
     }
 
     public void setCreationDate(LocalDate creationDate) {
-    this.creationDate = creationDate;
+        this.creationDate = creationDate;
     }
 
     public String getToken() {
@@ -65,14 +65,6 @@ public class GameSession implements Serializable{
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public GameStatus getStatus() {
