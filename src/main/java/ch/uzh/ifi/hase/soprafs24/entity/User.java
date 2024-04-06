@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -32,17 +33,34 @@ public class User implements Serializable {
   @Column(nullable = false)
   private String name;
 
-  @Column(nullable = false, unique = true)
-  private String username;
-
-  @Column(nullable = false, unique = true)
-  private String token;
+  @Column(nullable = false)
+  private LocalDate creationDate;
 
   @Column(nullable = false)
   private UserStatus status = UserStatus.OFFLINE; // Default value
 
+  @Column(nullable = true)
+  private Boolean persistent;
+
+  @Column(nullable = true)
+  private String email;
+
+  @Column(nullable = true)
+  private String password;
+
+  @ManyToOne
+  private Avatar avatar;
+
+  @Column
+  private String role;
+
+  @Column(nullable = false, unique = true)
+  private String token;
+
   @ManyToOne(fetch = FetchType.EAGER)
   private Game gameRoom;
+
+  // getters and setters
 
   public Long getId() {
     return id;
@@ -60,12 +78,60 @@ public class User implements Serializable {
     this.name = name;
   }
 
-  public String getUsername() {
-    return username;
+  public LocalDate getCreationDate() {
+    return creationDate;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
+  public void setCreationDate(LocalDate creationDate) {
+    this.creationDate = creationDate;
+  }
+
+  public UserStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(UserStatus status) {
+    this.status = status;
+  }
+
+  public Boolean getPersistent() {
+    return persistent;
+  }
+
+  public void setPersistent(Boolean persistent) {
+    this.persistent = persistent;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public Avatar getAvatar() {
+    return avatar;
+  }
+
+  public void setAvatar(Avatar avatar) {
+    this.avatar = avatar;
+  }
+
+  public String getRole() {
+    return role;
+  }
+
+  public void setRole(String role) {
+    this.role = role;
   }
 
   public String getToken() {
@@ -76,11 +142,4 @@ public class User implements Serializable {
     this.token = token;
   }
 
-  public UserStatus getStatus() {
-    return status;
-  }
-
-  public void setStatus(UserStatus status) {
-    this.status = status;
-  }
 }

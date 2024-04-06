@@ -10,6 +10,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.time.LocalDate;
+
 @DataJpaTest
 public class UserRepositoryIntegrationTest {
 
@@ -24,7 +26,7 @@ public class UserRepositoryIntegrationTest {
     // given
     User user = new User();
     user.setName("Firstname Lastname");
-    user.setUsername("firstname@lastname");
+    user.setCreationDate(LocalDate.now());
     user.setStatus(UserStatus.OFFLINE);
     user.setToken("1");
 
@@ -37,7 +39,6 @@ public class UserRepositoryIntegrationTest {
     // then
     assertNotNull(found.getId());
     assertEquals(found.getName(), user.getName());
-    assertEquals(found.getUsername(), user.getUsername());
     assertEquals(found.getToken(), user.getToken());
     assertEquals(found.getStatus(), user.getStatus());
   }
