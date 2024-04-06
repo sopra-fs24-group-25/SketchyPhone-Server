@@ -51,13 +51,11 @@ public class GameController {
   @PostMapping("/gameRooms/join/{submittedPin}")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public ResponseEntity<GameSessionDTO> joinRoom(@PathVariable Long submittedPin, @RequestBody UserPostDTO userPostDTO) {
+  public Game joinRoom(@PathVariable Long submittedPin, @RequestBody UserPostDTO userPostDTO) {
       // Convert UserPostDTO to User entity
       User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
-      
-      // pass both submittedPin and the User entity to the service method
-      GameSessionDTO newGameSession = gameService.joinGame(submittedPin, userInput);
-      return new ResponseEntity<>(newGameSession, HttpStatus.CREATED);
+
+      return gameService.joinGame(submittedPin, userInput);
   }
 
   // Get Mapping to get a list of all users in a game room - when testing with Postman, the body should be a JSON object with the key "gameId (The ID of the gameroom)" and 'token' as the value
@@ -88,6 +86,15 @@ public class GameController {
     return gameService.updateGameSettings(gameRoomId, gameSettings);
   }
 
+  // Post Mapping to start a game session
+  @PostMapping("/games/{gameId}/sessions")
+  @ResponseStatus(HttpStatus.CREATED)
+  @ResponseBody
+  public Game createGameSession(@PathVariable Long gameId) {
+
+    return gameService.createGameSession(gameId);
+  }
+
   // Get Mapping to get a list of all game sessions
   @GetMapping("/games/{gameId}/sessions")
   public ResponseEntity<List<GameSessionDTO>> listGameSessions(@PathVariable Long gameId) {
@@ -100,12 +107,11 @@ public class GameController {
 
   // Post Mapping to get the text prompt from the user with the text prompt
   // tested with postman to create a text prompt, passed (201 Created)
-  @PostMapping("/gameRooms/{gameSessionId}/{userId}/textPrompt")
+  @PostMapping("/games/{gameSessionId}/prompts/{userId}")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public TextPromptDTO createTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestBody TextPromptDTO textPromptDTO) {
-    TextPrompt newTextPrompt = gameService.createTextPrompt(gameSessionId, userId, textPromptDTO.getContent());
-    return DTOMapper.INSTANCE.convertEntityToTextPromptDTO(newTextPrompt);
+  public TextPrompt createTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestBody TextPromptDTO textPromptDTO) {
+    return gameService.createTextPrompt(gameSessionId, userId, textPromptDTO.getContent());
     }
 
 }

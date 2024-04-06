@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.controller.GameController;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
@@ -157,20 +158,26 @@ public class GameService {
         return newGame;
       }
     
-    @Transactional
-    public GameSession createGameSession(Long gameId, GameSession gameSession) {
+    
+    public Game createGameSession(Long gameId) {
+        
         // Find the game by ID
         Game game = gameRepository.findById(gameId).orElseThrow(() -> 
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found"));
     
-        // Set the game in the gameSession entity
+        // create a game session and assign the according values
+        GameSession gameSession = new GameSession();
+        gameSession.setCreationDate(LocalDate.now());
         gameSession.setGame(game);
+        gameSession.setStatus(GameStatus.IN_PLAY);
+        gameSession.setToken(UUID.randomUUID().toString());
+        gameSessionRepository.save(gameSession);
 
-        GameSession savedGameSession = gameSessionRepository.save(gameSession);
-        game.getGameSessions().add(savedGameSession);
+        
+        game.getGameSessions().add(gameSession);
         gameRepository.save(game);
     
-        return savedGameSession;
+        return game;
     }
 
     @Transactional(readOnly = true)
@@ -184,8 +191,8 @@ public class GameService {
     }
       
 
-    @Transactional
-    public GameSessionDTO joinGame(Long submittedPin, User user) {
+    public Game joinGame(Long submittedPin, User user) {
+        User joinUser = userService.createUser(user);
         Game game = gameRepository.findByGamePin(submittedPin);
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
@@ -193,30 +200,24 @@ public class GameService {
     
         // If the game is CLOSED or IN_PLAY, return an informative message
         if (game.getStatus() == GameStatus.CLOSED) {
-            return new GameSessionDTO(GameStatus.CLOSED);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Game is closed.");
         } else if (game.getStatus() == GameStatus.IN_PLAY) {
-            return new GameSessionDTO(GameStatus.IN_PLAY);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Game is in play.");
         }
     
         // If the game is OPEN, continue with the logic to add a user to the game
         if (game.getStatus() == GameStatus.OPEN) {
-            // Logic to find or save the user
-            User managedUser = userRepository.findByUsername(user.getUsername());
-            if (managedUser == null) {
-                // If not found, generate a token, set status, and save the user
-                user.setToken(UUID.randomUUID().toString());
-                user.setStatus(UserStatus.OFFLINE);
-                managedUser = userRepository.save(user);
-            }
 
-            // Make sure managedUser is not null before proceeding
-            final User finalManagedUser = managedUser;
             boolean userAlreadyInGame = game.getUsers().stream()
-                .anyMatch(existingUser -> existingUser.getUsername().equals(finalManagedUser.getUsername()));
+                .anyMatch(existingUser -> existingUser.getUsername().equals(joinUser.getUsername()));
+            
+                if (!userAlreadyInGame){
+                    game.getUsers().add(joinUser);
+                }
             gameRepository.save(game);
             
             // Return a successful join message
-            return new GameSessionDTO(GameStatus.OPEN);
+            return game;
         } else {
             // Handle any other unexpected statuses
             throw new IllegalStateException("Unhandled game status: " + game.getStatus());
@@ -270,7 +271,8 @@ public class GameService {
         text.setContent(textPromptContent);
         text.setGameSession(gameSession);
         text.setCreator(user);
-        return textPromptRepository.save(text);
+        textPromptRepository.save(text);
+        return text;
     }
 
     public List<TextPrompt> getTextPrompts(Long userId) {

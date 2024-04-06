@@ -1,5 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
@@ -13,6 +16,7 @@ public class GameSession implements Serializable{
     // Game session extends the game entity
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")
+    @JsonBackReference
     private Game game;
 
     @OneToMany(mappedBy = "gameSession")
@@ -22,7 +26,7 @@ public class GameSession implements Serializable{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long gameSessionId;
 
-    @Column(nullable = true, unique = true)
+    @Column(nullable = false)
     private LocalDate creationDate;
 
     @Column(nullable = false)
