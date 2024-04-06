@@ -1,10 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Avatar;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.AvatarDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GamePostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
@@ -33,12 +35,11 @@ public interface DTOMapper {
   DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
 
   @Mapping(source = "name", target = "name")
-  @Mapping(source = "username", target = "username")
   User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
   @Mapping(source = "id", target = "id")
   @Mapping(source = "name", target = "name")
-  @Mapping(source = "username", target = "username")
+  @Mapping(source = "creationDate", target = "creationDate")
   @Mapping(source = "status", target = "status")
   UserGetDTO convertEntityToUserGetDTO(User user);
 
@@ -86,4 +87,13 @@ public interface DTOMapper {
   @Mapping(source = "enableTextToSpeech", target = "enableTextToSpeech")
   GameSettingsDTO convertEntityToGameSettingsDTO(GameSettings gameSettings);
 
+  @Mapping(source = "encodedImage", target = "encodedImage")
+  @Mapping(source = "creatorId", target = "creatorId")
+  @Mapping(source = "creationDateTime", target = "creationDateTime")
+  Avatar convertAvatarDTOtoEntity(AvatarDTO avatarDTO);
+
+  @Mapping(source = "encodedImage", target = "encodedImage")
+  @Mapping(source = "creatorId", target = "creatorId")
+  @Mapping(source = "creationDateTime", target = "creationDateTime")
+  AvatarDTO convertEntityToAvatarDTO(Avatar avatar);
 }

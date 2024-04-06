@@ -13,6 +13,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.LocalDate;
+
 /**
  * Test class for the UserResource REST resource.
  *
@@ -36,12 +38,11 @@ public class UserServiceIntegrationTest {
 
   @Test
   public void createUser_validInputs_success() {
-    // given
-    assertNull(userRepository.findByUsername("testUsername"));
 
     User testUser = new User();
     testUser.setName("testName");
-    testUser.setUsername("testUsername");
+    testUser.setCreationDate(LocalDate.now());
+    testUser.setStatus(UserStatus.ONLINE);
 
     // when
     User createdUser = userService.createUser(testUser);
@@ -49,26 +50,24 @@ public class UserServiceIntegrationTest {
     // then
     assertEquals(testUser.getId(), createdUser.getId());
     assertEquals(testUser.getName(), createdUser.getName());
-    assertEquals(testUser.getUsername(), createdUser.getUsername());
     assertNotNull(createdUser.getToken());
     assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
   }
 
   @Test
-  public void createUser_duplicateUsername_throwsException() {
-    assertNull(userRepository.findByUsername("testUsername"));
+  public void createUser_duplicateName_throwsException() {
 
     User testUser = new User();
     testUser.setName("testName");
-    testUser.setUsername("testUsername");
+    testUser.setCreationDate(LocalDate.now());
+    testUser.setStatus(UserStatus.ONLINE);
     User createdUser = userService.createUser(testUser);
 
-    // attempt to create second user with same username
+    // attempt to create second user with same name
     User testUser2 = new User();
-
-    // change the name but forget about the username
-    testUser2.setName("testName2");
-    testUser2.setUsername("testUsername");
+    testUser2.setName("testName");
+    testUser.setCreationDate(LocalDate.now());
+    testUser.setStatus(UserStatus.ONLINE);
 
     // check that an error is thrown
     assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser2));

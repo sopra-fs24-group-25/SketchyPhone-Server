@@ -15,7 +15,7 @@ public class GameGetDTO {
   private Long admin;
   private Long gamePin;
   @JsonProperty("gameSessions")
-  private List<GameSessionGetDTO> gameSessions;
+  private List<GameSession> gameSessions;
 
   public Long getGameId() {
     return gameId;
@@ -50,11 +50,11 @@ public class GameGetDTO {
   }
 
   // getters and setters for the new field
-  public List<GameSessionGetDTO> getGameSessions() {
+  public List<GameSession> getGameSessions() {
     return gameSessions;
   }
 
-  public void setGameSessions(List<GameSessionGetDTO> gameSessions) {
+  public void setGameSessions(List<GameSession> gameSessions) {
       this.gameSessions = gameSessions;
   }
   

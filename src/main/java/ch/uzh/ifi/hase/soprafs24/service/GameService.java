@@ -1,7 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
-import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs24.controller.GameController;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
@@ -21,14 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
-
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -71,7 +62,7 @@ public class GameService {
         SecureRandom secureRandom = new SecureRandom();
         long pin;
         do {
-            pin = MIN_PIN + secureRandom.nextLong(MAX_PIN) + 100000L;
+            pin = secureRandom.nextLong(MAX_PIN) + MIN_PIN;
         } while (!generatedPins.add(pin));
         return pin;
     }
@@ -121,32 +112,32 @@ public class GameService {
 
         // Set the other fields of game...
 
-        // Create a list of GameSessionGetDTO instances
-        List<GameSessionGetDTO> gameSessions = new ArrayList<>();
+        // Create a list of GameSession instances
+        List<GameSession> gameSessions = new ArrayList<>();
 
-        // Populate the list with GameSessionGetDTO instances
-        // For example:
-        GameSessionGetDTO session = new GameSessionGetDTO();
-        session.setStatus(GameStatus.OPEN);
-        session.setGameSessionId(1L);
-        session.setToken("session-pin-here");
-        gameSessions.add(session);
+        // // Populate the list with GameSessionGetDTO instances
+        // // For example:
+        // GameSession session = new GameSession();
+        // session.setStatus(GameStatus.OPEN);
+        // session.setGameSessionId(1L);
+        // session.setToken("session-pin-here");
+        // gameSessions.add(session);
 
         // Set the gameSessions field of game
         game.setGameSessions(gameSessions);
-        // Convert game to JSON
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json;
-        try {
-            json = objectMapper.writeValueAsString(game);
-        } catch (JsonProcessingException e) {
-            // Handle JSON processing exception
-            e.printStackTrace();
-            json = ""; // or some default value
-        }
+        // // Convert game to JSON
+        // ObjectMapper objectMapper = new ObjectMapper();
+        // String json;
+        // try {
+        //     json = objectMapper.writeValueAsString(game);
+        // } catch (JsonProcessingException e) {
+        //     // Handle JSON processing exception
+        //     e.printStackTrace();
+        //     json = ""; // or some default value
+        // }
 
-        // Now json contains the JSON representation of the game object
-        System.out.println(json); 
+        // // Now json contains the JSON representation of the game object
+        // System.out.println(json); 
 
         // saves the given entity but data is only persisted in the database once
         // flush() is called
@@ -209,7 +200,7 @@ public class GameService {
         if (game.getStatus() == GameStatus.OPEN) {
 
             boolean userAlreadyInGame = game.getUsers().stream()
-                .anyMatch(existingUser -> existingUser.getUsername().equals(joinUser.getUsername()));
+                .anyMatch(existingUser -> existingUser.getName().equals(joinUser.getName()));
             
                 if (!userAlreadyInGame){
                     game.getUsers().add(joinUser);
