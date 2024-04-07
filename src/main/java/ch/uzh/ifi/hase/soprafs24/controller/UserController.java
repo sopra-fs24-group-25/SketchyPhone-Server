@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Avatar;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.AvatarDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
@@ -83,5 +85,31 @@ public class UserController {
 
     return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
 
+  }
+
+  // Post mapping to create a custom avatar
+  @PostMapping("/users/{userId}/avatar/create")
+  @ResponseStatus(HttpStatus.CREATED)
+  @ResponseBody
+  public AvatarDTO createAvatar(@PathVariable Long userId, @RequestBody AvatarDTO avatarDTO){
+    Avatar avatar = DTOMapper.INSTANCE.convertAvatarDTOtoEntity(avatarDTO);
+
+    Avatar createdAvatar = userService.createAvatar(userId,avatar);
+
+    return DTOMapper.INSTANCE.convertEntityToAvatarDTO(createdAvatar);
+  }
+
+  // Get mapping to retrieve a certain avatar
+  @GetMapping("/users/avatar/{avatarId}")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public AvatarDTO getAvatar(@PathVariable Long avatarId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long userId){
+    if(!userService.authenticateUser(token, userService.getUserById(userId))){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
+    Avatar avatar = userService.getAvatar(avatarId);
+
+    return DTOMapper.INSTANCE.convertEntityToAvatarDTO(avatar);
   }
 }

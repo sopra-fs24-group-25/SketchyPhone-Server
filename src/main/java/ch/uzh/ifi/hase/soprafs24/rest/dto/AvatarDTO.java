@@ -1,19 +1,19 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class AvatarDTO {
 
   private Long avatarId;
   private Long creatorId;
-  private Byte encodedImage;
-  private LocalDate creationDateTime;
+  private byte[] encodedImage;
+  private LocalDateTime creationDateTime;
 
   public Long getAvatarId() {
     return avatarId;
   }
 
-  public void setGameId(Long avatarId) {
+  public void setAvatarId(Long avatarId) {
     this.avatarId = avatarId;
   }
 
@@ -25,19 +25,19 @@ public class AvatarDTO {
     this.creatorId = creatorId;
   }
 
-  public Byte getEncodedImage(){
+  public byte[] getEncodedImage(){
     return encodedImage;
   }
 
-  public void setEncodedImage(Byte encodedImage){
+  public void setEncodedImage(byte[] encodedImage){
     this.encodedImage = encodedImage;
   }
 
-  public LocalDate getCreationDateTime(){
+  public LocalDateTime getCreationDateTime(){
     return creationDateTime;
   }
 
-  public void setCreationDateTime(LocalDate creationDateTime){
+  public void setCreationDateTime(LocalDateTime creationDateTime){
     this.creationDateTime = creationDateTime;
   }
   

@@ -14,7 +14,7 @@ public class UserGetDTO {
   private UserStatus status;
   private Boolean persistent;
   private String email;
-  private Avatar avatar;
+  private Long avatarId;
   private String role;
 
   // getters
@@ -43,8 +43,8 @@ public class UserGetDTO {
     return email;
   }
 
-  public Avatar getAvatar() {
-    return avatar;
+  public Long getAvatarId() {
+    return avatarId;
   }
 
   public String getRole() {
@@ -77,8 +77,8 @@ public class UserGetDTO {
     this.email = email;
   }
 
-  public void setAvatar(Avatar avatar) {
-    this.avatar = avatar;
+  public void setAvatar(Long avatarId) {
+    this.avatarId = avatarId;
   }
 
   public void setRole(String role) {

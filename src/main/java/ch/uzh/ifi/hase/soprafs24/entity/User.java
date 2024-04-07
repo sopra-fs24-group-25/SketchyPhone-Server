@@ -48,8 +48,8 @@ public class User implements Serializable {
   @Column(nullable = true)
   private String password;
 
-  @ManyToOne
-  private Avatar avatar;
+  @Column(nullable = true)
+  private Long avatarId;
 
   @Column
   private String role;
@@ -118,12 +118,12 @@ public class User implements Serializable {
     this.password = password;
   }
 
-  public Avatar getAvatar() {
-    return avatar;
+  public Long getAvatarId() {
+    return avatarId;
   }
 
-  public void setAvatar(Avatar avatar) {
-    this.avatar = avatar;
+  public void setAvatarId(Long avatarId) {
+    this.avatarId = avatarId;
   }
 
   public String getRole() {

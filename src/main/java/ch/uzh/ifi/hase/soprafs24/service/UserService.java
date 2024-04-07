@@ -1,8 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Avatar;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.AvatarRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+
+import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,10 +36,12 @@ public class UserService {
   private final Logger log = LoggerFactory.getLogger(UserService.class);
 
   private final UserRepository userRepository;
+  private final AvatarRepository avatarRepository;
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, AvatarRepository avatarRepository) {
     this.userRepository = userRepository;
+    this.avatarRepository = avatarRepository;
   }
 
   public List<User> getUsers() {
@@ -72,8 +80,8 @@ public class UserService {
     if (userInput.getPersistent() != null){
       oldUser.setPersistent(userInput.getPersistent());
     }
-    if (userInput.getAvatar() != null){
-      oldUser.setAvatar(userInput.getAvatar());
+    if (userInput.getAvatarId() != null){
+      oldUser.setAvatarId(userInput.getAvatarId());
     }
     if (userInput.getEmail() != null){
       oldUser.setEmail(userInput.getEmail());
@@ -102,6 +110,26 @@ public class UserService {
     else{
       return false;
     }
+  }
+
+  public Avatar createAvatar(Long creatorId, Avatar avatar){
+    avatar.setCreationDateTime(LocalDateTime.now());
+    avatar.setCreatorId(creatorId);
+    avatar.setEncodedImage(Base64.getEncoder().encode(avatar.getEncodedImage()));
+    Avatar updatedAvatar = avatarRepository.save(avatar);
+    avatarRepository.flush();
+
+    return updatedAvatar;
+  }
+
+  public Avatar getAvatar(long avatarId){
+    Avatar avatar = avatarRepository.findById(avatarId);
+
+    if (avatar == null){
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Avatar not found.");
+    }
+
+    return avatar;
   }
 
   /**

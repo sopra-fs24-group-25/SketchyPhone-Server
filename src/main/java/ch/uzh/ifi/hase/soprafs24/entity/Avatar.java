@@ -2,7 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Internal User Representation
@@ -24,14 +24,14 @@ public class Avatar implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long avatarId;
 
-  @Column
-  private Byte encodedImage;
+  @Column(nullable = false)
+  private byte[] encodedImage;
 
-  @Column
+  @Column(nullable = false)
   private Long creatorId;
 
-  @Column
-  private LocalDate creationDateTime;
+  @Column(nullable = false)
+  private LocalDateTime creationDateTime;
 
    
   public Long getAvatarId(){
@@ -42,11 +42,11 @@ public class Avatar implements Serializable {
     this.avatarId = avatarId;
   }
    
-  public Byte getEncodedImage(){
+  public byte[] getEncodedImage(){
     return encodedImage;
   }
 
-  public void setEncodedImage(Byte encodedImage){
+  public void setEncodedImage(byte[] encodedImage){
     this.encodedImage = encodedImage;
   }
    
@@ -58,11 +58,11 @@ public class Avatar implements Serializable {
     this.creatorId = creatorId;
   }
    
-  public LocalDate getCreationDateTime(){
+  public LocalDateTime getCreationDateTime(){
     return creationDateTime;
   }
 
-  public void setCreationDateTime(LocalDate creationDateTime){
+  public void setCreationDateTime(LocalDateTime creationDateTime){
     this.creationDateTime = creationDateTime;
   }
 }
