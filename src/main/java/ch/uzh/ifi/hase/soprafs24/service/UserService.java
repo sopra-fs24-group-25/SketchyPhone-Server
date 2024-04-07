@@ -42,7 +42,7 @@ public class UserService {
 
   public User getUser(Long id) {
     return this.userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-        String.format("No user found for id: %d", id)));
+        "User not found."));
   }
 
   public User createUser(User newUser) {
@@ -57,6 +57,51 @@ public class UserService {
 
     log.debug("Created Information for User: {}", newUser);
     return newUser;
+  }
+
+  public User updateUser(long userId, User userInput){
+    User oldUser = userRepository.findById(userId);
+
+    if (oldUser == null){
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+    }
+
+    if (userInput.getName() != null){
+      oldUser.setName(userInput.getName());
+    }
+    if (userInput.getPersistent() != null){
+      oldUser.setPersistent(userInput.getPersistent());
+    }
+    if (userInput.getAvatar() != null){
+      oldUser.setAvatar(userInput.getAvatar());
+    }
+    if (userInput.getEmail() != null){
+      oldUser.setEmail(userInput.getEmail());
+    }
+    if (userInput.getPassword() != null){
+      oldUser.setPassword(userInput.getPassword());
+    }
+
+    return userRepository.save(oldUser);
+  }
+
+  public User getUserById(long id){
+    User user = userRepository.findById(id);
+
+    if (user == null){
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+    }
+
+    return user;
+  }
+
+  public boolean authenticateUser(String token, User user){
+    if(user.getToken().equals(token)){
+      return true;
+    }
+    else{
+      return false;
+    }
   }
 
   /**
