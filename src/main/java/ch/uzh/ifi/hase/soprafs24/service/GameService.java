@@ -69,6 +69,7 @@ public class GameService {
 
     public Game createGame(User admin) {
         User savedUser = userService.createUser(admin);
+        savedUser.setRole("admin");
 
         Game newGame = new Game();
 
@@ -213,6 +214,38 @@ public class GameService {
             // Handle any other unexpected statuses
             throw new IllegalStateException("Unhandled game status: " + game.getStatus());
         }
+    }
+
+    public void leaveRoom(Long gameRoomId, long userId) {
+        Game game = gameRepository.findByGameId(gameRoomId);
+        if (game == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
+        User user = userRepository.findById(userId);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        
+        if (user.getRole().equals("admin")){
+            // if admin is the only player and leaves the room should be deleted
+            if (game.getUsers().size() == 1){
+                gameRepository.delete(game);
+            } // else reassign admin role to random user in room
+            else{
+                SecureRandom random = new SecureRandom();
+                int randomNumber = random.nextInt(game.getUsers().size());
+                game.getUsers().get(randomNumber).setRole("admin");
+            }
+            
+        }else{
+            game.getUsers().remove(user);
+        }
+
+        userRepository.delete(user);
+
+        
+
     }
       
         

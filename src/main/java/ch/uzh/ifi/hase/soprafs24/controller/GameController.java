@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository; // Import the GameRepository class
 /**
@@ -60,6 +61,13 @@ public class GameController {
       User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
       return gameService.joinGame(submittedPin, userInput);
+  }
+
+  @DeleteMapping("/games/{gameRoomId}/leave/{userId}")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void leaveRoom(@PathVariable Long gameRoomId, @PathVariable Long userId){
+      gameService.leaveRoom(gameRoomId, userId);
   }
 
   // Get Mapping to get a list of all users in a game room - when testing with Postman, the body should be a JSON object with the key "gameId (The ID of the gameroom)" and 'token' as the value
