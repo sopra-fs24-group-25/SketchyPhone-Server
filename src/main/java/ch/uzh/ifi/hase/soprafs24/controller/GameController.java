@@ -10,6 +10,8 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
+import ch.uzh.ifi.hase.soprafs24.service.UserService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository; // Import the GameRepository class
 /**
@@ -31,9 +34,11 @@ import ch.uzh.ifi.hase.soprafs24.repository.GameRepository; // Import the GameRe
 public class GameController {
 
   private final GameService gameService;
+  private final UserService userService;
 
-  GameController(GameService gameService) {
+  GameController(GameService gameService, UserService userService) {
     this.gameService = gameService;
+    this.userService = userService;
   }
 
   // Post Mapping to create a game room - when testing with Postman, the body should be a JSON object with the key "username" and 'name' as the value
@@ -58,12 +63,23 @@ public class GameController {
       return gameService.joinGame(submittedPin, userInput);
   }
 
+  @DeleteMapping("/games/{gameRoomId}/leave/{userId}")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void leaveRoom(@PathVariable Long gameRoomId, @PathVariable Long userId){
+      gameService.leaveRoom(gameRoomId, userId);
+  }
+
   // Get Mapping to get a list of all users in a game room - when testing with Postman, the body should be a JSON object with the key "gameId (The ID of the gameroom)" and 'token' as the value
   // tested with postman to get all the users from the game room, passed (200 OK)
   @GetMapping("/gameRooms/{gameRoomId}/users")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public List<User> getGameRoomUsers(@PathVariable Long gameRoomId) {
+  public List<User> getGameRoomUsers(@PathVariable Long gameRoomId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    if(!userService.authenticateUser(token, userService.getUserById(id))){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
     return gameService.getGameRoomUsers(gameRoomId);
   }
 
@@ -71,7 +87,10 @@ public class GameController {
   @GetMapping("/gameRooms/{gameRoomId}/settings")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public GameSettings getGameSettings(@PathVariable Long gameRoomId) {
+  public GameSettings getGameSettings(@PathVariable Long gameRoomId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    if(!userService.authenticateUser(token, userService.getUserById(id))){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
 
     return gameService.getGameSettings(gameRoomId);
   }
@@ -110,7 +129,10 @@ public class GameController {
   @PostMapping("/games/{gameSessionId}/prompts/{userId}")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public TextPrompt createTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestBody TextPromptDTO textPromptDTO) {
+  public TextPrompt createTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestBody TextPromptDTO textPromptDTO, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    if(!userService.authenticateUser(token, userService.getUserById(id))){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
     return gameService.createTextPrompt(gameSessionId, userId, textPromptDTO.getContent());
     }
 
