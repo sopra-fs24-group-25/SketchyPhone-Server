@@ -1,10 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Drawing;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.DrawingRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.GameSessionRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.GameSettingsRepository;
@@ -25,8 +27,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
+import java.util.stream.Collectors;
+import java.util.Arrays;
 
 @Service
 @Transactional
@@ -35,6 +41,7 @@ public class GameService {
     private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final GameSettingsRepository gameSettingsRepository;
     private final GameRepository gameRepository;
+    private final DrawingRepository drawingRepository;
     private final UserService userService;
     private static final Set<Long> generatedPins = new HashSet<>();
     
@@ -45,10 +52,11 @@ public class GameService {
     @Autowired
     private TextPromptRepository textPromptRepository;
     
-    public GameService(GameRepository gameRepository, UserService userService, GameSettingsRepository gameSettingsRepository) {
+    public GameService(GameRepository gameRepository, UserService userService, GameSettingsRepository gameSettingsRepository, DrawingRepository drawingRepository) {
         this.gameSettingsRepository = gameSettingsRepository;
         this.gameRepository = gameRepository;
         this.userService = userService;
+        this.drawingRepository = drawingRepository;
       }
 
     public List<Game> getGame() {
@@ -156,6 +164,8 @@ public class GameService {
         // Find the game by ID
         Game game = gameRepository.findById(gameId).orElseThrow(() -> 
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found"));
+        
+        game.setStatus(GameStatus.IN_PLAY);
     
         // create a game session and assign the according values
         GameSession gameSession = new GameSession();
@@ -165,11 +175,21 @@ public class GameService {
         gameSession.setToken(UUID.randomUUID().toString());
         gameSessionRepository.save(gameSession);
 
-        
+        // add users who are currently in the room
+        for (int i = 0; i<game.getUsers().size(); i++){
+            gameSession.getUsersInSession().add(game.getUsers().get(i).getId());
+        }
+
         game.getGameSessions().add(gameSession);
         gameRepository.save(game);
     
         return game;
+    }
+
+    public void authenticateStart(String token, User user){
+        if (!user.getRole().equals("admin") || !user.getToken().equals(token)){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not the admin");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -185,6 +205,7 @@ public class GameService {
 
     public Game joinGame(Long submittedPin, User user) {
         User joinUser = userService.createUser(user);
+        joinUser.setRole("player");
         Game game = gameRepository.findByGamePin(submittedPin);
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
@@ -235,17 +256,17 @@ public class GameService {
             else{
                 SecureRandom random = new SecureRandom();
                 int randomNumber = random.nextInt(game.getUsers().size());
+
+                while (game.getUsers().get(randomNumber) == user){
+                    randomNumber = random.nextInt(game.getUsers().size());
+                }
+
                 game.getUsers().get(randomNumber).setRole("admin");
             }
-            
-        }else{
-            game.getUsers().remove(user);
         }
 
+        // delete user from repository
         userRepository.delete(user);
-
-        
-
     }
       
         
@@ -297,6 +318,81 @@ public class GameService {
         text.setCreator(user);
         textPromptRepository.save(text);
         return text;
+    }
+
+    public Drawing createDrawing(Long gameSessionId, Long userId, Long previousTextPromptId, String drawingBase64){
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found"));
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        Drawing drawing = new Drawing();
+        drawing.setCreationDateTime(LocalDateTime.now());
+        drawing.setGameSessionId(gameSessionId);
+        drawing.setCreatorId(userId);
+        drawing.setPreviousTextPrompt(previousTextPromptId);
+
+        String base64String = drawingBase64;
+
+        int paddingLength = 4 - (base64String.length() % 4);
+        
+        // Add padding characters if necessary
+        if (paddingLength != 4) {
+            StringBuilder paddedString = new StringBuilder(base64String);
+            for (int i = 0; i < paddingLength; i++) {
+                paddedString.append('=');
+            }
+            base64String = paddedString.toString();
+        }
+
+        drawing.setEncodedImage(Base64.getDecoder().decode(drawingBase64));
+        Drawing savedDrawing = drawingRepository.save(drawing);
+        drawingRepository.flush();
+
+        return savedDrawing;
+    }
+
+    public Drawing getDrawing(Long gameSessionId, Long userId){
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found"));
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        // get list of all available drawings
+        List<Drawing> availableDrawings = drawingRepository.findAll().stream()
+            .filter(drawing -> drawing.getAssignedTo() == null && drawing.getCreatorId() != userId)
+            .collect(Collectors.toList());
+
+        List<Drawing> lastDrawings = drawingRepository.findAll().stream()
+            .filter(drawing -> drawing.getAssignedTo() == null)
+            . collect(Collectors.toList());
+
+        List<Drawing> alreadyAssignedDrawings = drawingRepository.findAll().stream()
+            .filter(drawing -> drawing.getAssignedTo() != null)
+            .collect(Collectors.toList());
+
+        
+        // select random drawing 
+        SecureRandom random = new SecureRandom();
+        int randomNumber = random.nextInt(availableDrawings.size());
+        Drawing assignedDrawing = availableDrawings.get(randomNumber);
+
+        // if last drawing would be the one userId drew -> choose random alreaday assigned drawing
+        // and assign that one to userId and the last drawing to whoever had that drawing
+        if (availableDrawings.isEmpty()){
+            random.nextInt(alreadyAssignedDrawings.size());
+            assignedDrawing = alreadyAssignedDrawings.get(randomNumber);
+            lastDrawings.get(0).setAssignedTo(assignedDrawing.getAssignedTo());
+        }
+
+        assignedDrawing.setAssignedTo(userId);
+
+        return assignedDrawing;
+
+    }
+
+    public List<Drawing> getDrawings(){
+        return drawingRepository.findAll();
     }
 
     public List<TextPrompt> getTextPrompts(Long userId) {

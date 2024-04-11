@@ -6,7 +6,6 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.AvatarRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
-import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,19 +102,32 @@ public class UserService {
     return user;
   }
 
-  public boolean authenticateUser(String token, User user){
-    if(user.getToken().equals(token)){
-      return true;
-    }
-    else{
-      return false;
+  public void authenticateUser(String token, User user){
+    if(!user.getToken().equals(token)){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
   }
 
-  public Avatar createAvatar(Long creatorId, Avatar avatar){
+  public Avatar createAvatar(Long creatorId, String avatarBase64){
+    Avatar avatar = new Avatar();
     avatar.setCreationDateTime(LocalDateTime.now());
     avatar.setCreatorId(creatorId);
-    avatar.setEncodedImage(Base64.getEncoder().encode(avatar.getEncodedImage()));
+
+    String base64String = avatarBase64;
+
+    int paddingLength = 4 - (base64String.length() % 4);
+    
+    // Add padding characters if necessary
+    if (paddingLength != 4) {
+        StringBuilder paddedString = new StringBuilder(base64String);
+        for (int i = 0; i < paddingLength; i++) {
+            paddedString.append('=');
+        }
+        base64String = paddedString.toString();
+    } 
+
+    avatar.setEncodedImage(Base64.getDecoder().decode(base64String));
+
     Avatar updatedAvatar = avatarRepository.save(avatar);
     avatarRepository.flush();
 
