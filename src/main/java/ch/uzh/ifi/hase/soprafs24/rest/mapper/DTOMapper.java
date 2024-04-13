@@ -77,11 +77,13 @@ public interface DTOMapper {
   @Mapping(source = "content", target = "content")
   @Mapping(source = "gameSession", target = "gameSession")
   @Mapping(source = "creator", target = "creator")
+  @Mapping(source = "assignedTo", target = "assignedTo")
   TextPrompt convertTextPromptDTOtoEntity(TextPromptDTO textPromptDTO);
 
   @Mapping(source = "content", target = "content")
   @Mapping(source = "gameSession", target = "gameSession")
   @Mapping(source = "creator", target = "creator")
+  @Mapping(source = "assignedTo", target = "assignedTo")  
   TextPromptDTO convertEntityToTextPromptDTO(TextPrompt textPrompt);
 
   @Mapping(source = "gameSpeed", target = "gameSpeed")
