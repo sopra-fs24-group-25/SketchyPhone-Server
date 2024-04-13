@@ -33,7 +33,7 @@ public class UserController {
   @GetMapping("/users")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public List<UserGetDTO> getAllUsers() {
+  public List<User> getAllUsers() {
     // fetch all users in the internal representation
     List<User> users = userService.getUsers();
     List<UserGetDTO> userGetDTOs = new ArrayList<>();
@@ -42,7 +42,7 @@ public class UserController {
     for (User user : users) {
       userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(user));
     }
-    return userGetDTOs;
+    return users;
   }
 
   // Post Mapping to create a user - when testing with Postman, the body should be a JSON object with the key "username" and 'name' as the value
@@ -78,9 +78,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public UserGetDTO getUser(@PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id){
-    if(!userService.authenticateUser(token, userService.getUserById(id))){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
+    userService.authenticateUser(token, userService.getUserById(id));
     User user = userService.getUser(userId);
 
     return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
@@ -91,12 +89,12 @@ public class UserController {
   @PostMapping("/users/{userId}/avatar/create")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public AvatarDTO createAvatar(@PathVariable Long userId, @RequestBody AvatarDTO avatarDTO){
-    Avatar avatar = DTOMapper.INSTANCE.convertAvatarDTOtoEntity(avatarDTO);
+  public Avatar createAvatar(@PathVariable Long userId, @RequestBody String avatarBase64){
 
-    Avatar createdAvatar = userService.createAvatar(userId,avatar);
 
-    return DTOMapper.INSTANCE.convertEntityToAvatarDTO(createdAvatar);
+    Avatar createdAvatar = userService.createAvatar(userId, avatarBase64);
+
+    return createdAvatar;
   }
 
   // Get mapping to retrieve a certain avatar
@@ -104,9 +102,8 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public AvatarDTO getAvatar(@PathVariable Long avatarId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long userId){
-    if(!userService.authenticateUser(token, userService.getUserById(userId))){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
+    userService.authenticateUser(token, userService.getUserById(userId));
+
 
     Avatar avatar = userService.getAvatar(avatarId);
 

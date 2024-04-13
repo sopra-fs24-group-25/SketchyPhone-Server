@@ -1,11 +1,13 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
+import java.util.List;
 
 public class GameSessionGetDTO {
     private GameStatus status;
     private Long gameSessionId;
     private String token;
+    private List<Long> usersInSession;
 
     public GameSessionGetDTO() {
     }
@@ -17,6 +19,10 @@ public class GameSessionGetDTO {
     // Getters
     public GameStatus getStatus() {
         return status;
+    }
+
+    public List<Long> getUsersInSession(){
+        return usersInSession;
     }
 
     public Long getGameSessionId() {
@@ -32,6 +38,10 @@ public class GameSessionGetDTO {
         this.gameSessionId = gameSessionId;
     }
 
+    public void setUsersInSession(List<Long> usersInSession){
+        this.usersInSession = usersInSession;
+    }
+
     public String getToken() {
         return token;
     }
@@ -39,4 +49,5 @@ public class GameSessionGetDTO {
     public void setToken(String token) {
         this.token = token;
     }
+
 }

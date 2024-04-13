@@ -1,12 +1,14 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Avatar;
+import ch.uzh.ifi.hase.soprafs24.entity.Drawing;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.AvatarDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.DrawingDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GamePostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
@@ -59,10 +61,12 @@ public interface DTOMapper {
 
   @Mapping(source = "status", target = "status")
   @Mapping(source = "gameSessionId", target = "gameSessionId")
+  @Mapping(source = "usersInSession", target = "usersInSession")
   GameSessionDTO gameSessionToGameSessionDTO(GameSession gameSession);
 
   @Mapping(source = "status", target = "status")
   @Mapping(source = "gameSessionId", target = "gameSessionId")
+  @Mapping(source = "usersInSession", target = "usersInSession")
   GameSession gameSessionDTOToGameSession(GameSessionDTO dto);
 
   @Mapping(source = "status", target = "status")
@@ -99,4 +103,22 @@ public interface DTOMapper {
   @Mapping(source = "creatorId", target = "creatorId")
   @Mapping(source = "creationDateTime", target = "creationDateTime")
   AvatarDTO convertEntityToAvatarDTO(Avatar avatar);
+
+  @Mapping(source = "encodedImage", target = "encodedImage")
+  @Mapping(source = "creatorId", target = "creatorId")
+  @Mapping(source = "creationDateTime", target = "creationDateTime")
+  @Mapping(source = "gameSessionId", target = "gameSessionId")
+  @Mapping(source = "previousTextPrompt", target = "previousTextPrompt")
+  @Mapping(source = "nextTextPrompt", target = "nextTextPrompt")
+  @Mapping(source = "assignedTo", target = "assignedTo")
+  Drawing convertDrawingDTOtoEntity(DrawingDTO drawingDTO);
+
+  @Mapping(source = "encodedImage", target = "encodedImage")
+  @Mapping(source = "creatorId", target = "creatorId")
+  @Mapping(source = "creationDateTime", target = "creationDateTime")
+  @Mapping(source = "gameSessionId", target = "gameSessionId")
+  @Mapping(source = "previousTextPrompt", target = "previousTextPrompt")
+  @Mapping(source = "nextTextPrompt", target = "nextTextPrompt")
+  @Mapping(source = "assignedTo", target = "assignedTo")
+  DrawingDTO convertEntityToDrawingDTO(Drawing drawing);
 }

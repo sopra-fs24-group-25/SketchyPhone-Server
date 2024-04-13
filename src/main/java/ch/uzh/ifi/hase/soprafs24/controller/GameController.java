@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Drawing;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
@@ -20,9 +21,16 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ch.uzh.ifi.hase.soprafs24.rest.dto.DrawingDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository; // Import the GameRepository class
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+
 /**
  * User Controller
  * This class is responsible for handling all REST request that are related to
@@ -66,7 +74,8 @@ public class GameController {
   @DeleteMapping("/games/{gameRoomId}/leave/{userId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public void leaveRoom(@PathVariable Long gameRoomId, @PathVariable Long userId){
+  public void leaveRoom(@PathVariable Long gameRoomId, @PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id){
+      userService.authenticateUser(token, userService.getUserById(id));
       gameService.leaveRoom(gameRoomId, userId);
   }
 
@@ -76,9 +85,8 @@ public class GameController {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public List<User> getGameRoomUsers(@PathVariable Long gameRoomId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
-    if(!userService.authenticateUser(token, userService.getUserById(id))){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
+    userService.authenticateUser(token, userService.getUserById(id));
+
 
     return gameService.getGameRoomUsers(gameRoomId);
   }
@@ -88,9 +96,8 @@ public class GameController {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public GameSettings getGameSettings(@PathVariable Long gameRoomId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
-    if(!userService.authenticateUser(token, userService.getUserById(id))){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
+    userService.authenticateUser(token, userService.getUserById(id));
+
 
     return gameService.getGameSettings(gameRoomId);
   }
@@ -106,11 +113,11 @@ public class GameController {
   }
 
   // Post Mapping to start a game session
-  @PostMapping("/games/{gameId}/sessions")
+  @PostMapping("/games/{gameId}/start")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public Game createGameSession(@PathVariable Long gameId) {
-
+  public Game createGameSession(@PathVariable Long gameId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    gameService.authenticateStart(token, userService.getUserById(id));
     return gameService.createGameSession(gameId);
   }
 
@@ -129,11 +136,41 @@ public class GameController {
   @PostMapping("/games/{gameSessionId}/prompts/{userId}")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
+  // TODO make post return type to void to comply with REST specs
   public TextPrompt createTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestBody TextPromptDTO textPromptDTO, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
-    if(!userService.authenticateUser(token, userService.getUserById(id))){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
+    userService.authenticateUser(token, userService.getUserById(id));
+
     return gameService.createTextPrompt(gameSessionId, userId, textPromptDTO.getContent());
     }
 
+
+  // Post mapping to create drawing entity in the database and save the drawing from the user
+  @PostMapping("/games/{gameSessionId}/drawings/{userId}/{previousTextPromptId}")
+  @ResponseStatus(HttpStatus.CREATED)
+  @ResponseBody
+  // TODO make post return type to void to comply with REST specs
+  public Drawing createDrawing(@PathVariable Long gameSessionId, @PathVariable Long userId, @PathVariable Long previousTextPromptId, @RequestBody String drawingBase64, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    userService.authenticateUser(token, userService.getUserById(id));
+    
+    return gameService.createDrawing(gameSessionId, userId, previousTextPromptId, drawingBase64);
+  }
+  
+  // Get mapping for assigning drawing to user in game session
+  @GetMapping("/games/{gameSessionId}/drawings/{userId}")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public Drawing getDrawing(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    userService.authenticateUser(token, userService.getUserById(id));
+
+    return gameService.getDrawing(gameSessionId, userId);
+  }
+
+  // just for testing
+  // TODO once everything looks fine -> remove
+  @GetMapping("/drawings")
+  public List<Drawing> getDrawings() {
+      return gameService.getDrawings();
+  }
+  
+  
 }

@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "GameSession")
@@ -34,6 +35,10 @@ public class GameSession implements Serializable{
 
     @Column(nullable = false)
     private GameStatus status;  
+
+    @ElementCollection
+    private List<Long> usersInSession = new ArrayList<>();
+
 
     public Game getGame() {
         return game;
@@ -73,5 +78,13 @@ public class GameSession implements Serializable{
 
     public void setStatus(GameStatus status) {
         this.status = status;
+    }
+
+    public List<Long> getUsersInSession(){
+        return usersInSession;
+    }
+
+    public void setUsersInSession(List<Long> usersInSession){
+        this.usersInSession = usersInSession;
     }
 }
