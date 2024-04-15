@@ -142,6 +142,17 @@ public class GameController {
 
     return gameService.createTextPrompt(gameSessionId, userId, textPromptDTO.getContent());
     }
+  
+  // Get Mapping to get the text prompt from the user, need to be then assigned to different partecipantes in the game
+  @GetMapping("/games/{gameSessionId}/prompts/{userId}")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public TextPrompt getTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestBody TextPromptDTO textPromptDTO, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    userService.authenticateUser(token, userService.getUserById(id));
+
+    return gameService.getTextPrompt(gameSessionId, userId);
+    }
+
 
 
   // Post mapping to create drawing entity in the database and save the drawing from the user

@@ -320,6 +320,48 @@ public class GameService {
         return text;
     }
 
+    public TextPrompt getTextPrompt(Long gameSessionId, Long userId) {
+
+        // get list of all available textprompts
+        List<TextPrompt> availablePrompts = textPromptRepository.findAll().stream()
+            .filter(textPrompt -> textPrompt.getAssignedTo() == null && !textPrompt.getCreator().getId().equals(userId))
+            .collect(Collectors.toList());
+
+        List<TextPrompt> lastPrompts = textPromptRepository.findAll().stream()
+            .filter(textPrompt -> textPrompt.getAssignedTo() == null)
+            .collect(Collectors.toList());
+
+        List<TextPrompt> alreadyAssignedPrompts = textPromptRepository.findAll().stream()
+            .filter(textPrompt -> textPrompt.getAssignedTo() != null)
+            .collect(Collectors.toList());
+
+        
+        // select random prompting 
+        SecureRandom random = new SecureRandom();
+        int randomNumber = random.nextInt(availablePrompts.size());
+        TextPrompt assignedPrompt = availablePrompts.get(randomNumber);
+
+        // if last prompt would be the one userId drew -> choose random already assigned prompt
+        // and assign that one to userId and the last prompt to whoever had that prompt
+        if (availablePrompts.isEmpty()){
+            randomNumber = random.nextInt(alreadyAssignedPrompts.size());
+            assignedPrompt = alreadyAssignedPrompts.get(randomNumber);
+            lastPrompts.get(0).setAssignedTo(assignedPrompt.getAssignedTo());
+        }
+
+        assignedPrompt.setAssignedTo(userId);
+
+        return assignedPrompt;
+    }
+
+    public List<TextPrompt> getTextPrompts(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        return textPromptRepository.findByCreatorId(user.getId());
+
+    }
+    
     public Drawing createDrawing(Long gameSessionId, Long userId, Long previousTextPromptId, String drawingBase64){
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found"));
@@ -351,6 +393,7 @@ public class GameService {
 
         return savedDrawing;
     }
+
 
     public Drawing getDrawing(Long gameSessionId, Long userId){
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId)
@@ -393,14 +436,6 @@ public class GameService {
 
     public List<Drawing> getDrawings(){
         return drawingRepository.findAll();
-    }
-
-    public List<TextPrompt> getTextPrompts(Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-
-        return textPromptRepository.findByCreatorId(user.getId());
-
     }
 
     public void endGameSessionAndDeleteTextPrompts(Long gameSessionId) {

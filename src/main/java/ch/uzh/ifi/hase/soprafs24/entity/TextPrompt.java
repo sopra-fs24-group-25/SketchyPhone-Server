@@ -23,6 +23,9 @@ public class TextPrompt implements Serializable {
     @JoinColumn(name = "gameId")
     private GameSession gameSession;
 
+    @Column
+    private Long assignedTo;
+
     public Long getTextPromptId() {
         return textPromptId;
     }
@@ -53,5 +56,13 @@ public class TextPrompt implements Serializable {
 
     public void setGameSession(GameSession gameSession) {
         this.gameSession = gameSession;
+    }
+
+    public Long getAssignedTo() {
+        return assignedTo;
+    }
+
+    public void setAssignedTo(Long assignedTo) {
+        this.assignedTo = assignedTo;
     }
 }

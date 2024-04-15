@@ -7,6 +7,8 @@ public class TextPromptDTO {
     private User creator;
     private GameSession gameSession;
     private String content;
+    private Long assignedTo;
+
 
     public TextPromptDTO() {}
 
@@ -38,5 +40,13 @@ public class TextPromptDTO {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Long getAssignedTo() {
+        return assignedTo;
+    }
+
+    public void setAssignedTo(Long assignedTo) {
+        this.assignedTo = assignedTo;
     }
 }
