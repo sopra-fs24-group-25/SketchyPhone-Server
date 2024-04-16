@@ -7,6 +7,15 @@ public class GameSessionDTO {
     private GameStatus status;
     private Long gameSessionId;
     private List<Long> usersInSession;
+    private int roundCounter;
+
+    public int getRoundCounter(){
+        return roundCounter;
+    }
+
+    public void setRoundCounter(int roundCounter){
+        this.roundCounter = roundCounter;
+    }
 
     public GameSessionDTO() {
     }

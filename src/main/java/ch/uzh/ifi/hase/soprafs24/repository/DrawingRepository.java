@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository("drawingRepository")
 public interface DrawingRepository extends JpaRepository<Drawing, Long> {
   
-  Drawing findById(long drawingId);
+  Drawing findByDrawingId(long drawingId);
 }
 

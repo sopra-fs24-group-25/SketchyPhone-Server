@@ -78,12 +78,18 @@ public interface DTOMapper {
   @Mapping(source = "gameSession", target = "gameSession")
   @Mapping(source = "creator", target = "creator")
   @Mapping(source = "assignedTo", target = "assignedTo")
+  @Mapping(source = "previousDrawingId", target = "previousDrawingId")
+  @Mapping(source = "nextDrawingId", target = "nextDrawingId")
+  @Mapping(source = "round", target = "round")
   TextPrompt convertTextPromptDTOtoEntity(TextPromptDTO textPromptDTO);
 
   @Mapping(source = "content", target = "content")
   @Mapping(source = "gameSession", target = "gameSession")
   @Mapping(source = "creator", target = "creator")
-  @Mapping(source = "assignedTo", target = "assignedTo")  
+  @Mapping(source = "assignedTo", target = "assignedTo")
+  @Mapping(source = "previousDrawingId", target = "previousDrawingId")
+  @Mapping(source = "nextDrawingId", target = "nextDrawingId")
+  @Mapping(source = "round", target = "round")
   TextPromptDTO convertEntityToTextPromptDTO(TextPrompt textPrompt);
 
   @Mapping(source = "gameSpeed", target = "gameSpeed")
@@ -113,6 +119,7 @@ public interface DTOMapper {
   @Mapping(source = "previousTextPrompt", target = "previousTextPrompt")
   @Mapping(source = "nextTextPrompt", target = "nextTextPrompt")
   @Mapping(source = "assignedTo", target = "assignedTo")
+  @Mapping(source = "round", target = "round")
   Drawing convertDrawingDTOtoEntity(DrawingDTO drawingDTO);
 
   @Mapping(source = "encodedImage", target = "encodedImage")
@@ -122,5 +129,6 @@ public interface DTOMapper {
   @Mapping(source = "previousTextPrompt", target = "previousTextPrompt")
   @Mapping(source = "nextTextPrompt", target = "nextTextPrompt")
   @Mapping(source = "assignedTo", target = "assignedTo")
+  @Mapping(source = "round", target = "round")
   DrawingDTO convertEntityToDrawingDTO(Drawing drawing);
 }
