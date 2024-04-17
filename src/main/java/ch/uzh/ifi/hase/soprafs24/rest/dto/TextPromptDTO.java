@@ -8,6 +8,9 @@ public class TextPromptDTO {
     private GameSession gameSession;
     private String content;
     private Long assignedTo;
+    private Long previousDrawingId;
+    private Long nextDrawingId;
+    private int round;
 
 
     public TextPromptDTO() {}
@@ -26,12 +29,28 @@ public class TextPromptDTO {
         this.creator = creator;
     }
 
+    public Long getPreviousDrawingId(){
+        return previousDrawingId;
+    }
+
+    public void setPreviousDrawingId(Long previousDrawingId){
+        this.previousDrawingId = previousDrawingId;
+    }
+
     public GameSession getGameSession() {
         return gameSession;
     }
 
     public void setGameSession(GameSession gameSession) {
         this.gameSession = gameSession;
+    }
+
+    public Long getNextDrawingId(){
+        return nextDrawingId;
+    }
+
+    public void setNextDrawingId(Long nextDrawingId){
+        this.nextDrawingId = nextDrawingId;
     }
     
     public String getContent() {
@@ -40,6 +59,14 @@ public class TextPromptDTO {
 
     public void setContent(String content) {
         this.content = content;
+    }
+    
+    public int getRound(){
+        return round;
+    }
+
+    public void setRound(int round){
+        this.round = round;
     }
 
     public Long getAssignedTo() {

@@ -12,6 +12,7 @@ public class DrawingDTO {
   private Long nextTextPromptId;
   private Long gameSessionId;
   private Long assignedTo;
+  private int round;
 
   public Long getDrawingId() {
     return drawingId;
@@ -27,6 +28,14 @@ public class DrawingDTO {
 
   public void setCreatorId(Long creatorId) {
     this.creatorId = creatorId;
+  }
+
+  public int getRound(){
+    return round;
+  }
+
+  public void setRound(int round){
+      this.round = round;
   }
 
   public Long getPreviousTextPrompt(){

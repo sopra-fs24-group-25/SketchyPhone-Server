@@ -8,6 +8,7 @@ public class GameSessionGetDTO {
     private Long gameSessionId;
     private String token;
     private List<Long> usersInSession;
+    private int roundCounter;
 
     public GameSessionGetDTO() {
     }
@@ -29,6 +30,10 @@ public class GameSessionGetDTO {
         return gameSessionId;
     }
 
+    public int getRoundCounter(){
+        return roundCounter;
+    }
+
     // Setters
     public void setStatus(GameStatus status) {
         this.status = status;
@@ -48,6 +53,10 @@ public class GameSessionGetDTO {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public void setRoundCounter(int roundCounter){
+        this.roundCounter = roundCounter;
     }
 
 }

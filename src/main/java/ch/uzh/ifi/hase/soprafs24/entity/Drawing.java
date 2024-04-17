@@ -46,6 +46,17 @@ public class Drawing implements Serializable {
   @Column
   private Long assignedTo;
 
+  @Column
+  private int round;
+
+  public int getRound(){
+    return round;
+  }
+
+  public void setRound(int round){
+    this.round = round;
+  }
+
    
   public Long getDrawingId(){
     return drawingId;

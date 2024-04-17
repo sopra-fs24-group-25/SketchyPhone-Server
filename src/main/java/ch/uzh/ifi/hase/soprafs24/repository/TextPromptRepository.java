@@ -13,4 +13,6 @@ public interface TextPromptRepository extends JpaRepository<TextPrompt, Long> {
 
     // Delete all TextPrompts associated with a specific GameSession ID
     void deleteByGameSession_GameSessionId (Long gameSessionId);
+
+    TextPrompt findByTextPromptId(long textPromptId);
 }

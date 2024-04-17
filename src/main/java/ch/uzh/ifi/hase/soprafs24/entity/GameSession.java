@@ -39,6 +39,16 @@ public class GameSession implements Serializable{
     @ElementCollection
     private List<Long> usersInSession = new ArrayList<>();
 
+    @Column
+    private int roundCounter = 1;
+
+    public int getRoundCounter(){
+        return roundCounter;
+    }
+
+    public void setRoundCounter(int roundCounter){
+        this.roundCounter = roundCounter;
+    }
 
     public Game getGame() {
         return game;

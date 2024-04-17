@@ -29,6 +29,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 
 /**
@@ -117,7 +120,7 @@ public class GameController {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public Game createGameSession(@PathVariable Long gameId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
-    gameService.authenticateStart(token, userService.getUserById(id));
+    gameService.authenticateAdmin(token, userService.getUserById(id));
     return gameService.createGameSession(gameId);
   }
 
@@ -133,21 +136,22 @@ public class GameController {
 
   // Post Mapping to get the text prompt from the user with the text prompt
   // tested with postman to create a text prompt, passed (201 Created)
-  @PostMapping("/games/{gameSessionId}/prompts/{userId}")
+  // for the very first text prompts -> insert 777 as previousDrawingId
+  @PostMapping("/games/{gameSessionId}/prompts/{userId}/{previousDrawingId}")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   // TODO make post return type to void to comply with REST specs
-  public TextPrompt createTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestBody TextPromptDTO textPromptDTO, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+  public TextPrompt createTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long userId, @PathVariable Long previousDrawingId, @RequestBody TextPromptDTO textPromptDTO, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
     userService.authenticateUser(token, userService.getUserById(id));
 
-    return gameService.createTextPrompt(gameSessionId, userId, textPromptDTO.getContent());
+    return gameService.createTextPrompt(gameSessionId, userId, previousDrawingId, textPromptDTO.getContent());
     }
   
   // Get Mapping to get the text prompt from the user, need to be then assigned to different partecipantes in the game
   @GetMapping("/games/{gameSessionId}/prompts/{userId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public TextPrompt getTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestBody TextPromptDTO textPromptDTO, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+  public TextPrompt getTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
     userService.authenticateUser(token, userService.getUserById(id));
 
     return gameService.getTextPrompt(gameSessionId, userId);
@@ -182,6 +186,39 @@ public class GameController {
   public List<Drawing> getDrawings() {
       return gameService.getDrawings();
   }
+
+  // mapping to start the next round -> increase roundCounter in current game session
+  @PutMapping("games/{gameSessionId}/nextround")
+  public void startNextRound(@PathVariable Long gameSessionId) {
+      gameService.startNextRound(gameSessionId);
+  }
   
+  // TODO get mappings for text prompt and drawing in presentation at the end -> /games/{gameId}/next/text OR /games/{gameId}/next/drawing
+  // with the current textPrompt/drawingId in the path to fetch from server
+  @GetMapping("/games/{gameSessionId}/next/text/{previousDrawingId}")
+  public TextPrompt getNextTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long previousDrawingId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+      gameService.authenticateAdmin(token, userService.getUserById(id));
+      
+      return gameService.getNextTextPrompt(gameSessionId, previousDrawingId);
+  }
+
+  @GetMapping("/games/{gameSessionId}/next/drawing/{previousTextPromptId}")
+  public Drawing getNextDrawing(@PathVariable Long gameSessionId, @PathVariable Long previousTextPromptId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+      gameService.authenticateAdmin(token, userService.getUserById(id));
+      
+      return gameService.getNextDrawing(gameSessionId, previousTextPromptId);
+  }
+  
+
+  // TODO get mapping to get one of the first text prompts 
+  // maybe add field in text prompts (and drawings) showing if it has already been presented -> prevent showing same flow twice
+  @GetMapping("/games/{gameSessionId}/presentation")
+  public TextPrompt getFirstTextPrompt(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+      gameService.authenticateAdmin(token, userService.getUserById(id));
+      
+      return gameService.getFirstTextPrompt(gameSessionId);
+  }
+  
+
   
 }

@@ -15,16 +15,26 @@ public class TextPrompt implements Serializable {
     @Column(nullable = false)
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "userId")
     private User creator;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "gameId")
     private GameSession gameSession;
 
     @Column
     private Long assignedTo;
+
+    @Column
+    private Long previousDrawingId;
+
+    @Column
+    private Long nextDrawingId;
+
+    @Column
+    private int round;
+
 
     public Long getTextPromptId() {
         return textPromptId;
@@ -32,6 +42,22 @@ public class TextPrompt implements Serializable {
 
     public void setTextPromptId(Long textPromptId) {
         this.textPromptId = textPromptId;
+    }
+
+    public Long getPreviousDrawingId(){
+        return previousDrawingId;
+    }
+
+    public void setPreviousDrawingId(Long previousDrawingId){
+        this.previousDrawingId = previousDrawingId;
+    }
+
+    public Long getNextDrawingId(){
+        return nextDrawingId;
+    }
+
+    public void setNextDrawingId(Long nextDrawingId){
+        this.nextDrawingId = nextDrawingId;
     }
 
     public String getContent() {
@@ -44,6 +70,14 @@ public class TextPrompt implements Serializable {
 
     public User getCreator() {
         return creator;
+    }
+
+    public int getRound(){
+        return round;
+    }
+
+    public void setRound(int round){
+        this.round = round;
     }
 
     public void setCreator(User creator) {
