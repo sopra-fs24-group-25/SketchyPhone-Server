@@ -29,7 +29,6 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
@@ -74,6 +73,8 @@ public class GameService {
         return pin;
     }
 
+    // TODO if permanent users are allowed -> add condition to check whether admin is already a user -> if not, create new user
+    // else just save that user
     public Game createGame(User admin) {
         User savedUser = userService.createUser(admin);
         savedUser.setRole("admin");
@@ -273,6 +274,7 @@ public class GameService {
         return gameRepository.findByGamePin(gamePin);
     }
 
+    // TODO should delete all temporary users
     public void deleteGame(Long gamePin) {
         Game game = getGameByGamePIN(gamePin);
         gameRepository.delete(game);
@@ -406,7 +408,7 @@ public class GameService {
             base64String = paddedString.toString();
         }
 
-        drawing.setEncodedImage(Base64.getDecoder().decode(drawingBase64));
+        drawing.setEncodedImage(drawingBase64);
         Drawing savedDrawing = drawingRepository.save(drawing);
         drawingRepository.flush();
 
@@ -463,6 +465,7 @@ public class GameService {
         return drawingRepository.findAll();
     }
 
+    // TODO ending a game session should create a sessionHistory entity with all drawings and textprompts
     public void endGameSessionAndDeleteTextPrompts(Long gameSessionId) {
         // Check if the game session exists and whether it can be ended
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
@@ -504,7 +507,7 @@ public class GameService {
 
         Drawing drawing = drawingRepository.findByDrawingId(previousTextPrompt.getNextDrawingId());
 
-        byte[] encodedImage = drawing.getEncodedImage();
+        String encodedImage = drawing.getEncodedImage();
 
         return drawing;
     }
