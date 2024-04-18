@@ -193,8 +193,8 @@ public class GameController {
       gameService.startNextRound(gameSessionId);
   }
   
-  // TODO get mappings for text prompt and drawing in presentation at the end -> /games/{gameId}/next/text OR /games/{gameId}/next/drawing
-  // with the current textPrompt/drawingId in the path to fetch from server
+  // Get mappings for text prompt and drawing in presentation at the end -> /games/{gameId}/next/text OR /games/{gameId}/next/drawing
+  // with the current textPromptId/drawingId in the path to fetch from server
   @GetMapping("/games/{gameSessionId}/next/text/{previousDrawingId}")
   public TextPrompt getNextTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long previousDrawingId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
       gameService.authenticateAdmin(token, userService.getUserById(id));
@@ -210,8 +210,7 @@ public class GameController {
   }
   
 
-  // TODO get mapping to get one of the first text prompts 
-  // maybe add field in text prompts (and drawings) showing if it has already been presented -> prevent showing same flow twice
+  // Get mapping to get one of the first text prompts 
   @GetMapping("/games/{gameSessionId}/presentation")
   public TextPrompt getFirstTextPrompt(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
       gameService.authenticateAdmin(token, userService.getUserById(id));

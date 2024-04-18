@@ -6,7 +6,7 @@ public class DrawingDTO {
 
   private Long drawingId;
   private Long creatorId;
-  private byte[] encodedImage;
+  private String encodedImage;
   private LocalDateTime creationDateTime;
   private Long previousTextPromptId;
   private Long nextTextPromptId;
@@ -46,11 +46,11 @@ public class DrawingDTO {
     this.previousTextPromptId = previousTextPrompt;
   }
 
-  public byte[] getEncodedImage(){
+  public String getEncodedImage(){
     return encodedImage;
   }
 
-  public void setEncodedImage(byte[] encodedImage){
+  public void setEncodedImage(String encodedImage){
     this.encodedImage = encodedImage;
   }
 

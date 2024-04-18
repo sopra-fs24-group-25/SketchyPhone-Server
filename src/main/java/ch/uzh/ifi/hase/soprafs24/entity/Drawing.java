@@ -26,7 +26,7 @@ public class Drawing implements Serializable {
   private Long drawingId;
 
   @Column(nullable = false)
-  private byte[] encodedImage;
+  private String encodedImage;
 
   @Column(nullable = false)
   private Long creatorId;
@@ -74,11 +74,11 @@ public class Drawing implements Serializable {
     this.previousTextPromptId = previousTextPromptId;
   }
    
-  public byte[] getEncodedImage(){
+  public String getEncodedImage(){
     return encodedImage;
   }
 
-  public void setEncodedImage(byte[] encodedImage){
+  public void setEncodedImage(String encodedImage){
     this.encodedImage = encodedImage;
   }
 
