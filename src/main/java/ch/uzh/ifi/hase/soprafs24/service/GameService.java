@@ -529,4 +529,8 @@ public class GameService {
 
         return assignedPrompt;
     }
+
+    public List<Game> getAllGames(){
+        return gameRepository.findAll();
+    }
 }
