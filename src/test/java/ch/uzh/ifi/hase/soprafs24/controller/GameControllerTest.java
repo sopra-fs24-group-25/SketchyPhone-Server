@@ -1,14 +1,16 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
-import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.GamePostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.List;
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +22,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
-import java.util.List;
-
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -75,6 +72,49 @@ public class GameControllerTest {
       .andExpect(jsonPath("$.admin", is(game.getAdmin().intValue())))
       .andExpect(jsonPath("$.gamePin", is(game.getGamePin().intValue())));
   }
+
+  @Test
+  public void joinGameRoom() throws Exception{
+    //given
+    User admin = new User();
+    admin.setName("TestAdmin");
+    admin.setId(2L);
+
+    User createdAdmin = userService.createUser(admin);
+
+    List<User> users = new ArrayList<User>();
+    users.add(createdAdmin);
+
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setUsers(null);
+    game.setGamePin(666666L);
+    game.setUsers(users);
+
+    UserPostDTO user = new UserPostDTO();
+    user.setName("Testuser");
+
+    User newUser = new User();
+    user.setName("TestUser");
+
+    User createdNewUser = userService.createUser(newUser);
+
+    users.add(createdNewUser);
+
+    given(gameService.joinGame(Mockito.any(), Mockito.any())).willReturn(game);
+
+    // when
+    MockHttpServletRequestBuilder postRequest = post("/gameRooms/join/666666")
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(asJsonString(user));
+
+    // then
+    mockMvc.perform(postRequest)
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$.users", is(game.getUsers())));
+  }
+  
 
   
 

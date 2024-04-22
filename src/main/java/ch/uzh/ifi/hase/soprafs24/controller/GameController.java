@@ -63,11 +63,15 @@ public class GameController {
   @PostMapping("/gameRooms/join/{submittedPin}")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public Game joinRoom(@PathVariable Long submittedPin, @RequestBody UserPostDTO userPostDTO) {
+  public GameGetDTO joinRoom(@PathVariable Long submittedPin, @RequestBody UserPostDTO userPostDTO) {
       // Convert UserPostDTO to User entity
       User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
-      return gameService.joinGame(submittedPin, userInput);
+      Game game = gameService.joinGame(submittedPin, userInput);
+
+      GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
+
+      return gameDTO;
   }
 
   @DeleteMapping("/games/{gameRoomId}/leave/{userId}")
