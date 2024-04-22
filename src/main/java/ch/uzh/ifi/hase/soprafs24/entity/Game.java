@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 
 import java.io.Serializable;
-
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -46,6 +46,8 @@ public class Game implements Serializable{
     @Column(nullable = false)
     private Long gameSettingsId;
 
+    @Column(nullable = true)
+    private Instant lastActivity;
 
     public void setGameSessions(List<GameSession> gameSessions) {
         this.gameSessions = gameSessions;}
@@ -118,5 +120,10 @@ public class Game implements Serializable{
     public void setGameSettingsId(Long gameSettingsId) {
     this.gameSettingsId = gameSettingsId;
     }
+
+    public Instant getLastActivity() {
+        return lastActivity;
+    }
+
 
 }

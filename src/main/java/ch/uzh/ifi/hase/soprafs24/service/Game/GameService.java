@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.service;
+package ch.uzh.ifi.hase.soprafs24.service.Game;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Drawing;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
@@ -14,6 +14,7 @@ import ch.uzh.ifi.hase.soprafs24.repository.TextPromptRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
+import ch.uzh.ifi.hase.soprafs24.service.UserService;
+
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -75,6 +80,7 @@ public class GameService {
 
     // TODO if permanent users are allowed -> add condition to check whether admin is already a user -> if not, create new user
     // else just save that user
+
     public Game createGame(User admin) {
         User savedUser = userService.createUser(admin);
         savedUser.setRole("admin");
@@ -157,7 +163,7 @@ public class GameService {
     
         return newGame;
       }
-    
+
     
     public Game createGameSession(Long gameId) {
         
@@ -275,9 +281,36 @@ public class GameService {
     }
 
     // TODO should delete all temporary users
-    public void deleteGame(Long gamePin) {
-        Game game = getGameByGamePIN(gamePin);
-        gameRepository.delete(game);
+    public Game gameroomCleanUp (Long gameRoomId){
+        Game game = gameRepository.findByGameId(gameRoomId);
+        if (game == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Room doesn't exist");
+        }
+        // Check if the game room is inactive
+        if (isGameRoomInactive(game)) {
+            // Close the game room
+            game.setStatus(GameStatus.CLOSED);
+            // Additional cleanup tasks, such as releasing resources or deleting data
+            
+            // Optionally, return a message or confirmation indicating cleanup success
+        }
+
+        return game;
+    }
+
+    private boolean isGameRoomInactive(Game game) {
+        if (game.getUsers().size() < 2) {
+            return true;
+        }
+
+        // Check if the game room has been inactive for more than one day
+        Instant oneDayAgo = Instant.now().minus(Duration.ofDays(1));
+        Instant lastActivity = game.getLastActivity(); // Assuming you have a lastActivity field in the Game entity
+        if (lastActivity != null && lastActivity.isBefore(oneDayAgo)) {
+            return true;
+        }
+    
+        return false;
     }
 
     public List<User> getGameRoomUsers(Long gameId){
@@ -431,12 +464,12 @@ public class GameService {
 
         // get list of all available drawings from current round
         List<Drawing> availableDrawings = drawingRepository.findAll().stream()
-            .filter(drawing -> drawing.getAssignedTo() == null && drawing.getCreator().getId() != userId && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)
-            .collect(Collectors.toList());
+        .filter(drawing -> drawing.getAssignedTo() == null && drawing.getCreator().getId() != userId && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)
+        .collect(Collectors.toList());
 
         List<Drawing> lastDrawings = drawingRepository.findAll().stream()
             .filter(drawing -> drawing.getAssignedTo() == null && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)
-            . collect(Collectors.toList());
+            .collect(Collectors.toList());
 
         List<Drawing> alreadyAssignedDrawings = drawingRepository.findAll().stream()
             .filter(drawing -> drawing.getAssignedTo() != null && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)

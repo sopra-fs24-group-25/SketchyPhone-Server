@@ -10,12 +10,13 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.service.Game.GameService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -175,6 +176,7 @@ public class GameController {
   @GetMapping("/games/{gameSessionId}/drawings/{userId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
+  
   public DrawingDTO getDrawing(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
     userService.authenticateUser(token, userService.getUserById(id));
 
@@ -198,6 +200,8 @@ public class GameController {
   
   // Get mappings for text prompt and drawing in presentation at the end -> /games/{gameId}/next/text OR /games/{gameId}/next/drawing
   // with the current textPromptId/drawingId in the path to fetch from server
+  // Get mappings for text prompt and drawing in presentation at the end -> /games/{gameId}/next/text OR /games/{gameId}/next/drawing
+  // with the current textPromptId/drawingId in the path to fetch from server
   @GetMapping("/games/{gameSessionId}/next/text/{previousDrawingId}")
   public TextPrompt getNextTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long previousDrawingId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
       gameService.authenticateAdmin(token, userService.getUserById(id));
@@ -213,6 +217,7 @@ public class GameController {
   }
   
 
+  // Get mapping to get one of the first text prompts 
   // Get mapping to get one of the first text prompts 
   @GetMapping("/games/{gameSessionId}/presentation")
   public TextPrompt getFirstTextPrompt(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
