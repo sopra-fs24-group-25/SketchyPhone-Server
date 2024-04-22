@@ -28,8 +28,9 @@ public class Drawing implements Serializable {
   @Column(nullable = false)
   private String encodedImage;
 
-  @Column(nullable = false)
-  private Long creatorId;
+  @ManyToOne()
+  @JoinColumn(name = "userId")
+  private User creator;
 
   @Column
   private Long previousTextPromptId;
@@ -90,12 +91,12 @@ public class Drawing implements Serializable {
     this.nextTextPromtId = nextTextPromptId;
   }
    
-  public Long getCreatorId(){
-    return creatorId;
+  public User getCreator(){
+    return creator;
   }
 
-  public void setCreatorId(Long creatorId){
-    this.creatorId = creatorId;
+  public void setCreator(User creator){
+    this.creator = creator;
   }
 
   public Long getGameSessionId(){

@@ -113,7 +113,7 @@ public interface DTOMapper {
   AvatarDTO convertEntityToAvatarDTO(Avatar avatar);
 
   @Mapping(source = "encodedImage", target = "encodedImage")
-  @Mapping(source = "creatorId", target = "creatorId")
+  @Mapping(source = "creator", target = "creator")
   @Mapping(source = "creationDateTime", target = "creationDateTime")
   @Mapping(source = "gameSessionId", target = "gameSessionId")
   @Mapping(source = "previousTextPrompt", target = "previousTextPrompt")
@@ -123,7 +123,7 @@ public interface DTOMapper {
   Drawing convertDrawingDTOtoEntity(DrawingDTO drawingDTO);
 
   @Mapping(source = "encodedImage", target = "encodedImage")
-  @Mapping(source = "creatorId", target = "creatorId")
+  @Mapping(source = "creator", target = "creator")
   @Mapping(source = "creationDateTime", target = "creationDateTime")
   @Mapping(source = "gameSessionId", target = "gameSessionId")
   @Mapping(source = "previousTextPrompt", target = "previousTextPrompt")

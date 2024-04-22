@@ -320,7 +320,7 @@ public class GameService {
         text.setGameSession(gameSession);
         text.setCreator(user);
         text.setRound(gameSession.getRoundCounter());
-        // will be 777 if the first drawing, can be used for presentation
+        // will be 777 if it's the first text prompt, can be used for presentation
         text.setPreviousDrawingId(previousDrawingId);
         textPromptRepository.save(text);
         // the very first text prompts should have 777 in the path 
@@ -380,18 +380,20 @@ public class GameService {
 
     }
     
-    public Drawing createDrawing(Long gameSessionId, Long userId, long previousTextPromptId, String drawingBase64){
+    public Drawing createDrawing(Long gameSessionId, long userId, long previousTextPromptId, String drawingBase64){
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
         if (gameSession == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "GameSession not found");
         }
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        User user = userRepository.findById(userId);
+        if (user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
 
         Drawing drawing = new Drawing();
         drawing.setCreationDateTime(LocalDateTime.now());
         drawing.setGameSessionId(gameSessionId);
-        drawing.setCreatorId(userId);
+        drawing.setCreator(userRepository.findById(userId));
         drawing.setPreviousTextPrompt(previousTextPromptId);
         drawing.setRound(gameSession.getRoundCounter());
 
@@ -429,7 +431,7 @@ public class GameService {
 
         // get list of all available drawings from current round
         List<Drawing> availableDrawings = drawingRepository.findAll().stream()
-            .filter(drawing -> drawing.getAssignedTo() == null && drawing.getCreatorId() != userId && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)
+            .filter(drawing -> drawing.getAssignedTo() == null && drawing.getCreator().getId() != userId && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)
             .collect(Collectors.toList());
 
         List<Drawing> lastDrawings = drawingRepository.findAll().stream()

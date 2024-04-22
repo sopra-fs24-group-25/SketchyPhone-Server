@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ch.uzh.ifi.hase.soprafs24.rest.dto.DrawingDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -174,10 +175,12 @@ public class GameController {
   @GetMapping("/games/{gameSessionId}/drawings/{userId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public Drawing getDrawing(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+  public DrawingDTO getDrawing(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
     userService.authenticateUser(token, userService.getUserById(id));
 
-    return gameService.getDrawing(gameSessionId, userId);
+    Drawing newDrawing = gameService.getDrawing(gameSessionId, userId);
+
+    return DTOMapper.INSTANCE.convertEntityToDrawingDTO(newDrawing);
   }
 
   // just for testing

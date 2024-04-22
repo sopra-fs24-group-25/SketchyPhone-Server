@@ -1,6 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Drawing;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
+import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
+import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
@@ -28,7 +32,6 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -195,6 +198,49 @@ public class GameControllerTest {
     mockMvc.perform(getRequest)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$", hasSize(2)));
+  }
+
+  @Test
+  public void createDrawingValidInput() throws Exception{
+    // given
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+    gameSession.setStatus(GameStatus.IN_PLAY);
+
+    TextPrompt previousTextPrompt = new TextPrompt();
+    previousTextPrompt.setTextPromptId(1L);
+
+    String encodedImage = "iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AgMAAABHkjHhAAAACVBMVEX///8AAAAAgP9o0N6bAAAAb0lEQVR4nO3NwQ2AIAwF0JLAnQPsUzfgQC+OwDwuQacUUEtZQf2HJi+/aQH+vCGRsqYrXFF5Z+ZDbZfFkRo5iUNkruTF1pWaQdn2b9PG9jlNw1a8jSqI0a99WnpDl5975q5w2vUnMG0yECq3G/CNnKe3FUPOg+gYAAAAAElFTkSuQmCC";
+
+    User user = new User();
+    user.setName("TestUser");
+    user.setId(1L);
+    user.setToken("test token");
+
+    User createdUser = userService.createUser(user);
+
+    Drawing drawing = new Drawing();
+    drawing.setCreator(user);
+    drawing.setEncodedImage(encodedImage);
+    drawing.setPreviousTextPrompt(previousTextPrompt.getTextPromptId());
+
+    // mock behaviour
+
+    given(gameService.createDrawing(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.any())).willReturn(drawing);
+
+    // when
+    MockHttpServletRequestBuilder postRequest = post(String.format("/games/%x/drawings/%x/%x", 1L, 1L, 1L))
+    .contentType(MediaType.APPLICATION_JSON)
+    .header("Authorization", user.getToken())
+    .header("X-User-ID", String.valueOf(user.getId()))
+    .content(encodedImage);
+
+    // then
+    mockMvc.perform(postRequest)
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$.creator.id", is(user.getId().intValue())))
+      .andExpect(jsonPath("$.encodedImage", is(encodedImage)))
+      .andExpect(jsonPath("$.previousTextPrompt", is(drawing.getPreviousTextPrompt().intValue())));
   }
   
 
