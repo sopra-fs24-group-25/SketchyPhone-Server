@@ -10,8 +10,8 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.service.Game.GameService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
