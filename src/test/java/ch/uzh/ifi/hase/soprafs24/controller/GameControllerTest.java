@@ -22,9 +22,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.server.ResponseStatusException;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -47,7 +51,7 @@ public class GameControllerTest {
   private UserService userService;
 
   @Test
-  public void createGameRoom() throws Exception {
+  public void createGameRoomValidInput() throws Exception {
     // given
     Game game = new Game();
     game.setAdmin(2L);
@@ -74,11 +78,10 @@ public class GameControllerTest {
   }
 
   @Test
-  public void joinGameRoom() throws Exception{
+  public void joinGameRoomValidInput() throws Exception{
     //given
     User admin = new User();
     admin.setName("TestAdmin");
-    admin.setId(2L);
 
     User createdAdmin = userService.createUser(admin);
 
@@ -88,7 +91,6 @@ public class GameControllerTest {
     Game game = new Game();
     game.setAdmin(1L);
     game.setGameId(1L);
-    game.setUsers(null);
     game.setGamePin(666666L);
     game.setUsers(users);
 
@@ -112,10 +114,88 @@ public class GameControllerTest {
     // then
     mockMvc.perform(postRequest)
       .andExpect(status().isCreated())
-      .andExpect(jsonPath("$.users", is(game.getUsers())));
+      .andExpect(jsonPath("$.users", is(users)));
+  }
+
+  @Test
+  public void leaveGameRoomValidInput() throws Exception {
+    //given
+    User admin = new User();
+    admin.setName("TestAdmin");
+
+    User createdAdmin = userService.createUser(admin);
+
+    User newUser = new User();
+    newUser.setName("Test User");
+    newUser.setToken("Test token");
+    newUser.setId(2L);
+
+    User createdNewUser = userService.createUser(newUser);
+
+    List<User> users = new ArrayList<User>();
+    users.add(createdAdmin);
+    users.add(createdNewUser);
+
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+    game.setUsers(users);
+
+    users.remove(1);
+
+    // when
+    MockHttpServletRequestBuilder deleteRequest = delete(String.format("/games/%x/leave/%x", 1L,2L))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", newUser.getToken())
+      .header("X-User-ID", String.valueOf(newUser.getId()));
+
+    // then
+    mockMvc.perform(deleteRequest)
+      .andExpect(status().isOk());
   }
   
+  @Test
+  public void getUsersInGameRoomValidInput() throws Exception {
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+    
 
+    User admin = new User();
+    admin.setName("TestAdmin");
+
+    User createdAdmin = userService.createUser(admin);
+
+    User newUser = new User();
+    newUser.setName("Test User");
+    newUser.setToken("Test token");
+    newUser.setId(2L);
+
+    User createdNewUser = userService.createUser(newUser);
+
+    List<User> users = new ArrayList<User>();
+    users.add(createdAdmin);
+    users.add(createdNewUser);
+
+    game.setUsers(users);
+
+    given(gameService.getGameRoomUsers(Mockito.any())).willReturn(users);
+
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/gameRooms/%x/users", game.getGameId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", newUser.getToken())
+      .header("X-User-ID", String.valueOf(newUser.getId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$", hasSize(2)));
+  }
   
 
   /**
