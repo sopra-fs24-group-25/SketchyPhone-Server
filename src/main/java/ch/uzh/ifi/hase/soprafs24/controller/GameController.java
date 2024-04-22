@@ -23,6 +23,13 @@ import java.util.stream.Collectors;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.DrawingDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+
 
 /**
  * User Controller
@@ -47,8 +54,11 @@ public class GameController {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public GameGetDTO createRoom(@RequestBody UserPostDTO userPostDTO) {
+  public GameGetDTO createRoom(@RequestBody UserPostDTO userPostDTO) {
     User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
     Game newGame = gameService.createGame(userInput);
+    GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(newGame);
+    return gameDTO;
     GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(newGame);
     return gameDTO;
   }
@@ -59,9 +69,15 @@ public class GameController {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public GameGetDTO joinRoom(@PathVariable Long submittedPin, @RequestBody UserPostDTO userPostDTO) {
+  public GameGetDTO joinRoom(@PathVariable Long submittedPin, @RequestBody UserPostDTO userPostDTO) {
       // Convert UserPostDTO to User entity
       User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
+      Game game = gameService.joinGame(submittedPin, userInput);
+
+      GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
+
+      return gameDTO;
       Game game = gameService.joinGame(submittedPin, userInput);
 
       GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
@@ -176,6 +192,9 @@ public class GameController {
     Drawing newDrawing = gameService.getDrawing(gameSessionId, userId);
 
     return DTOMapper.INSTANCE.convertEntityToDrawingDTO(newDrawing);
+    Drawing newDrawing = gameService.getDrawing(gameSessionId, userId);
+
+    return DTOMapper.INSTANCE.convertEntityToDrawingDTO(newDrawing);
   }
 
   // just for testing
@@ -193,6 +212,8 @@ public class GameController {
   
   // Get mappings for text prompt and drawing in presentation at the end -> /games/{gameId}/next/text OR /games/{gameId}/next/drawing
   // with the current textPromptId/drawingId in the path to fetch from server
+  // Get mappings for text prompt and drawing in presentation at the end -> /games/{gameId}/next/text OR /games/{gameId}/next/drawing
+  // with the current textPromptId/drawingId in the path to fetch from server
   @GetMapping("/games/{gameSessionId}/next/text/{previousDrawingId}")
   public TextPrompt getNextTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long previousDrawingId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
       gameService.authenticateAdmin(token, userService.getUserById(id));
@@ -208,6 +229,7 @@ public class GameController {
   }
   
 
+  // Get mapping to get one of the first text prompts 
   // Get mapping to get one of the first text prompts 
   @GetMapping("/games/{gameSessionId}/presentation")
   public TextPrompt getFirstTextPrompt(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
