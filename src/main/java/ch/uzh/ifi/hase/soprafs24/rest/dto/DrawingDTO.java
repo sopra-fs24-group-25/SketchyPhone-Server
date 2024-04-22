@@ -1,12 +1,13 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
 import java.time.LocalDateTime;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 
 public class DrawingDTO {
 
   private Long drawingId;
-  private Long creatorId;
-  private byte[] encodedImage;
+  private User creator;
+  private String encodedImage;
   private LocalDateTime creationDateTime;
   private Long previousTextPromptId;
   private Long nextTextPromptId;
@@ -22,12 +23,12 @@ public class DrawingDTO {
     this.drawingId = drawingId;
   }
 
-  public Long getCreatorId() {
-    return creatorId;
+  public User getCreator() {
+    return creator;
   }
 
-  public void setCreatorId(Long creatorId) {
-    this.creatorId = creatorId;
+  public void setCreator(User creator) {
+    this.creator = creator;
   }
 
   public int getRound(){
@@ -46,11 +47,11 @@ public class DrawingDTO {
     this.previousTextPromptId = previousTextPrompt;
   }
 
-  public byte[] getEncodedImage(){
+  public String getEncodedImage(){
     return encodedImage;
   }
 
-  public void setEncodedImage(byte[] encodedImage){
+  public void setEncodedImage(String encodedImage){
     this.encodedImage = encodedImage;
   }
 

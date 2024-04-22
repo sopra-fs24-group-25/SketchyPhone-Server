@@ -34,7 +34,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
@@ -78,6 +77,9 @@ public class GameService {
         } while (!generatedPins.add(pin));
         return pin;
     }
+
+    // TODO if permanent users are allowed -> add condition to check whether admin is already a user -> if not, create new user
+    // else just save that user
 
     public Game createGame(User admin) {
         User savedUser = userService.createUser(admin);
@@ -162,37 +164,6 @@ public class GameService {
         return newGame;
       }
 
-    public Game gameroomCleanUp (Long gameRoomId){
-        Game game = gameRepository.findByGameId(gameRoomId);
-        if (game == null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Room doesn't exist");
-        }
-        // Check if the game room is inactive
-        if (isGameRoomInactive(game)) {
-            // Close the game room
-            game.setStatus(GameStatus.CLOSED);
-            // Additional cleanup tasks, such as releasing resources or deleting data
-            
-            // Optionally, return a message or confirmation indicating cleanup success
-        }
-
-        return game;
-    }
-
-    private boolean isGameRoomInactive(Game game) {
-        if (game.getUsers().size() < 2) {
-            return true;
-        }
-
-        // Check if the game room has been inactive for more than one day
-        Instant oneDayAgo = Instant.now().minus(Duration.ofDays(1));
-        Instant lastActivity = game.getLastActivity(); // Assuming you have a lastActivity field in the Game entity
-        if (lastActivity != null && lastActivity.isBefore(oneDayAgo)) {
-            return true;
-        }
-    
-        return false;
-    }
     
     public Game createGameSession(Long gameId) {
         
@@ -309,9 +280,37 @@ public class GameService {
         return gameRepository.findByGamePin(gamePin);
     }
 
-    public void deleteGame(Long gamePin) {
-        Game game = getGameByGamePIN(gamePin);
-        gameRepository.delete(game);
+    // TODO should delete all temporary users
+    public Game gameroomCleanUp (Long gameRoomId){
+        Game game = gameRepository.findByGameId(gameRoomId);
+        if (game == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Room doesn't exist");
+        }
+        // Check if the game room is inactive
+        if (isGameRoomInactive(game)) {
+            // Close the game room
+            game.setStatus(GameStatus.CLOSED);
+            // Additional cleanup tasks, such as releasing resources or deleting data
+            
+            // Optionally, return a message or confirmation indicating cleanup success
+        }
+
+        return game;
+    }
+
+    private boolean isGameRoomInactive(Game game) {
+        if (game.getUsers().size() < 2) {
+            return true;
+        }
+
+        // Check if the game room has been inactive for more than one day
+        Instant oneDayAgo = Instant.now().minus(Duration.ofDays(1));
+        Instant lastActivity = game.getLastActivity(); // Assuming you have a lastActivity field in the Game entity
+        if (lastActivity != null && lastActivity.isBefore(oneDayAgo)) {
+            return true;
+        }
+    
+        return false;
     }
 
     public List<User> getGameRoomUsers(Long gameId){
@@ -354,7 +353,7 @@ public class GameService {
         text.setGameSession(gameSession);
         text.setCreator(user);
         text.setRound(gameSession.getRoundCounter());
-        // will be 777 if the first drawing, can be used for presentation
+        // will be 777 if it's the first text prompt, can be used for presentation
         text.setPreviousDrawingId(previousDrawingId);
         textPromptRepository.save(text);
         // the very first text prompts should have 777 in the path 
@@ -414,18 +413,20 @@ public class GameService {
 
     }
     
-    public Drawing createDrawing(Long gameSessionId, Long userId, long previousTextPromptId, String drawingBase64){
+    public Drawing createDrawing(Long gameSessionId, long userId, long previousTextPromptId, String drawingBase64){
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
         if (gameSession == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "GameSession not found");
         }
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        User user = userRepository.findById(userId);
+        if (user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
 
         Drawing drawing = new Drawing();
         drawing.setCreationDateTime(LocalDateTime.now());
         drawing.setGameSessionId(gameSessionId);
-        drawing.setCreatorId(userId);
+        drawing.setCreator(userRepository.findById(userId));
         drawing.setPreviousTextPrompt(previousTextPromptId);
         drawing.setRound(gameSession.getRoundCounter());
 
@@ -442,7 +443,7 @@ public class GameService {
             base64String = paddedString.toString();
         }
 
-        drawing.setEncodedImage(Base64.getDecoder().decode(drawingBase64));
+        drawing.setEncodedImage(drawingBase64);
         Drawing savedDrawing = drawingRepository.save(drawing);
         drawingRepository.flush();
 
@@ -463,12 +464,12 @@ public class GameService {
 
         // get list of all available drawings from current round
         List<Drawing> availableDrawings = drawingRepository.findAll().stream()
-            .filter(drawing -> drawing.getAssignedTo() == null && drawing.getCreatorId() != userId && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)
-            .collect(Collectors.toList());
+        .filter(drawing -> drawing.getAssignedTo() == null && drawing.getCreator().getId() != userId && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)
+        .collect(Collectors.toList());
 
         List<Drawing> lastDrawings = drawingRepository.findAll().stream()
             .filter(drawing -> drawing.getAssignedTo() == null && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)
-            . collect(Collectors.toList());
+            .collect(Collectors.toList());
 
         List<Drawing> alreadyAssignedDrawings = drawingRepository.findAll().stream()
             .filter(drawing -> drawing.getAssignedTo() != null && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)
@@ -499,6 +500,7 @@ public class GameService {
         return drawingRepository.findAll();
     }
 
+    // TODO ending a game session should create a sessionHistory entity with all drawings and textprompts
     public void endGameSessionAndDeleteTextPrompts(Long gameSessionId) {
         // Check if the game session exists and whether it can be ended
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
@@ -540,7 +542,7 @@ public class GameService {
 
         Drawing drawing = drawingRepository.findByDrawingId(previousTextPrompt.getNextDrawingId());
 
-        byte[] encodedImage = drawing.getEncodedImage();
+        String encodedImage = drawing.getEncodedImage();
 
         return drawing;
     }
@@ -561,5 +563,9 @@ public class GameService {
         assignedPrompt.setPreviousDrawingId(776L);
 
         return assignedPrompt;
+    }
+
+    public List<Game> getAllGames(){
+        return gameRepository.findAll();
     }
 }

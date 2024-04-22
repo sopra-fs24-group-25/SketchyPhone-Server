@@ -16,7 +16,6 @@ import ch.uzh.ifi.hase.soprafs24.service.Game.GameService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,15 +23,6 @@ import java.util.stream.Collectors;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.DrawingDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
-import ch.uzh.ifi.hase.soprafs24.repository.GameRepository; // Import the GameRepository class
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-
-
 
 /**
  * User Controller
@@ -56,10 +46,11 @@ public class GameController {
   @PostMapping("/gameRooms/create")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public Game createRoom(@RequestBody UserPostDTO userPostDTO) {
+  public GameGetDTO createRoom(@RequestBody UserPostDTO userPostDTO) {
     User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
     Game newGame = gameService.createGame(userInput);
-    return newGame;
+    GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(newGame);
+    return gameDTO;
   }
 
   // Post Mapping to join a game room - when testing with Postman, the body should be a JSON object with the key "username" and 'name' as the value
@@ -67,11 +58,15 @@ public class GameController {
   @PostMapping("/gameRooms/join/{submittedPin}")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public Game joinRoom(@PathVariable Long submittedPin, @RequestBody UserPostDTO userPostDTO) {
+  public GameGetDTO joinRoom(@PathVariable Long submittedPin, @RequestBody UserPostDTO userPostDTO) {
       // Convert UserPostDTO to User entity
       User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
-      return gameService.joinGame(submittedPin, userInput);
+      Game game = gameService.joinGame(submittedPin, userInput);
+
+      GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
+
+      return gameDTO;
   }
 
   @DeleteMapping("/games/{gameRoomId}/leave/{userId}")
@@ -174,10 +169,13 @@ public class GameController {
   @GetMapping("/games/{gameSessionId}/drawings/{userId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public Drawing getDrawing(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+  
+  public DrawingDTO getDrawing(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
     userService.authenticateUser(token, userService.getUserById(id));
 
-    return gameService.getDrawing(gameSessionId, userId);
+    Drawing newDrawing = gameService.getDrawing(gameSessionId, userId);
+
+    return DTOMapper.INSTANCE.convertEntityToDrawingDTO(newDrawing);
   }
 
   // just for testing
@@ -193,8 +191,8 @@ public class GameController {
       gameService.startNextRound(gameSessionId);
   }
   
-  // TODO get mappings for text prompt and drawing in presentation at the end -> /games/{gameId}/next/text OR /games/{gameId}/next/drawing
-  // with the current textPrompt/drawingId in the path to fetch from server
+  // Get mappings for text prompt and drawing in presentation at the end -> /games/{gameId}/next/text OR /games/{gameId}/next/drawing
+  // with the current textPromptId/drawingId in the path to fetch from server
   @GetMapping("/games/{gameSessionId}/next/text/{previousDrawingId}")
   public TextPrompt getNextTextPrompt(@PathVariable Long gameSessionId, @PathVariable Long previousDrawingId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
       gameService.authenticateAdmin(token, userService.getUserById(id));
@@ -210,8 +208,7 @@ public class GameController {
   }
   
 
-  // TODO get mapping to get one of the first text prompts 
-  // maybe add field in text prompts (and drawings) showing if it has already been presented -> prevent showing same flow twice
+  // Get mapping to get one of the first text prompts 
   @GetMapping("/games/{gameSessionId}/presentation")
   public TextPrompt getFirstTextPrompt(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
       gameService.authenticateAdmin(token, userService.getUserById(id));
