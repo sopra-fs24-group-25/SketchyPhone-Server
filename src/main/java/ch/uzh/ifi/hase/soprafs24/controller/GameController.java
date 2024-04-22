@@ -54,11 +54,8 @@ public class GameController {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public GameGetDTO createRoom(@RequestBody UserPostDTO userPostDTO) {
-  public GameGetDTO createRoom(@RequestBody UserPostDTO userPostDTO) {
     User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
     Game newGame = gameService.createGame(userInput);
-    GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(newGame);
-    return gameDTO;
     GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(newGame);
     return gameDTO;
   }
@@ -69,15 +66,9 @@ public class GameController {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public GameGetDTO joinRoom(@PathVariable Long submittedPin, @RequestBody UserPostDTO userPostDTO) {
-  public GameGetDTO joinRoom(@PathVariable Long submittedPin, @RequestBody UserPostDTO userPostDTO) {
       // Convert UserPostDTO to User entity
       User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
-      Game game = gameService.joinGame(submittedPin, userInput);
-
-      GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
-
-      return gameDTO;
       Game game = gameService.joinGame(submittedPin, userInput);
 
       GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
@@ -189,9 +180,6 @@ public class GameController {
   public DrawingDTO getDrawing(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
     userService.authenticateUser(token, userService.getUserById(id));
 
-    Drawing newDrawing = gameService.getDrawing(gameSessionId, userId);
-
-    return DTOMapper.INSTANCE.convertEntityToDrawingDTO(newDrawing);
     Drawing newDrawing = gameService.getDrawing(gameSessionId, userId);
 
     return DTOMapper.INSTANCE.convertEntityToDrawingDTO(newDrawing);

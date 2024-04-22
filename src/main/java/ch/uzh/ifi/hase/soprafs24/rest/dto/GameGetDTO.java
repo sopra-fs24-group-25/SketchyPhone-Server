@@ -37,14 +37,6 @@ public class GameGetDTO {
     return status;
   }
 
-  public List<User> getUsers() {
-    return users;
-  }
-
-  public void setUsers(List<User> users){
-    this.users = users;
-  }
-
   public void setStatus(String status) {
     this.status = status;
   }
