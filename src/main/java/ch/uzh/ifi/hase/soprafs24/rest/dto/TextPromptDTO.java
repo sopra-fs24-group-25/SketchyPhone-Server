@@ -10,6 +10,7 @@ public class TextPromptDTO {
     private Long assignedTo;
     private Long previousDrawingId;
     private Long nextDrawingId;
+    private Long textPromptId;
     private int round;
 
 
@@ -35,6 +36,14 @@ public class TextPromptDTO {
 
     public void setPreviousDrawingId(Long previousDrawingId){
         this.previousDrawingId = previousDrawingId;
+    }
+
+    public Long getTextPromptId(){
+        return textPromptId;
+    }
+
+    public void setTextPromptId(Long textPromptId){
+        this.textPromptId = textPromptId;
     }
 
     public GameSession getGameSession() {

@@ -57,6 +57,7 @@ public interface DTOMapper {
   @Mapping(source = "admin", target = "admin")
   @Mapping(source = "gamePin", target = "gamePin")
   @Mapping(source = "gameSessions", target = "gameSessions")
+  @Mapping(source = "gameSettingsId", target = "gameSettingsId")
   GameGetDTO convertEntityToGameGetDTO(Game game);
 
   @Mapping(source = "status", target = "status")
@@ -80,6 +81,7 @@ public interface DTOMapper {
   @Mapping(source = "assignedTo", target = "assignedTo")
   @Mapping(source = "previousDrawingId", target = "previousDrawingId")
   @Mapping(source = "nextDrawingId", target = "nextDrawingId")
+  @Mapping(source = "textPromptId", target = "textPromptId")
   @Mapping(source = "round", target = "round")
   TextPrompt convertTextPromptDTOtoEntity(TextPromptDTO textPromptDTO);
 

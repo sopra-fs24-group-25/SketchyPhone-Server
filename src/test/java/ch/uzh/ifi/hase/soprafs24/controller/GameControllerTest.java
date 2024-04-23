@@ -4,8 +4,11 @@ import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Drawing;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
+import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.service.Game.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
@@ -32,6 +35,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -201,6 +205,224 @@ public class GameControllerTest {
   }
 
   @Test
+  public void getGameSettingsValidInput() throws Exception{
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+    
+
+    User admin = new User();
+    admin.setName("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(2L);
+
+    GameSettings gameSettings = new GameSettings();
+    gameSettings.setEnableTextToSpeech(true);
+    gameSettings.setGameSettingsId(1L);
+    gameSettings.setGameSpeed(40);
+    gameSettings.setNumCycles(5);
+
+    game.setGameSettingsId(gameSettings.getGameSettingsId());
+
+    given(gameService.getGameSettings(Mockito.any())).willReturn(gameSettings);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/gameRooms/%x/settings", game.getGameId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.enableTextToSpeech", is(true)))
+      .andExpect(jsonPath("$.gameSpeed", is(40)))
+      .andExpect(jsonPath("$.numCycles", is(5)));
+  }
+
+  @Test
+  public void updateGameSettingsValidInput() throws Exception{
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+    
+
+    User admin = new User();
+    admin.setName("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(2L);
+
+    GameSettings gameSettings = new GameSettings();
+    gameSettings.setEnableTextToSpeech(true);
+    gameSettings.setGameSettingsId(1L);
+    gameSettings.setGameSpeed(40);
+    gameSettings.setNumCycles(5);
+
+    game.setGameSettingsId(gameSettings.getGameSettingsId());
+
+    GameSettingsDTO gameSettingsDTO = new GameSettingsDTO();
+    gameSettingsDTO.setEnableTextToSpeech(false);
+    gameSettingsDTO.setGameSpeed(50);
+    gameSettingsDTO.setNumCycles(4);
+
+    given(gameService.updateGameSettings(Mockito.any(), Mockito.any())).willReturn(game);
+
+    // when
+    MockHttpServletRequestBuilder putRequest = put(String.format("/gameRooms/%x/settings", game.getGameId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(asJsonString(gameSettingsDTO));
+
+    // then
+    mockMvc.perform(putRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.gameSettingsId", is(gameSettings.getGameSettingsId().intValue())));
+  }
+
+  @Test
+  public void createGameSessionValidInput() throws Exception{
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+    
+
+    User admin = new User();
+    admin.setName("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(2L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGame(game);
+    gameSession.setGameSessionId(1L);
+
+    List<GameSession> listGameSessions = new ArrayList<GameSession>();
+    listGameSessions.add(gameSession);
+
+    game.setGameSessions(listGameSessions);
+
+    given(gameService.createGameSession(Mockito.any())).willReturn(game);
+
+    // when
+    MockHttpServletRequestBuilder postRequest = post(String.format("/games/%x/start", game.getGameId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getId()));
+
+    // then
+    mockMvc.perform(postRequest)
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$.gameSessions", hasSize(1)));
+  }
+
+  @Test
+  public void getGameSessionsValidInput() throws Exception{
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGame(game);
+    gameSession.setGameSessionId(1L);
+
+    List<GameSession> listGameSessions = new ArrayList<GameSession>();
+    listGameSessions.add(gameSession);
+
+    game.setGameSessions(listGameSessions);
+
+    given(gameService.getGameSessionsByGameId(Mockito.any())).willReturn(listGameSessions);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/sessions", game.getGameId()))
+      .contentType(MediaType.APPLICATION_JSON);
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$", hasSize(1)));
+  }
+
+  @Test
+  public void createTextPromptValidInput() throws Exception{
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+    
+
+    User admin = new User();
+    admin.setName("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(2L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGame(game);
+    gameSession.setGameSessionId(1L);
+
+    TextPromptDTO textPromptDTO = new TextPromptDTO();
+    textPromptDTO.setTextPromptId(1L);
+    textPromptDTO.setContent("Test content");
+
+    // when
+    MockHttpServletRequestBuilder postRequest = post(String.format("/games/%x/prompts/%x/%x", gameSession.getGameSessionId(), admin.getId(), 777L))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getId()))
+      .content(asJsonString(textPromptDTO));
+
+    // then
+    mockMvc.perform(postRequest)
+      .andExpect(status().isCreated());
+  }
+
+  @Test
+  public void getTextPromptValidInput() throws Exception{
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+
+    User admin = new User();
+    admin.setName("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGame(game);
+    gameSession.setGameSessionId(1L);
+
+    User user = new User();
+    user.setId(2L);
+
+    TextPrompt textPrompt = new TextPrompt();
+    textPrompt.setCreator(user);
+    textPrompt.setContent("Test content");
+    textPrompt.setAssignedTo(admin.getId());
+
+    given(gameService.getTextPrompt(Mockito.any(), Mockito.any())).willReturn(textPrompt);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/prompts/%x", gameSession.getGameSessionId(), admin.getId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.assignedTo", is(admin.getId().intValue())))
+      .andExpect(jsonPath("$.content", is(textPrompt.getContent())));
+  }
+
+  @Test
   public void createDrawingValidInput() throws Exception{
     // given
     GameSession gameSession = new GameSession();
@@ -237,10 +459,184 @@ public class GameControllerTest {
 
     // then
     mockMvc.perform(postRequest)
-      .andExpect(status().isCreated())
-      .andExpect(jsonPath("$.creator.id", is(user.getId().intValue())))
-      .andExpect(jsonPath("$.encodedImage", is(encodedImage)))
-      .andExpect(jsonPath("$.previousTextPrompt", is(drawing.getPreviousTextPrompt().intValue())));
+      .andExpect(status().isCreated());
+  }
+
+  @Test
+  public void getDrawingValidInput() throws Exception{
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+
+    User admin = new User();
+    admin.setName("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGame(game);
+    gameSession.setGameSessionId(1L);
+
+    User user = new User();
+    user.setId(2L);
+
+    Drawing drawing = new Drawing();
+    drawing.setAssignedTo(admin.getId());
+    drawing.setCreator(user);
+    drawing.setEncodedImage("iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AgMAAABHkjHhAAAACVBMVEX///8AAAAAgP9o0N6bAAAAb0lEQVR4nO3NwQ2AIAwF0JLAnQPsUzfgQC+OwDwuQacUUEtZQf2HJi+/aQH+vCGRsqYrXFF5Z+ZDbZfFkRo5iUNkruTF1pWaQdn2b9PG9jlNw1a8jSqI0a99WnpDl5975q5w2vUnMG0yECq3G/CNnKe3FUPOg+gYAAAAAElFTkSuQmCC");
+
+    given(gameService.getDrawing(Mockito.any(), Mockito.any())).willReturn(drawing);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/drawings/%x", gameSession.getGameSessionId(), admin.getId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.assignedTo", is(admin.getId().intValue())))
+      .andExpect(jsonPath("$.encodedImage", is(drawing.getEncodedImage())));
+  }
+
+  @Test
+  public void startNextRoundValidInput() throws Exception{
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGame(game);
+    gameSession.setGameSessionId(1L);
+
+    // when
+    MockHttpServletRequestBuilder putRequest = put(String.format("/games/%x/nextround", gameSession.getGameSessionId()))
+      .contentType(MediaType.APPLICATION_JSON);
+
+    // then
+    mockMvc.perform(putRequest)
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  public void getNextTextPromptValidInput() throws Exception{
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+
+    User admin = new User();
+    admin.setName("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGame(game);
+    gameSession.setGameSessionId(1L);
+
+    Drawing drawing = new Drawing();
+    drawing.setDrawingId(1L);
+
+    TextPrompt textPrompt = new TextPrompt();
+    textPrompt.setPreviousDrawingId(drawing.getDrawingId());
+    textPrompt.setContent("Test content");
+
+    given(gameService.getNextTextPrompt(Mockito.anyLong(), Mockito.anyLong())).willReturn(textPrompt);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/next/text/%x", gameSession.getGameSessionId(), drawing.getDrawingId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.previousDrawingId", is(drawing.getDrawingId().intValue())))
+      .andExpect(jsonPath("$.content", is(textPrompt.getContent())));
+  }
+
+  @Test
+  public void getNextDrawingValidInput() throws Exception{
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+
+    User admin = new User();
+    admin.setName("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGame(game);
+    gameSession.setGameSessionId(1L);
+
+    TextPrompt textPrompt = new TextPrompt();
+    textPrompt.setTextPromptId(1L);
+
+    Drawing drawing = new Drawing();
+    drawing.setPreviousTextPrompt(textPrompt.getTextPromptId());
+    drawing.setEncodedImage("iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AgMAAABHkjHhAAAACVBMVEX///8AAAAAgP9o0N6bAAAAb0lEQVR4nO3NwQ2AIAwF0JLAnQPsUzfgQC+OwDwuQacUUEtZQf2HJi+/aQH+vCGRsqYrXFF5Z+ZDbZfFkRo5iUNkruTF1pWaQdn2b9PG9jlNw1a8jSqI0a99WnpDl5975q5w2vUnMG0yECq3G/CNnKe3FUPOg+gYAAAAAElFTkSuQmCC");
+
+   
+
+    given(gameService.getNextDrawing(Mockito.anyLong(), Mockito.anyLong())).willReturn(drawing);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/next/drawing/%x", gameSession.getGameSessionId(), textPrompt.getTextPromptId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.previousTextPrompt", is(textPrompt.getTextPromptId().intValue())))
+      .andExpect(jsonPath("$.encodedImage", is(drawing.getEncodedImage())));
+  }
+
+  @Test
+  public void getFirstTextPromptValidInput() throws Exception{
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+
+    User admin = new User();
+    admin.setName("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGame(game);
+    gameSession.setGameSessionId(1L);
+
+    TextPrompt textPrompt = new TextPrompt();
+    textPrompt.setTextPromptId(777L);
+    textPrompt.setContent("Test content");
+
+    given(gameService.getFirstTextPrompt(Mockito.anyLong())).willReturn(textPrompt);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/presentation", gameSession.getGameSessionId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.textPromptId", is(textPrompt.getTextPromptId().intValue())))
+      .andExpect(jsonPath("$.content", is(textPrompt.getContent())));
   }
   
 

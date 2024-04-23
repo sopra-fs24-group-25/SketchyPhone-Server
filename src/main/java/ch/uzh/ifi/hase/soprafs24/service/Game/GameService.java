@@ -270,6 +270,8 @@ public class GameService {
                 game.getUsers().get(randomNumber).setRole("admin");
             }
         }
+        // remove user from game session
+        game.getGameSessions().get(0).getUsersInSession().remove(user.getId());
 
         // delete user from repository
         userRepository.delete(user);
@@ -494,10 +496,6 @@ public class GameService {
 
         return assignedDrawing;
 
-    }
-
-    public List<Drawing> getDrawings(){
-        return drawingRepository.findAll();
     }
 
     // TODO ending a game session should create a sessionHistory entity with all drawings and textprompts

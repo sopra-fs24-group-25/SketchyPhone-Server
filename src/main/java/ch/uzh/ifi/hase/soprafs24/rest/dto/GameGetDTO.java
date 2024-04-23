@@ -16,6 +16,7 @@ public class GameGetDTO {
   @JsonProperty("gameSessions")
   private List<GameSession> gameSessions;
   private List<User> users;
+  private Long gameSettingsId;
 
   public Long getGameId() {
     return gameId;
@@ -23,6 +24,14 @@ public class GameGetDTO {
 
   public void setGameId(Long gameId) {
     this.gameId = gameId;
+  }
+
+  public Long getGameSettingsId() {
+    return gameSettingsId;
+  }
+
+  public void setGameSettingsId(Long gameSettingsId) {
+    this.gameSettingsId = gameSettingsId;
   }
 
   public Long getGamePin() {
