@@ -253,7 +253,7 @@ public class GameService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        
+        //
         if (user.getRole().equals("admin")){
             // if admin is the only player and leaves the room should be deleted
             if (game.getUsers().size() == 1){
