@@ -24,8 +24,9 @@ public class Avatar implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long avatarId;
 
+  @Lob
   @Column(nullable = false)
-  private byte[] encodedImage;
+  private String encodedImage;
 
   @Column(nullable = false)
   private Long creatorId;
@@ -42,11 +43,11 @@ public class Avatar implements Serializable {
     this.avatarId = avatarId;
   }
    
-  public byte[] getEncodedImage(){
+  public String getEncodedImage(){
     return encodedImage;
   }
 
-  public void setEncodedImage(byte[] encodedImage){
+  public void setEncodedImage(String encodedImage){
     this.encodedImage = encodedImage;
   }
    

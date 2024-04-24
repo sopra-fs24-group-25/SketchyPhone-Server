@@ -218,8 +218,19 @@ public class GameController {
   // put mapping for users to get index of next item
   @PutMapping("/games/{gameSessionId}/presentation/next")
   public int increaseCurrentIndex(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
-    userService.authenticateUser(token, userService.getUserById(id)); 
+    gameService.authenticateAdmin(token, userService.getUserById(id)); 
 
     return gameService.increaseCurrentIndex(gameSessionId);
   }
+
+  // get mapping to get current game
+  @GetMapping("/games/{gameId}")
+  public GameGetDTO getGame(@PathVariable Long gameId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    userService.authenticateUser(token, userService.getUserById(id));
+
+    Game game = gameService.getGame(gameId);
+
+    return DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
+  }
+  
 }

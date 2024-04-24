@@ -62,8 +62,13 @@ public class GameService {
         this.drawingRepository = drawingRepository;
       }
 
-    public List<Game> getGame() {
-        return this.gameRepository.findAll();
+    public Game getGame(Long gameId) {
+        Game game = gameRepository.findByGameId(gameId);
+
+        if (game == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
+        return game;
     }
 
     // function to generate unique game pin
@@ -89,7 +94,7 @@ public class GameService {
 
         // redundant code since userService.createUser already checks whether the name is passed or not
         // should think about why a room creation should fail
-        if (admin.getName() == null) {
+        if (admin.getNickname() == null) {
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Game Room couldn't be created.");
         }
         // assign unique gamePin to game room        
@@ -228,7 +233,7 @@ public class GameService {
         if (game.getStatus() == GameStatus.OPEN) {
 
             boolean userAlreadyInGame = game.getUsers().stream()
-                .anyMatch(existingUser -> existingUser.getName().equals(joinUser.getName()));
+                .anyMatch(existingUser -> existingUser.getNickname().equals(joinUser.getNickname()));
             
                 if (!userAlreadyInGame){
                     game.getUsers().add(joinUser);
@@ -270,8 +275,12 @@ public class GameService {
                 game.getUsers().get(randomNumber).setRole("admin");
             }
         }
+        int size = game.getGameSessions().size();
         // remove user from game session
-        game.getGameSessions().get(0).getUsersInSession().remove(user.getId());
+        if (size != 0){
+            // last index would be the current game session
+            game.getGameSessions().get(size - 1).getUsersInSession().remove(user.getId());
+        }
 
         // delete user from repository
         userRepository.delete(user);
@@ -528,7 +537,7 @@ public class GameService {
 
         // get a list of all first text prompts
         List<TextPrompt> availablePrompts = textPromptRepository.findAll().stream()
-            .filter(textPrompt -> textPrompt.getPreviousDrawingId() == 777L && textPrompt.getGameSession().getGameSessionId() == gameSessionId)
+            .filter(textPrompt -> textPrompt.getPreviousDrawingId() == 777L && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
             .collect(Collectors.toList());
 
         if (availablePrompts.size() == 0){

@@ -25,6 +25,7 @@ public class Drawing implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long drawingId;
 
+  @Lob
   @Column(nullable = false)
   private String encodedImage;
 

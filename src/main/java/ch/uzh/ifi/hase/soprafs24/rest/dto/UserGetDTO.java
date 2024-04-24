@@ -9,7 +9,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Avatar;
 public class UserGetDTO {
 
   private Long id;
-  private String name;
+  private String nickname;
   private LocalDate creationDate;
   private UserStatus status;
   private Boolean persistent;
@@ -23,8 +23,8 @@ public class UserGetDTO {
     return id;
   }
 
-  public String getName() {
-    return name;
+  public String getNickname() {
+    return nickname;
   }
 
   public LocalDate getCreationDate() {
@@ -57,8 +57,8 @@ public class UserGetDTO {
     this.id = id;
   }
   
-  public void setName(String name) {
-    this.name = name;
+  public void setNickname(String nickname) {
+    this.nickname = nickname;
   }
 
   public void setCreationDate(LocalDate creationDate) {

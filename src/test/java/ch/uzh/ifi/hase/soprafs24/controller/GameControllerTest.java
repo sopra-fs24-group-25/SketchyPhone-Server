@@ -66,7 +66,7 @@ public class GameControllerTest {
     game.setGamePin(666666L);
 
     User user = new User();
-    user.setName("Testuser");
+    user.setNickname("Testuser");
 
     // this mocks the gameService -> we define above what the gameService should
     // return when getAllGames() is called
@@ -88,7 +88,7 @@ public class GameControllerTest {
   public void joinGameRoomValidInput() throws Exception{
     //given
     User admin = new User();
-    admin.setName("TestAdmin");
+    admin.setNickname("TestAdmin");
 
     User createdAdmin = userService.createUser(admin);
 
@@ -102,10 +102,10 @@ public class GameControllerTest {
     game.setUsers(users);
 
     UserPostDTO user = new UserPostDTO();
-    user.setName("Testuser");
+    user.setNickname("Testuser");
 
     User newUser = new User();
-    user.setName("TestUser");
+    user.setNickname("TestUser");
 
     User createdNewUser = userService.createUser(newUser);
 
@@ -128,12 +128,12 @@ public class GameControllerTest {
   public void leaveGameRoomValidInput() throws Exception {
     //given
     User admin = new User();
-    admin.setName("TestAdmin");
+    admin.setNickname("TestAdmin");
 
     User createdAdmin = userService.createUser(admin);
 
     User newUser = new User();
-    newUser.setName("Test User");
+    newUser.setNickname("Test User");
     newUser.setToken("Test token");
     newUser.setId(2L);
 
@@ -172,12 +172,12 @@ public class GameControllerTest {
     
 
     User admin = new User();
-    admin.setName("TestAdmin");
+    admin.setNickname("TestAdmin");
 
     User createdAdmin = userService.createUser(admin);
 
     User newUser = new User();
-    newUser.setName("Test User");
+    newUser.setNickname("Test User");
     newUser.setToken("Test token");
     newUser.setId(2L);
 
@@ -214,7 +214,7 @@ public class GameControllerTest {
     
 
     User admin = new User();
-    admin.setName("TestAdmin");
+    admin.setNickname("TestAdmin");
     admin.setToken("Test token");
     admin.setId(2L);
 
@@ -252,7 +252,7 @@ public class GameControllerTest {
     
 
     User admin = new User();
-    admin.setName("TestAdmin");
+    admin.setNickname("TestAdmin");
     admin.setToken("Test token");
     admin.setId(2L);
 
@@ -292,7 +292,7 @@ public class GameControllerTest {
     
 
     User admin = new User();
-    admin.setName("TestAdmin");
+    admin.setNickname("TestAdmin");
     admin.setToken("Test token");
     admin.setId(2L);
 
@@ -358,7 +358,7 @@ public class GameControllerTest {
     
 
     User admin = new User();
-    admin.setName("TestAdmin");
+    admin.setNickname("TestAdmin");
     admin.setToken("Test token");
     admin.setId(2L);
 
@@ -391,7 +391,7 @@ public class GameControllerTest {
     game.setGamePin(666666L);
 
     User admin = new User();
-    admin.setName("TestAdmin");
+    admin.setNickname("TestAdmin");
     admin.setToken("Test token");
     admin.setId(1L);
 
@@ -435,7 +435,7 @@ public class GameControllerTest {
     String encodedImage = "iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AgMAAABHkjHhAAAACVBMVEX///8AAAAAgP9o0N6bAAAAb0lEQVR4nO3NwQ2AIAwF0JLAnQPsUzfgQC+OwDwuQacUUEtZQf2HJi+/aQH+vCGRsqYrXFF5Z+ZDbZfFkRo5iUNkruTF1pWaQdn2b9PG9jlNw1a8jSqI0a99WnpDl5975q5w2vUnMG0yECq3G/CNnKe3FUPOg+gYAAAAAElFTkSuQmCC";
 
     User user = new User();
-    user.setName("TestUser");
+    user.setNickname("TestUser");
     user.setId(1L);
     user.setToken("test token");
 
@@ -471,7 +471,7 @@ public class GameControllerTest {
     game.setGamePin(666666L);
 
     User admin = new User();
-    admin.setName("TestAdmin");
+    admin.setNickname("TestAdmin");
     admin.setToken("Test token");
     admin.setId(1L);
 
@@ -522,7 +522,133 @@ public class GameControllerTest {
     mockMvc.perform(putRequest)
       .andExpect(status().isOk());
   }
+
+  @Test
+  public void getSequenceValidInput() throws Exception{
+    //given
+    Game game = new Game();
+    game.setAdmin(1L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+
+    User admin = new User();
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGame(game);
+    gameSession.setGameSessionId(1L);
+
+    TextPrompt textPrompt = new TextPrompt();
+    textPrompt.setTextPromptId(1L);
+    textPrompt.setPreviousDrawingId(777L);
+
+    Drawing drawing = new Drawing();
+    drawing.setPreviousTextPrompt(textPrompt.getTextPromptId());
+
+    List<Object> sequence = new ArrayList<>();
+    sequence.add(textPrompt);
+    sequence.add(drawing);
+
+    given(gameService.getSequence(Mockito.any())).willReturn(sequence);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/sequence", gameSession.getGameSessionId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$", hasSize(2)));
+  }
+
+  @Test
+  public void getCurrentIndexValidInput() throws Exception{
+    //given
+
+    User admin = new User();
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+
+    int index = 0;
+
+    given(gameService.getCurrentIndex(Mockito.any())).willReturn(index);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/presentation/next", gameSession.getGameSessionId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$", is(index)));
+  }
+
+  @Test
+  public void increaseCurrentIndexValidInput() throws Exception{
+    //given
+
+    User admin = new User();
+    admin.setRole("admin");
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+
+    int index = 0;
+
+    given(gameService.increaseCurrentIndex(Mockito.any())).willReturn(index+1);
+
+    // when
+    MockHttpServletRequestBuilder putRequest = put(String.format("/games/%x/presentation/next", gameSession.getGameSessionId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getId()));
+
+    // then
+    mockMvc.perform(putRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$", is(1)));
+  }
   
+  @Test
+  public void getGameValidInput() throws Exception {
+    // given
+    Game game = new Game();
+    game.setAdmin(2L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+
+    User admin = new User();
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setId(1L);
+
+    given(gameService.getGame(Mockito.any())).willReturn(game);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x", game.getGameId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.admin", is(game.getAdmin().intValue())))
+      .andExpect(jsonPath("$.gamePin", is(game.getGamePin().intValue())));
+  }
 
   /**
    * Helper Method to convert userPostDTO into a JSON string such that the input

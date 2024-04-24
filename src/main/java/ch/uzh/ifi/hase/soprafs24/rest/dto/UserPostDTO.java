@@ -4,14 +4,14 @@ package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
 public class UserPostDTO {
 
-  private String name;
+  private String nickname;
   private String password;
   private Boolean persistent;
   private String email;
 
   // setters
-  public void setName(String name) {
-    this.name = name;
+  public void setNickname(String nickname) {
+    this.nickname = nickname;
   }
 
   public void setPassword(String password){
@@ -28,8 +28,8 @@ public class UserPostDTO {
 
   // getters
 
-  public String getName() {
-    return name;
+  public String getNickname() {
+    return nickname;
   }
 
   public String getPassword() {

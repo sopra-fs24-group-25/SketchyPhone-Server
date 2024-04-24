@@ -6,7 +6,7 @@ public class AvatarDTO {
 
   private Long avatarId;
   private Long creatorId;
-  private byte[] encodedImage;
+  private String encodedImage;
   private LocalDateTime creationDateTime;
 
   public Long getAvatarId() {
@@ -25,11 +25,11 @@ public class AvatarDTO {
     this.creatorId = creatorId;
   }
 
-  public byte[] getEncodedImage(){
+  public String getEncodedImage(){
     return encodedImage;
   }
 
-  public void setEncodedImage(byte[] encodedImage){
+  public void setEncodedImage(String encodedImage){
     this.encodedImage = encodedImage;
   }
 

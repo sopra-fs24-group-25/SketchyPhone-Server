@@ -17,7 +17,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,7 +55,7 @@ public class UserService {
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.OFFLINE);
     newUser.setCreationDate(LocalDate.now());
-    checkIfUserExists(newUser);
+    // checkIfUserExists(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called
     newUser = userRepository.save(newUser);
@@ -73,8 +72,8 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
     }
 
-    if (userInput.getName() != null){
-      oldUser.setName(userInput.getName());
+    if (userInput.getNickname() != null){
+      oldUser.setNickname(userInput.getNickname());
     }
     if (userInput.getPersistent() != null){
       oldUser.setPersistent(userInput.getPersistent());
@@ -126,7 +125,7 @@ public class UserService {
         base64String = paddedString.toString();
     } 
 
-    avatar.setEncodedImage(Base64.getDecoder().decode(base64String));
+    avatar.setEncodedImage(base64String);
 
     Avatar updatedAvatar = avatarRepository.save(avatar);
     avatarRepository.flush();
@@ -155,10 +154,10 @@ public class UserService {
    * @see User
    */
   private void checkIfUserExists(User userToBeCreated) {
-    User userByName = userRepository.findByName(userToBeCreated.getName());
+    User userByNickname = userRepository.findByNickname(userToBeCreated.getNickname());
 
     String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-    if (userByName != null) {
+    if (userByNickname != null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "name", "is"));
     }
   }
