@@ -68,12 +68,15 @@ public interface DTOMapper {
   @Mapping(source = "status", target = "status")
   @Mapping(source = "gameSessionId", target = "gameSessionId")
   @Mapping(source = "usersInSession", target = "usersInSession")
-  GameSession gameSessionDTOToGameSession(GameSessionDTO dto);
+  GameSession convertGameSessionDTOToEntity(GameSessionDTO dto);
 
   @Mapping(source = "status", target = "status")
   @Mapping(source = "gameSessionId", target = "gameSessionId")
   @Mapping(source = "token", target = "token")
-  GameSessionGetDTO gameSessionToGameSessionGetDTO(GameSession gameSession);
+  @Mapping(source = "usersInSession", target = "usersInSession")
+  @Mapping(source = "roundCounter", target = "roundCounter")
+  @Mapping(source = "gameLoopStatus", target = "gameLoopStatus")
+  GameSessionGetDTO convertEntityToGameSessionGetDTO(GameSession gameSession);
 
   @Mapping(source = "content", target = "content")
   @Mapping(source = "gameSession", target = "gameSession")

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+
+import ch.uzh.ifi.hase.soprafs24.constant.GameLoopStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import java.util.List;
 import java.util.ArrayList;
@@ -44,12 +46,23 @@ public class GameSession implements Serializable{
 
     @Column int currentIndex = 0;
 
+    @Column
+    private GameLoopStatus gameLoopStatus;
+
     public int getRoundCounter(){
         return roundCounter;
     }
 
     public void setRoundCounter(int roundCounter){
         this.roundCounter = roundCounter;
+    }
+
+    public GameLoopStatus getGameLoopStatus(){
+        return gameLoopStatus;
+    }
+
+    public void setGameLoopStatus(GameLoopStatus gameLoopStatus){
+        this.gameLoopStatus = gameLoopStatus;
     }
 
     public int getCurrentIndex(){

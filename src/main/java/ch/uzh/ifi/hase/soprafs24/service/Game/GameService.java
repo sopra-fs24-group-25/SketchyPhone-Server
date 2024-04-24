@@ -1,4 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.service.Game;
+import ch.uzh.ifi.hase.soprafs24.constant.GameLoopStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Drawing;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
@@ -184,6 +185,8 @@ public class GameService {
         gameSession.setGame(game);
         gameSession.setStatus(GameStatus.IN_PLAY);
         gameSession.setToken(UUID.randomUUID().toString());
+        // add gameLoopStatus and set it to TEXTPROMPT
+        gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
         gameSessionRepository.save(gameSession);
 
         // add users who are currently in the room
@@ -373,6 +376,16 @@ public class GameService {
             previousDrawing.setNextTextPrompt(text.getTextPromptId());
         }
 
+        // get list of all textprompts in current round
+        List<TextPrompt> textPrompts = textPromptRepository.findAll().stream()
+            .filter(textPrompt -> textPrompt.getAssignedTo() == null && textPrompt.getRound() == gameSession.getRoundCounter() && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
+            .collect(Collectors.toList());
+
+        // once every user has created a text prompt switch game loop status to drawing
+        if (textPrompts.size()%gameSession.getUsersInSession().size() == 0){
+            gameSession.setGameLoopStatus(GameLoopStatus.DRAWING);
+        }
+
         return text;
     }
 
@@ -462,6 +475,24 @@ public class GameService {
         TextPrompt previousTextPrompt = textPromptRepository.findByTextPromptId(previousTextPromptId);
         previousTextPrompt.setNextDrawingId(savedDrawing.getDrawingId());
 
+        // get list of all drawings in current round
+        List<Drawing> drawings = drawingRepository.findAll().stream()
+            .filter(drawingCreated -> drawingCreated.getAssignedTo() == null && drawingCreated.getRound() == gameSession.getRoundCounter() && drawingCreated.getGameSessionId().equals(gameSessionId))
+            .collect(Collectors.toList());
+        
+        int numCycles = gameSettingsRepository.findByGameSettingsId(gameSession.getGame().getGameSettingsId()).getNumCycles();
+
+        // check whether this was the last round and if so set the game loop status to presentation
+        if (gameSession.getRoundCounter() == 2* numCycles) {
+            gameSession.setGameLoopStatus(GameLoopStatus.PRESENTATION);
+        }
+        // once every user has created a drawings switch game loop status to text prompt
+        else {
+            if (drawings.size()%gameSession.getUsersInSession().size() == 0){
+                gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
+            }
+        }
+
         return savedDrawing;
     }
 
@@ -523,7 +554,7 @@ public class GameService {
     public void startNextRound(long gameSessionId){
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
         int countRounds = gameSettingsRepository.findByGameSettingsId(gameSession.getGame().getGameSettingsId()).getNumCycles();
-        int nextRound = (gameSession.getRoundCounter() + 1) % countRounds;
+        int nextRound = (gameSession.getRoundCounter() + 1);
         gameSession.setRoundCounter(nextRound);
     }
 
