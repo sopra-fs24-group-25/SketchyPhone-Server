@@ -42,12 +42,22 @@ public class GameSession implements Serializable{
     @Column
     private int roundCounter = 1;
 
+    @Column int currentIndex = 0;
+
     public int getRoundCounter(){
         return roundCounter;
     }
 
     public void setRoundCounter(int roundCounter){
         this.roundCounter = roundCounter;
+    }
+
+    public int getCurrentIndex(){
+        return currentIndex;
+    }
+
+    public void setCurrentIndex(int currentIndex){
+        this.currentIndex = currentIndex;
     }
 
     public Game getGame() {

@@ -377,15 +377,15 @@ public class GameService {
 
         // get list of all available textprompts
         List<TextPrompt> availablePrompts = textPromptRepository.findAll().stream()
-            .filter(textPrompt -> textPrompt.getAssignedTo() == null && !textPrompt.getCreator().getId().equals(userId) && textPrompt.getRound() == gameSession.getRoundCounter() && textPrompt.getGameSession().getGameSessionId() == gameSessionId)
+            .filter(textPrompt -> textPrompt.getAssignedTo() == null && !textPrompt.getCreator().getId().equals(userId) && textPrompt.getRound() == gameSession.getRoundCounter() && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
             .collect(Collectors.toList());
 
         List<TextPrompt> lastPrompts = textPromptRepository.findAll().stream()
-            .filter(textPrompt -> textPrompt.getAssignedTo() == null && textPrompt.getRound() == gameSession.getRoundCounter() && textPrompt.getGameSession().getGameSessionId() == gameSessionId)
+            .filter(textPrompt -> textPrompt.getAssignedTo() == null && textPrompt.getRound() == gameSession.getRoundCounter() && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
             .collect(Collectors.toList());
 
         List<TextPrompt> alreadyAssignedPrompts = textPromptRepository.findAll().stream()
-            .filter(textPrompt -> textPrompt.getAssignedTo() != null && textPrompt.getRound() == gameSession.getRoundCounter() && textPrompt.getGameSession().getGameSessionId() == gameSessionId)
+            .filter(textPrompt -> textPrompt.getAssignedTo() != null && textPrompt.getRound() == gameSession.getRoundCounter() && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
             .collect(Collectors.toList());
 
         
@@ -466,15 +466,15 @@ public class GameService {
 
         // get list of all available drawings from current round
         List<Drawing> availableDrawings = drawingRepository.findAll().stream()
-        .filter(drawing -> drawing.getAssignedTo() == null && drawing.getCreator().getId() != userId && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)
+        .filter(drawing -> drawing.getAssignedTo() == null && !drawing.getCreator().getId().equals(userId) && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId().equals(gameSessionId))
         .collect(Collectors.toList());
 
         List<Drawing> lastDrawings = drawingRepository.findAll().stream()
-            .filter(drawing -> drawing.getAssignedTo() == null && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)
+            .filter(drawing -> drawing.getAssignedTo() == null && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId().equals(gameSessionId))
             .collect(Collectors.toList());
 
         List<Drawing> alreadyAssignedDrawings = drawingRepository.findAll().stream()
-            .filter(drawing -> drawing.getAssignedTo() != null && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId() == gameSessionId)
+            .filter(drawing -> drawing.getAssignedTo() != null && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId().equals(gameSessionId))
             .collect(Collectors.toList());
 
         
@@ -518,40 +518,23 @@ public class GameService {
         gameSession.setRoundCounter(nextRound);
     }
 
-    public TextPrompt getNextTextPrompt(Long gameSessionId, long previousDrawingId){
-        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
-        
-        Drawing previousDrawing = drawingRepository.findByDrawingId(previousDrawingId);
-        
-        // check if the previous drawing was the last one
-        if (previousDrawing.getNextTextPrompt() == null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This was the last drawing.");
-        }
-
-        TextPrompt textPrompt = textPromptRepository.findByTextPromptId(previousDrawing.getNextTextPrompt());
-
-        return textPrompt;
+    public List<Game> getAllGames(){
+        return gameRepository.findAll();
     }
 
-    public Drawing getNextDrawing(Long gameSessionId, Long previousTextPromptId){
-        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
+    public List<Object> getSequence(Long gameSessionId){
 
-        TextPrompt previousTextPrompt = textPromptRepository.findByTextPromptId(previousTextPromptId);
-
-        Drawing drawing = drawingRepository.findByDrawingId(previousTextPrompt.getNextDrawingId());
-
-        String encodedImage = drawing.getEncodedImage();
-
-        return drawing;
-    }
-
-    public TextPrompt getFirstTextPrompt(Long gameSessionId){
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
 
         // get a list of all first text prompts
         List<TextPrompt> availablePrompts = textPromptRepository.findAll().stream()
             .filter(textPrompt -> textPrompt.getPreviousDrawingId() == 777L && textPrompt.getGameSession().getGameSessionId() == gameSessionId)
             .collect(Collectors.toList());
+
+        if (availablePrompts.size() == 0){
+            gameSession.setCurrentIndex(0);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No more sequences left");
+        }
         
         SecureRandom random = new SecureRandom();
         int randomNumber = random.nextInt(availablePrompts.size());
@@ -560,10 +543,33 @@ public class GameService {
         // set previous drawing to 776 so that when trying to present the next sequence we won't repeat the same sequence
         assignedPrompt.setPreviousDrawingId(776L);
 
-        return assignedPrompt;
+        Long nextId = assignedPrompt.getTextPromptId();
+
+        List<Object> sequence = new ArrayList<>();
+
+        Drawing drawing = new Drawing();
+
+        while(nextId != null){
+            sequence.add(assignedPrompt);
+            drawing = drawingRepository.findByDrawingId(assignedPrompt.getNextDrawingId());
+            sequence.add(drawing);
+            nextId = drawing.getNextTextPrompt();
+            if (nextId != null){
+                assignedPrompt = textPromptRepository.findByTextPromptId(nextId);
+            }
+        }
+
+        return sequence;
     }
 
-    public List<Game> getAllGames(){
-        return gameRepository.findAll();
+    public int getCurrentIndex(Long gameSessionId){
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
+        return gameSession.getCurrentIndex();
+    }
+
+    public int increaseCurrentIndex(Long gameSessionId){
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
+        gameSession.setCurrentIndex(gameSession.getCurrentIndex() + 1);
+        return gameSession.getCurrentIndex();
     }
 }
