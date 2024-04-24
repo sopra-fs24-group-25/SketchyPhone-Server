@@ -58,7 +58,7 @@ bootJar {
 
 sonar {
   properties {
-    property "sonar.projectKey", "sopra-fs24-group-25_SketchyPhone-Client"
+    property "sonar.projectKey", "sopra-fs24-group-25_SketchyPhone-Server"
     property "sonar.organization", "sopra-fs24-group-25"
     property "sonar.host.url", "https://sonarcloud.io"
   }
