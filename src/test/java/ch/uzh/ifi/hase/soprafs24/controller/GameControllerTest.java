@@ -324,35 +324,6 @@ public class GameControllerTest {
   }
 
   @Test
-  public void getGameSessionsValidInput() throws Exception{
-    //given
-    Game game = new Game();
-    game.setAdmin(1L);
-    game.setGameId(1L);
-    game.setGamePin(666666L);
-
-    GameSession gameSession = new GameSession();
-    gameSession.setGame(game);
-    gameSession.setGameSessionId(1L);
-
-    List<GameSession> listGameSessions = new ArrayList<GameSession>();
-    listGameSessions.add(gameSession);
-
-    game.setGameSessions(listGameSessions);
-
-    given(gameService.getGameSessionsByGameId(Mockito.any())).willReturn(listGameSessions);
-
-    // when
-    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/sessions", game.getGameId()))
-      .contentType(MediaType.APPLICATION_JSON);
-
-    // then
-    mockMvc.perform(getRequest)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$", hasSize(1)));
-  }
-
-  @Test
   public void createTextPromptValidInput() throws Exception{
     //given
     Game game = new Game();

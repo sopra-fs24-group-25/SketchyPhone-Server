@@ -126,17 +126,6 @@ public class GameController {
     return gameGetDTO;
   }
 
-  // Get Mapping to get a list of all game sessions
-  @GetMapping("/games/{gameId}/sessions")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<List<GameSessionDTO>> listGameSessions(@PathVariable Long gameId) {
-    List<GameSession> sessions = gameService.getGameSessionsByGameId(gameId);
-    List<GameSessionDTO> sessionDTOs = sessions.stream()
-                                               .map(DTOMapper.INSTANCE::gameSessionToGameSessionDTO)
-                                               .collect(Collectors.toList());
-    return ResponseEntity.ok(sessionDTOs);
-  }
-
   // Post Mapping to get the text prompt from the user with the text prompt
   // tested with postman to create a text prompt, passed (201 Created)
   // for the very first text prompts -> insert 777 as previousDrawingId

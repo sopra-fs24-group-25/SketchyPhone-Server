@@ -85,6 +85,14 @@ public class GameServiceIntegrationTest {
   }
 
   @Test
+  public void getGame_notFound_throwsException() {
+
+    // attempt to get Game that wasn't created
+    // check that an error is thrown
+    assertThrows(ResponseStatusException.class, () -> gameService.getGame(1L));;
+  }
+
+  @Test
   public void generateGamePin_validInputs_success() {
 
     // when
@@ -134,6 +142,14 @@ public class GameServiceIntegrationTest {
   }
 
   @Test
+  public void createGame_UserNotFound_throwsException() {
+
+    // attempt to get Game that wasn't created
+    // check that an error is thrown
+    assertThrows(ResponseStatusException.class, () -> gameService.createGame(1L));;
+  }
+
+  @Test
   public void createGameSession_validInputs_success() {
 
     User admin = new User();
@@ -178,6 +194,54 @@ public class GameServiceIntegrationTest {
   }
 
   @Test
+  public void createGameSession_validInputs_UsersInGame_success() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setToken("test token");
+    admin.setStatus(UserStatus.ONLINE);
+
+    userRepository.save(admin);
+    userRepository.flush();
+
+    List<User> users = new ArrayList<User>();
+
+    GameSettings gameSettings = new GameSettings();
+    gameSettings.setGameSettingsId(2L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setStatus(GameStatus.IN_PLAY);
+    gameSession.setToken("test token");
+
+    gameSessionRepository.save(gameSession);
+    gameSessionRepository.flush();
+
+    List<GameSession> gameSessions = new ArrayList<GameSession>();
+    gameSessions.add(gameSession);
+
+    Game game = new Game();
+    game.setGamePin(777777L);
+    game.setGameToken("test token");
+    game.setStatus(GameStatus.OPEN);
+    game.setAdmin(admin.getUserId());
+    game.setGameSettingsId(gameSettings.getGameSettingsId());
+    game.setGameSessions(gameSessions);
+    game.setUsers(users);
+
+    game = gameRepository.save(game);
+    gameRepository.flush();
+
+    // when
+    Game createdGame = gameService.createGameSession(game.getGameId());
+
+    // then
+    assertEquals(gameSessions.size(), createdGame.getGameSessions().size());
+    assertEquals(createdGame.getUsers().size(), createdGame.getGameSessions().get(0).getUsersInSession().size());
+  }
+
+  @Test
   public void authenticate_notAdmin_throwsException() {
 
     User admin = new User();
@@ -193,6 +257,24 @@ public class GameServiceIntegrationTest {
     // attempt to authenticate user that's not an admin
     // check that an error is thrown
     assertThrows(ResponseStatusException.class, () -> gameService.authenticateAdmin("test token", createdAdmin));
+  }
+
+  @Test
+  public void authenticateAdmin_success() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setStatus(UserStatus.ONLINE);
+    admin.setRole("admin");
+    admin.setToken("test token");
+
+    User createdAdmin = userRepository.save(admin);
+    userRepository.flush();
+
+    // attempt to authenticate user that's not an admin
+    // check that an error is thrown
+    assertDoesNotThrow(() -> gameService.authenticateAdmin("test token", createdAdmin));
   }
 
   @Test
@@ -253,6 +335,83 @@ public class GameServiceIntegrationTest {
   }
 
   @Test
+  public void joinGame_noUser_throwsException() {
+
+    assertThrows(ResponseStatusException.class, () -> gameService.joinGame(2L, 2L));
+  }
+
+  @Test
+  public void joinGame_noGame_throwsException() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setToken("test token");
+    admin.setStatus(UserStatus.ONLINE);
+
+    userRepository.save(admin);
+    userRepository.flush();
+
+    assertThrows(ResponseStatusException.class, () -> gameService.joinGame(admin.getUserId(), 2L));
+  }
+
+  @Test
+  public void joinGame_GameClosed_throwsException() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setToken("test token");
+    admin.setStatus(UserStatus.ONLINE);
+
+    userRepository.save(admin);
+    userRepository.flush();
+
+    GameSettings gameSettings = new GameSettings();
+    gameSettings.setGameSettingsId(2L);
+
+    Game game = new Game();
+    game.setGamePin(777777L);
+    game.setGameToken("test token");
+    game.setStatus(GameStatus.CLOSED);
+    game.setAdmin(admin.getUserId());
+    game.setGameSettingsId(gameSettings.getGameSettingsId());
+
+    Game createdGame = gameRepository.save(game);
+    gameRepository.flush();
+
+    assertThrows(ResponseStatusException.class, () -> gameService.joinGame(admin.getUserId(), createdGame.getGameId()));
+  }
+
+  @Test
+  public void joinGame_GameInPlay_throwsException() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setToken("test token");
+    admin.setStatus(UserStatus.ONLINE);
+
+    userRepository.save(admin);
+    userRepository.flush();
+
+    GameSettings gameSettings = new GameSettings();
+    gameSettings.setGameSettingsId(2L);
+
+    Game game = new Game();
+    game.setGamePin(777777L);
+    game.setGameToken("test token");
+    game.setStatus(GameStatus.IN_PLAY);
+    game.setAdmin(admin.getUserId());
+    game.setGameSettingsId(gameSettings.getGameSettingsId());
+
+    Game createdGame = gameRepository.save(game);
+    gameRepository.flush();
+
+    assertThrows(ResponseStatusException.class, () -> gameService.joinGame(admin.getUserId(), createdGame.getGameId()));
+  }
+
+  @Test
   public void leaveGame_notCreated_throwsException() {
 
     User admin = new User();
@@ -295,5 +454,5 @@ public class GameServiceIntegrationTest {
     // check that an error is thrown
     assertThrows(ResponseStatusException.class, () -> gameService.leaveRoom(foundGame.getGameId(), 34L));
   }
-  
+
 }

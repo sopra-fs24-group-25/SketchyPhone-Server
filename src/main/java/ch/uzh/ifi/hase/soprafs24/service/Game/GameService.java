@@ -206,16 +206,6 @@ public class GameService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public List<GameSession> getGameSessionsByGameId(Long gameId) {
-        // Find the game by its ID to ensure it exists
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found"));
-
-        // Return the game sessions associated with the game
-        return gameSessionRepository.findByGame_GameId(gameId);
-    }
-
     public Game joinGame(Long submittedPin, Long userId) {
         User joinUser = userRepository.findByUserId(userId);
         if (joinUser == null) {
@@ -234,23 +224,17 @@ public class GameService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Game is in play.");
         }
 
-        // If the game is OPEN, continue with the logic to add a user to the game
-        if (game.getStatus() == GameStatus.OPEN) {
+        boolean userAlreadyInGame = game.getUsers().stream()
+            .anyMatch(existingUser -> existingUser.getUserId().equals(joinUser.getUserId()));
+        
+            if (!userAlreadyInGame){
+                game.getUsers().add(joinUser);
+            }
+        gameRepository.save(game);
 
-            boolean userAlreadyInGame = game.getUsers().stream()
-                .anyMatch(existingUser -> existingUser.getUserId().equals(joinUser.getUserId()));
-            
-                if (!userAlreadyInGame){
-                    game.getUsers().add(joinUser);
-                }
-            gameRepository.save(game);
-
-            // Return a successful join message
-            return game;
-        } else {
-            // Handle any other unexpected statuses
-            throw new IllegalStateException("Unhandled game status: " + game.getStatus());
-        }
+        // Return a successful join message
+        return game;
+        
     }
 
     public void leaveRoom(Long gameRoomId, long userId) {
