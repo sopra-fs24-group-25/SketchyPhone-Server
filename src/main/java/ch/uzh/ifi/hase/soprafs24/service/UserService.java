@@ -134,7 +134,7 @@ public class UserService {
   }
 
   public Avatar getAvatar(long avatarId){
-    Avatar avatar = avatarRepository.findById(avatarId);
+    Avatar avatar = avatarRepository.findByAvatarId(avatarId);
 
     if (avatar == null){
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Avatar not found.");
