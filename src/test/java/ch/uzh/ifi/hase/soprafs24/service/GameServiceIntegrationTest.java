@@ -352,7 +352,7 @@ public class GameServiceIntegrationTest {
     userRepository.save(admin);
     userRepository.flush();
 
-    assertThrows(ResponseStatusException.class, () -> gameService.joinGame(admin.getUserId(), 2L));
+    assertThrows(ResponseStatusException.class, () -> gameService.joinGame(2L, admin.getUserId()));
   }
 
   @Test
