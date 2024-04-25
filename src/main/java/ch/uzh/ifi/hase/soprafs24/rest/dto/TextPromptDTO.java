@@ -16,17 +16,17 @@ public class TextPromptDTO {
 
     public TextPromptDTO() {}
 
-    public TextPromptDTO(User creator, String content) {
-        this.creator = creator;
-        this.content = content;
-    }
+    // public TextPromptDTO(User creator, String content) {
+    //     this.creator = creator;
+    //     this.content = content;
+    // }
 
     // Getters and Setters
     public User getcreator() {
         return creator;
     }
 
-    public void setcreator(User creator) {
+    public void setCreator(User creator) {
         this.creator = creator;
     }
 
