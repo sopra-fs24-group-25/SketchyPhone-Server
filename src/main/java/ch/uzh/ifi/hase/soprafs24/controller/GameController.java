@@ -185,7 +185,7 @@ public class GameController {
   }
 
   // mapping to start the next round -> increase roundCounter in current game session
-  @PutMapping("games/{gameSessionId}/nextround")
+  @PutMapping("/games/{gameSessionId}/nextround")
   @ResponseStatus(HttpStatus.OK)
   public void startNextRound(@PathVariable Long gameSessionId) {
       gameService.startNextRound(gameSessionId);
