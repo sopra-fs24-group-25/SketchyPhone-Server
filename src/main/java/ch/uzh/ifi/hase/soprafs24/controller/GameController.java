@@ -49,30 +49,28 @@ public class GameController {
   }
 
   // Post Mapping to create a game room - when testing with Postman, the body should be a JSON object with the key "username" and 'name' as the value
-  @PostMapping("/gameRooms/create")
+  @PostMapping("/gameRooms/create/{userId}")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public GameGetDTO createRoom(@RequestBody UserPostDTO userPostDTO) {
-    User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
-    Game newGame = gameService.createGame(userInput);
+  public GameGetDTO createRoom(@PathVariable Long userId) {
+    Game newGame = gameService.createGame(userId);
     GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(newGame);
     return gameDTO;
   }
 
   // Post Mapping to join a game room - when testing with Postman, the body should be a JSON object with the key "username" and 'name' as the value
   // tested with postman for the exisiting user and for the new user(201)
-  @PostMapping("/gameRooms/join/{submittedPin}")
+  @PostMapping("/gameRooms/join/{submittedPin}/{userId}")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public GameGetDTO joinRoom(@PathVariable Long submittedPin, @RequestBody UserPostDTO userPostDTO) {
-      // Convert UserPostDTO to User entity
-      User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+  public GameGetDTO joinRoom(@PathVariable Long submittedPin, @PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    userService.authenticateUser(token, userService.getUserById(id));
 
-      Game game = gameService.joinGame(submittedPin, userInput);
+    Game game = gameService.joinGame(submittedPin, userId);
 
-      GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
+    GameGetDTO gameDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
 
-      return gameDTO;
+    return gameDTO;
   }
 
   @DeleteMapping("/games/{gameRoomId}/leave/{userId}")

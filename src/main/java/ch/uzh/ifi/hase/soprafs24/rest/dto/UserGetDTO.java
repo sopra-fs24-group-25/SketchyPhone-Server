@@ -3,12 +3,11 @@ package ch.uzh.ifi.hase.soprafs24.rest.dto;
 import java.time.LocalDate;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-// successfully tested endpoint with Postman
-import ch.uzh.ifi.hase.soprafs24.entity.Avatar;
+import ch.uzh.ifi.hase.soprafs24.entity.Game;
 
 public class UserGetDTO {
 
-  private Long id;
+  private Long userId;
   private String nickname;
   private LocalDate creationDate;
   private UserStatus status;
@@ -16,11 +15,21 @@ public class UserGetDTO {
   private String email;
   private Long avatarId;
   private String role;
+  private String token;
+  private Game gameRoom;
 
   // getters
 
-  public Long getId() {
-    return id;
+  public String getToken() {
+    return token;
+  }
+
+  public Game getGameRoom() {
+    return gameRoom;
+  }
+
+  public Long getUserId() {
+    return userId;
   }
 
   public String getNickname() {
@@ -53,8 +62,16 @@ public class UserGetDTO {
 
   // setters
 
-  public void setId(Long id) {
-    this.id = id;
+  public void setToken(String token){
+    this.token = token;
+  }
+
+  public void setGameRoom(Game gameRoom){
+    this.gameRoom = gameRoom;
+  }
+
+  public void setUserId(Long userId) {
+    this.userId = userId;
   }
   
   public void setNickname(String nickname) {
@@ -77,7 +94,7 @@ public class UserGetDTO {
     this.email = email;
   }
 
-  public void setAvatar(Long avatarId) {
+  public void setAvatarId(Long avatarId) {
     this.avatarId = avatarId;
   }
 

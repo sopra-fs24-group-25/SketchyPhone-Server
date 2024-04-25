@@ -6,8 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository("userRepository")
 public interface UserRepository extends JpaRepository<User, Long> {
-  User findByNickname(String name);
+  // User findByNickname(String name); can't use it, since nickname isn't unique
 
-  User findById(long id);
+  User findByUserId(long id);
 }
 

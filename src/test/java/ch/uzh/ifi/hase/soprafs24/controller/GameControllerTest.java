@@ -65,17 +65,17 @@ public class GameControllerTest {
     game.setGameId(1L);
     game.setGamePin(666666L);
 
-    User user = new User();
-    user.setNickname("Testuser");
+    User admin = new User();
+    admin.setUserId(2L);
+    admin.setNickname("Testuser");
 
     // this mocks the gameService -> we define above what the gameService should
     // return when getAllGames() is called
     given(gameService.createGame(Mockito.any())).willReturn(game);
 
     // when
-    MockHttpServletRequestBuilder postRequest = post("/gameRooms/create")
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(asJsonString(user));
+    MockHttpServletRequestBuilder postRequest = post(String.format("/gameRooms/create/%x", admin.getUserId()))
+      .contentType(MediaType.APPLICATION_JSON);
 
     // then
     mockMvc.perform(postRequest)
@@ -105,7 +105,10 @@ public class GameControllerTest {
     user.setNickname("Testuser");
 
     User newUser = new User();
-    user.setNickname("TestUser");
+    newUser.setUserId(1L);
+    newUser.setNickname("TestUser");
+    newUser.setToken("Test token");
+
 
     User createdNewUser = userService.createUser(newUser);
 
@@ -114,9 +117,10 @@ public class GameControllerTest {
     given(gameService.joinGame(Mockito.any(), Mockito.any())).willReturn(game);
 
     // when
-    MockHttpServletRequestBuilder postRequest = post("/gameRooms/join/666666")
+    MockHttpServletRequestBuilder postRequest = post(String.format("/gameRooms/join/666666/%x", newUser.getUserId()))
       .contentType(MediaType.APPLICATION_JSON)
-      .content(asJsonString(user));
+      .header("Authorization", newUser.getToken())
+      .header("X-User-ID", String.valueOf(newUser.getUserId()));
 
     // then
     mockMvc.perform(postRequest)
@@ -135,7 +139,7 @@ public class GameControllerTest {
     User newUser = new User();
     newUser.setNickname("Test User");
     newUser.setToken("Test token");
-    newUser.setId(2L);
+    newUser.setUserId(2L);
 
     User createdNewUser = userService.createUser(newUser);
 
@@ -155,7 +159,7 @@ public class GameControllerTest {
     MockHttpServletRequestBuilder deleteRequest = delete(String.format("/games/%x/leave/%x", 1L,2L))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", newUser.getToken())
-      .header("X-User-ID", String.valueOf(newUser.getId()));
+      .header("X-User-ID", String.valueOf(newUser.getUserId()));
 
     // then
     mockMvc.perform(deleteRequest)
@@ -179,7 +183,7 @@ public class GameControllerTest {
     User newUser = new User();
     newUser.setNickname("Test User");
     newUser.setToken("Test token");
-    newUser.setId(2L);
+    newUser.setUserId(2L);
 
     User createdNewUser = userService.createUser(newUser);
 
@@ -196,7 +200,7 @@ public class GameControllerTest {
     MockHttpServletRequestBuilder getRequest = get(String.format("/gameRooms/%x/users", game.getGameId()))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", newUser.getToken())
-      .header("X-User-ID", String.valueOf(newUser.getId()));
+      .header("X-User-ID", String.valueOf(newUser.getUserId()));
 
     // then
     mockMvc.perform(getRequest)
@@ -216,7 +220,7 @@ public class GameControllerTest {
     User admin = new User();
     admin.setNickname("TestAdmin");
     admin.setToken("Test token");
-    admin.setId(2L);
+    admin.setUserId(2L);
 
     GameSettings gameSettings = new GameSettings();
     gameSettings.setEnableTextToSpeech(true);
@@ -232,7 +236,7 @@ public class GameControllerTest {
     MockHttpServletRequestBuilder getRequest = get(String.format("/gameRooms/%x/settings", game.getGameId()))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getId()));
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
 
     // then
     mockMvc.perform(getRequest)
@@ -254,7 +258,7 @@ public class GameControllerTest {
     User admin = new User();
     admin.setNickname("TestAdmin");
     admin.setToken("Test token");
-    admin.setId(2L);
+    admin.setUserId(2L);
 
     GameSettings gameSettings = new GameSettings();
     gameSettings.setEnableTextToSpeech(true);
@@ -294,7 +298,7 @@ public class GameControllerTest {
     User admin = new User();
     admin.setNickname("TestAdmin");
     admin.setToken("Test token");
-    admin.setId(2L);
+    admin.setUserId(2L);
 
     GameSession gameSession = new GameSession();
     gameSession.setGame(game);
@@ -311,7 +315,7 @@ public class GameControllerTest {
     MockHttpServletRequestBuilder postRequest = post(String.format("/games/%x/start", game.getGameId()))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getId()));
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
 
     // then
     mockMvc.perform(postRequest)
@@ -360,7 +364,7 @@ public class GameControllerTest {
     User admin = new User();
     admin.setNickname("TestAdmin");
     admin.setToken("Test token");
-    admin.setId(2L);
+    admin.setUserId(2L);
 
     GameSession gameSession = new GameSession();
     gameSession.setGame(game);
@@ -371,10 +375,10 @@ public class GameControllerTest {
     textPromptDTO.setContent("Test content");
 
     // when
-    MockHttpServletRequestBuilder postRequest = post(String.format("/games/%x/prompts/%x/%x", gameSession.getGameSessionId(), admin.getId(), 777L))
+    MockHttpServletRequestBuilder postRequest = post(String.format("/games/%x/prompts/%x/%x", gameSession.getGameSessionId(), admin.getUserId(), 777L))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getId()))
+      .header("X-User-ID", String.valueOf(admin.getUserId()))
       .content(asJsonString(textPromptDTO));
 
     // then
@@ -393,32 +397,32 @@ public class GameControllerTest {
     User admin = new User();
     admin.setNickname("TestAdmin");
     admin.setToken("Test token");
-    admin.setId(1L);
+    admin.setUserId(1L);
 
     GameSession gameSession = new GameSession();
     gameSession.setGame(game);
     gameSession.setGameSessionId(1L);
 
     User user = new User();
-    user.setId(2L);
+    user.setUserId(2L);
 
     TextPrompt textPrompt = new TextPrompt();
     textPrompt.setCreator(user);
     textPrompt.setContent("Test content");
-    textPrompt.setAssignedTo(admin.getId());
+    textPrompt.setAssignedTo(admin.getUserId());
 
     given(gameService.getTextPrompt(Mockito.any(), Mockito.any())).willReturn(textPrompt);
 
     // when
-    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/prompts/%x", gameSession.getGameSessionId(), admin.getId()))
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/prompts/%x", gameSession.getGameSessionId(), admin.getUserId()))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getId()));
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
 
     // then
     mockMvc.perform(getRequest)
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.assignedTo", is(admin.getId().intValue())))
+      .andExpect(jsonPath("$.assignedTo", is(admin.getUserId().intValue())))
       .andExpect(jsonPath("$.content", is(textPrompt.getContent())));
   }
 
@@ -436,7 +440,7 @@ public class GameControllerTest {
 
     User user = new User();
     user.setNickname("TestUser");
-    user.setId(1L);
+    user.setUserId(1L);
     user.setToken("test token");
 
     User createdUser = userService.createUser(user);
@@ -454,7 +458,7 @@ public class GameControllerTest {
     MockHttpServletRequestBuilder postRequest = post(String.format("/games/%x/drawings/%x/%x", 1L, 1L, 1L))
     .contentType(MediaType.APPLICATION_JSON)
     .header("Authorization", user.getToken())
-    .header("X-User-ID", String.valueOf(user.getId()))
+    .header("X-User-ID", String.valueOf(user.getUserId()))
     .content(encodedImage);
 
     // then
@@ -473,32 +477,32 @@ public class GameControllerTest {
     User admin = new User();
     admin.setNickname("TestAdmin");
     admin.setToken("Test token");
-    admin.setId(1L);
+    admin.setUserId(1L);
 
     GameSession gameSession = new GameSession();
     gameSession.setGame(game);
     gameSession.setGameSessionId(1L);
 
     User user = new User();
-    user.setId(2L);
+    user.setUserId(2L);
 
     Drawing drawing = new Drawing();
-    drawing.setAssignedTo(admin.getId());
+    drawing.setAssignedTo(admin.getUserId());
     drawing.setCreator(user);
     drawing.setEncodedImage("iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AgMAAABHkjHhAAAACVBMVEX///8AAAAAgP9o0N6bAAAAb0lEQVR4nO3NwQ2AIAwF0JLAnQPsUzfgQC+OwDwuQacUUEtZQf2HJi+/aQH+vCGRsqYrXFF5Z+ZDbZfFkRo5iUNkruTF1pWaQdn2b9PG9jlNw1a8jSqI0a99WnpDl5975q5w2vUnMG0yECq3G/CNnKe3FUPOg+gYAAAAAElFTkSuQmCC");
 
     given(gameService.getDrawing(Mockito.any(), Mockito.any())).willReturn(drawing);
 
     // when
-    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/drawings/%x", gameSession.getGameSessionId(), admin.getId()))
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/drawings/%x", gameSession.getGameSessionId(), admin.getUserId()))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getId()));
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
 
     // then
     mockMvc.perform(getRequest)
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.assignedTo", is(admin.getId().intValue())))
+      .andExpect(jsonPath("$.assignedTo", is(admin.getUserId().intValue())))
       .andExpect(jsonPath("$.encodedImage", is(drawing.getEncodedImage())));
   }
 
@@ -534,7 +538,7 @@ public class GameControllerTest {
     User admin = new User();
     admin.setNickname("TestAdmin");
     admin.setToken("Test token");
-    admin.setId(1L);
+    admin.setUserId(1L);
 
     GameSession gameSession = new GameSession();
     gameSession.setGame(game);
@@ -557,7 +561,7 @@ public class GameControllerTest {
     MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/sequence", gameSession.getGameSessionId()))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getId()));
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
 
     // then
     mockMvc.perform(getRequest)
@@ -572,7 +576,7 @@ public class GameControllerTest {
     User admin = new User();
     admin.setNickname("TestAdmin");
     admin.setToken("Test token");
-    admin.setId(1L);
+    admin.setUserId(1L);
 
     GameSession gameSession = new GameSession();
     gameSession.setGameSessionId(1L);
@@ -585,7 +589,7 @@ public class GameControllerTest {
     MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/presentation/next", gameSession.getGameSessionId()))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getId()));
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
 
     // then
     mockMvc.perform(getRequest)
@@ -601,7 +605,7 @@ public class GameControllerTest {
     admin.setRole("admin");
     admin.setNickname("TestAdmin");
     admin.setToken("Test token");
-    admin.setId(1L);
+    admin.setUserId(1L);
 
     GameSession gameSession = new GameSession();
     gameSession.setGameSessionId(1L);
@@ -614,7 +618,7 @@ public class GameControllerTest {
     MockHttpServletRequestBuilder putRequest = put(String.format("/games/%x/presentation/next", gameSession.getGameSessionId()))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getId()));
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
 
     // then
     mockMvc.perform(putRequest)
@@ -633,7 +637,7 @@ public class GameControllerTest {
     User admin = new User();
     admin.setNickname("TestAdmin");
     admin.setToken("Test token");
-    admin.setId(1L);
+    admin.setUserId(1L);
 
     given(gameService.getGame(Mockito.any())).willReturn(game);
 
@@ -641,7 +645,7 @@ public class GameControllerTest {
     MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x", game.getGameId()))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getId()));
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
 
     // then
     mockMvc.perform(getRequest)

@@ -87,23 +87,21 @@ public class GameService {
     // TODO if permanent users are allowed -> add condition to check whether admin is already a user -> if not, create new user
     // else just save that user
 
-    public Game createGame(User admin) {
-        User savedUser = userService.createUser(admin);
+    public Game createGame(Long adminId) {
+        User savedUser = userRepository.findByUserId(adminId);
+        if (savedUser == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
         savedUser.setRole("admin");
 
         Game newGame = new Game();
 
-        // redundant code since userService.createUser already checks whether the name is passed or not
-        // should think about why a room creation should fail
-        if (admin.getNickname() == null) {
-          throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Game Room couldn't be created.");
-        }
         // assign unique gamePin to game room        
         long gamePin = generateGamePin();
         newGame.setGamePin(gamePin); 
 
         // set the admin to the admin's ID so the info can be pulled from the userRepository
-        newGame.setAdmin(savedUser.getId());
+        newGame.setAdmin(savedUser.getUserId());
 
         newGame.setGameToken(UUID.randomUUID().toString());
         //creates list and adds it to the gameroom
@@ -191,7 +189,7 @@ public class GameService {
 
         // add users who are currently in the room
         for (int i = 0; i<game.getUsers().size(); i++){
-            gameSession.getUsersInSession().add(game.getUsers().get(i).getId());
+            gameSession.getUsersInSession().add(game.getUsers().get(i).getUserId());
         }
 
         game.getGameSessions().add(gameSession);
@@ -217,8 +215,11 @@ public class GameService {
     }
       
 
-    public Game joinGame(Long submittedPin, User user) {
-        User joinUser = userService.createUser(user);
+    public Game joinGame(Long submittedPin, Long userId) {
+        User joinUser = userRepository.findByUserId(userId);
+        if (joinUser == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
         joinUser.setRole("player");
         Game game = gameRepository.findByGamePin(submittedPin);
         if (game == null) {
@@ -256,7 +257,7 @@ public class GameService {
         if (game == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
-        User user = userRepository.findById(userId);
+        User user = userRepository.findByUserId(userId);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
@@ -282,7 +283,7 @@ public class GameService {
         // remove user from game session
         if (size != 0){
             // last index would be the current game session
-            game.getGameSessions().get(size - 1).getUsersInSession().remove(user.getId());
+            game.getGameSessions().get(size - 1).getUsersInSession().remove(user.getUserId());
         }
 
         // delete user from repository
@@ -399,7 +400,7 @@ public class GameService {
 
         // get list of all available textprompts
         List<TextPrompt> availablePrompts = textPromptRepository.findAll().stream()
-            .filter(textPrompt -> textPrompt.getAssignedTo() == null && !textPrompt.getCreator().getId().equals(userId) && textPrompt.getRound() == gameSession.getRoundCounter() && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
+            .filter(textPrompt -> textPrompt.getAssignedTo() == null && !textPrompt.getCreator().getUserId().equals(userId) && textPrompt.getRound() == gameSession.getRoundCounter() && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
             .collect(Collectors.toList());
 
         List<TextPrompt> lastPrompts = textPromptRepository.findAll().stream()
@@ -428,21 +429,13 @@ public class GameService {
 
         return assignedPrompt;
     }
-
-    public List<TextPrompt> getTextPrompts(Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-
-        return textPromptRepository.findByCreatorId(user.getId());
-
-    }
     
     public Drawing createDrawing(Long gameSessionId, long userId, long previousTextPromptId, String drawingBase64){
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
         if (gameSession == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "GameSession not found");
         }
-        User user = userRepository.findById(userId);
+        User user = userRepository.findByUserId(userId);
         if (user == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
@@ -450,7 +443,7 @@ public class GameService {
         Drawing drawing = new Drawing();
         drawing.setCreationDateTime(LocalDateTime.now());
         drawing.setGameSessionId(gameSessionId);
-        drawing.setCreator(userRepository.findById(userId));
+        drawing.setCreator(userRepository.findByUserId(userId));
         drawing.setPreviousTextPrompt(previousTextPromptId);
         drawing.setRound(gameSession.getRoundCounter());
 
@@ -506,7 +499,7 @@ public class GameService {
 
         // get list of all available drawings from current round
         List<Drawing> availableDrawings = drawingRepository.findAll().stream()
-        .filter(drawing -> drawing.getAssignedTo() == null && !drawing.getCreator().getId().equals(userId) && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId().equals(gameSessionId))
+        .filter(drawing -> drawing.getAssignedTo() == null && !drawing.getCreator().getUserId().equals(userId) && drawing.getRound() == gameSession.getRoundCounter() && drawing.getGameSessionId().equals(gameSessionId))
         .collect(Collectors.toList());
 
         List<Drawing> lastDrawings = drawingRepository.findAll().stream()

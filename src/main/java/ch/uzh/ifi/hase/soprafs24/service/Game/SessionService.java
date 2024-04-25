@@ -15,7 +15,7 @@ public class SessionService {
 
 
     public void addUser(User user) {
-        users.put(user.getId().toString(), user);
+        users.put(user.getUserId().toString(), user);
         updateUserList();
     }
 

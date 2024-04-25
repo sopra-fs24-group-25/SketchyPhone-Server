@@ -66,7 +66,7 @@ public class UserService {
   }
 
   public User updateUser(long userId, User userInput){
-    User oldUser = userRepository.findById(userId);
+    User oldUser = userRepository.findByUserId(userId);
 
     if (oldUser == null){
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
@@ -92,7 +92,7 @@ public class UserService {
   }
 
   public User getUserById(long id){
-    User user = userRepository.findById(id);
+    User user = userRepository.findByUserId(id);
 
     if (user == null){
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
@@ -153,14 +153,16 @@ public class UserService {
    * @throws org.springframework.web.server.ResponseStatusException
    * @see User
    */
-  private void checkIfUserExists(User userToBeCreated) {
-    User userByNickname = userRepository.findByNickname(userToBeCreated.getNickname());
 
-    String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-    if (userByNickname != null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "name", "is"));
-    }
-  }
+  // no need to use this since users could have the same values for every field
+  // private void checkIfUserExists(User userToBeCreated) {
+  //   User userByNickname = userRepository.findByNickname(userToBeCreated.getNickname());
+
+  //   String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
+  //   if (userByNickname != null) {
+  //     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "name", "is"));
+  //   }
+  // }
 
 }
 
