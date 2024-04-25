@@ -3,24 +3,29 @@ package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 import ch.uzh.ifi.hase.soprafs24.constant.GameLoopStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Avatar;
 import ch.uzh.ifi.hase.soprafs24.entity.Drawing;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
+import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.AvatarDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.DrawingDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GamePostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 
-import org.hibernate.internal.util.xml.DTDEntityResolver;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -198,5 +203,138 @@ public class DTOMapperTest {
     assertEquals(textPrompt.getGameSession(), textPromptDTO.getGameSession());
     assertEquals(textPrompt.getPreviousDrawingId(), textPromptDTO.getPreviousDrawingId());
     assertEquals(textPrompt.getNextDrawingId(), textPromptDTO.getNextDrawingId());
+  }
+
+  @Test
+  public void testCreateGameSettings_fromGameSettingsDTO_toGameSettings_success() {
+    // create GameSettingsDTO
+    GameSettingsDTO gameSettingsDTO = new GameSettingsDTO();
+    gameSettingsDTO.setEnableTextToSpeech(true);
+    gameSettingsDTO.setNumCycles(3);
+    gameSettingsDTO.setGameSpeed(40);
+
+    // MAP -> Create gameSettings
+    GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsDTOtoEntity(gameSettingsDTO);
+
+    // check content
+    assertEquals(gameSettingsDTO.getEnableTextToSpeech(), gameSettings.getEnableTextToSpeech());
+    assertEquals(gameSettingsDTO.getNumCycles(), gameSettings.getNumCycles());
+    assertEquals(gameSettingsDTO.getGameSpeed(), gameSettings.getGameSpeed());
+  }
+
+  @Test
+  public void testGetGameSettings_fromGameSettings_toGameSettingstDTO_success() {
+    // create TextPrompt
+    GameSettings gameSettings = new GameSettings();
+    gameSettings.setEnableTextToSpeech(true);
+    gameSettings.setNumCycles(3);
+    gameSettings.setGameSpeed(40);
+
+    // MAP -> Create TextPromptDTO
+    GameSettingsDTO gameSettingsDTO = DTOMapper.INSTANCE.convertEntityToGameSettingsDTO(gameSettings);
+    // check content
+    assertEquals(gameSettings.getEnableTextToSpeech(), gameSettingsDTO.getEnableTextToSpeech());
+    assertEquals(gameSettings.getNumCycles(), gameSettingsDTO.getNumCycles());
+    assertEquals(gameSettings.getGameSpeed(), gameSettingsDTO.getGameSpeed());
+  }
+
+  @Test
+  public void testCreateAvatar_fromAvatarDTO_toAvatar_success() {
+    User admin = new User();
+    admin.setUserId(1L);
+    admin.setNickname("test name");
+
+    // create AvatarDTO
+    AvatarDTO avatarDTO = new AvatarDTO();
+    avatarDTO.setEncodedImage("test content");
+    avatarDTO.setCreationDateTime(LocalDateTime.now());
+    avatarDTO.setCreatorId(admin.getUserId());
+
+    // MAP -> Create avatar
+    Avatar avatar = DTOMapper.INSTANCE.convertAvatarDTOtoEntity(avatarDTO);
+
+    // check content
+    assertEquals(avatarDTO.getEncodedImage(), avatar.getEncodedImage());
+    assertEquals(avatarDTO.getCreatorId(), avatar.getCreatorId());
+    assertEquals(avatarDTO.getCreationDateTime(), avatar.getCreationDateTime());
+  }
+
+  @Test
+  public void testGetAvatar_fromAvatar_toAvatarDTO_success() {
+    User admin = new User();
+    admin.setUserId(1L);
+    admin.setNickname("test name");
+
+    // create Avatar
+    Avatar avatar = new Avatar();
+    avatar.setEncodedImage("test content");
+    avatar.setCreationDateTime(LocalDateTime.now());
+    avatar.setCreatorId(admin.getUserId());
+
+    // MAP -> Create avatarDTO
+    AvatarDTO avatarDTO = DTOMapper.INSTANCE.convertEntityToAvatarDTO(avatar);
+
+    // check content
+    assertEquals(avatar.getEncodedImage(), avatarDTO.getEncodedImage());
+    assertEquals(avatar.getCreatorId(), avatarDTO.getCreatorId());
+    assertEquals(avatar.getEncodedImage(), avatarDTO.getEncodedImage());
+  }
+
+  @Test
+  public void testCreateDrawing_fromDrawingDTO_toDrawing_success() {
+    User admin = new User();
+    admin.setUserId(1L);
+    admin.setNickname("test name");
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+
+    // create DrawingDTO
+    DrawingDTO drawingDTO = new DrawingDTO();
+    drawingDTO.setEncodedImage("test content");
+    drawingDTO.setCreator(admin);
+    drawingDTO.setCreationDateTime(LocalDateTime.now());;
+    drawingDTO.setGameSessionId(gameSession.getGameSessionId());
+
+    // MAP -> Create drawing
+    Drawing drawing = DTOMapper.INSTANCE.convertDrawingDTOtoEntity(drawingDTO);
+
+    // check content
+    assertEquals(drawingDTO.getEncodedImage(), drawing.getEncodedImage());
+    assertEquals(drawingDTO.getCreator(), drawing.getCreator());
+    assertEquals(drawingDTO.getCreationDateTime(), drawing.getCreationDateTime());
+    assertEquals(drawingDTO.getGameSessionId(), drawing.getGameSessionId());
+  }
+
+  @Test
+  public void testGetDrawing_fromDrawing_toDrawingDTO_success() {
+    User admin = new User();
+    admin.setUserId(1L);
+    admin.setNickname("test name");
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+
+    TextPrompt previous = new TextPrompt();
+    previous.setTextPromptId(2L);
+
+    TextPrompt next = new TextPrompt();
+    next.setTextPromptId(3L);
+
+    // create Drawing
+    Drawing drawing = new Drawing();
+    drawing.setPreviousTextPrompt(previous.getTextPromptId());
+    drawing.setNextTextPrompt(next.getTextPromptId());
+    drawing.setAssignedTo(admin.getUserId());
+    drawing.setRound(2);
+
+    // MAP -> Create DrawingDTO
+    DrawingDTO drawingDTO = DTOMapper.INSTANCE.convertEntityToDrawingDTO(drawing);
+
+    // check content
+    assertEquals(drawing.getAssignedTo(), drawingDTO.getAssignedTo());
+    assertEquals(drawing.getRound(), drawingDTO.getRound());
+    assertEquals(drawing.getPreviousTextPrompt(), drawingDTO.getPreviousTextPrompt());
+    assertEquals(drawing.getNextTextPrompt(), drawingDTO.getNextTextPrompt());
   }
 }

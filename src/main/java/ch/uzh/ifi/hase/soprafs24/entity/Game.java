@@ -16,7 +16,7 @@ import java.util.List;
 public class Game implements Serializable{
     private static final long serialVersionUID = 1L;
 
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "game", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<GameSession> gameSessions;
 

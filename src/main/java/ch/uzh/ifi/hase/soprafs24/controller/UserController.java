@@ -79,7 +79,7 @@ public class UserController {
   @ResponseBody
   public UserGetDTO getUser(@PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id){
     userService.authenticateUser(token, userService.getUserById(id));
-    User user = userService.getUser(userId);
+    User user = userService.getUserById(userId);
 
     return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
 

@@ -15,7 +15,6 @@ import ch.uzh.ifi.hase.soprafs24.repository.TextPromptRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,7 +236,7 @@ public class GameService {
         if (game.getStatus() == GameStatus.OPEN) {
 
             boolean userAlreadyInGame = game.getUsers().stream()
-                .anyMatch(existingUser -> existingUser.getNickname().equals(joinUser.getNickname()));
+                .anyMatch(existingUser -> existingUser.getUserId().equals(joinUser.getUserId()));
             
                 if (!userAlreadyInGame){
                     game.getUsers().add(joinUser);
