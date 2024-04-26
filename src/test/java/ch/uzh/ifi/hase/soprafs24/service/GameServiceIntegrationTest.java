@@ -1332,17 +1332,33 @@ public class GameServiceIntegrationTest {
 
     game.setGameSessions(gameSessions);
 
+    TextPrompt textPrompt1 = new TextPrompt();
+    textPrompt1.setContent("Admin content");
+    textPrompt1.setCreator(createdAdmin);
+    textPrompt1.setGameSession(createdGameSession);
+
+    TextPrompt textPrompt2 = new TextPrompt();
+    textPrompt2.setContent("Player content");
+    textPrompt2.setCreator(createdPlayer);
+    textPrompt2.setGameSession(createdGameSession);
+
+    TextPrompt createdTextPromptAdmin = textPromptRepository.save(textPrompt1);
+    TextPrompt createdTextPromptPlayer = textPromptRepository.save(textPrompt2);
+    textPromptRepository.flush();
+
     Drawing drawingAdmin = new Drawing();
     drawingAdmin.setEncodedImage("test encoded");
     drawingAdmin.setCreator(createdAdmin);
     drawingAdmin.setGameSessionId(createdGameSession.getGameSessionId());
     drawingAdmin.setCreationDateTime(LocalDateTime.now());
+    drawingAdmin.setPreviousTextPrompt(textPrompt1.getTextPromptId());
 
     Drawing drawingPlayer = new Drawing();
     drawingPlayer.setEncodedImage("test encoded");
     drawingPlayer.setCreator(createdPlayer);
     drawingPlayer.setGameSessionId(createdGameSession.getGameSessionId());
     drawingPlayer.setCreationDateTime(LocalDateTime.now());
+    drawingPlayer.setPreviousTextPrompt(textPrompt2.getTextPromptId());
     
     Drawing createdDrawingAdmin = drawingRepository.save(drawingAdmin);
     Drawing createdDrawingPlayer = drawingRepository.save(drawingPlayer);
@@ -1354,6 +1370,8 @@ public class GameServiceIntegrationTest {
     assertEquals(drawing.getEncodedImage(), "test encoded");
     assertEquals(drawing.getCreator(), createdPlayer);
     assertEquals(drawing.getAssignedTo(), createdAdmin.getUserId());
+    assertNotEquals(textPromptRepository.findByTextPromptId(drawing.getPreviousTextPrompt()).getCreator(), createdAdmin);
+
   }
 
   @Transactional
@@ -1423,18 +1441,34 @@ public class GameServiceIntegrationTest {
 
     game.setGameSessions(gameSessions);
 
+    TextPrompt textPrompt1 = new TextPrompt();
+    textPrompt1.setContent("Admin content");
+    textPrompt1.setCreator(createdAdmin);
+    textPrompt1.setGameSession(createdGameSession);
+
+    TextPrompt textPrompt2 = new TextPrompt();
+    textPrompt2.setContent("Player content");
+    textPrompt2.setCreator(createdPlayer);
+    textPrompt2.setGameSession(createdGameSession);
+
+    TextPrompt createdTextPromptAdmin = textPromptRepository.save(textPrompt1);
+    TextPrompt createdTextPromptPlayer = textPromptRepository.save(textPrompt2);
+    textPromptRepository.flush();
+
     Drawing drawingAdmin = new Drawing();
     drawingAdmin.setEncodedImage("test encoded");
     drawingAdmin.setCreator(createdAdmin);
     drawingAdmin.setGameSessionId(createdGameSession.getGameSessionId());
     drawingAdmin.setCreationDateTime(LocalDateTime.now());
     drawingAdmin.setAssignedTo(createdPlayer.getUserId());
+    drawingAdmin.setPreviousTextPrompt(textPrompt1.getTextPromptId());
 
     Drawing drawingPlayer = new Drawing();
     drawingPlayer.setEncodedImage("test encoded");
     drawingPlayer.setCreator(createdPlayer);
     drawingPlayer.setGameSessionId(createdGameSession.getGameSessionId());
     drawingPlayer.setCreationDateTime(LocalDateTime.now());
+    drawingPlayer.setPreviousTextPrompt(textPrompt2.getTextPromptId());
     
     Drawing createdDrawingAdmin = drawingRepository.save(drawingAdmin);
     Drawing createdDrawingPlayer = drawingRepository.save(drawingPlayer);
@@ -1446,6 +1480,8 @@ public class GameServiceIntegrationTest {
     assertEquals(drawing.getEncodedImage(), "test encoded");
     assertEquals(drawing.getCreator(), createdPlayer);
     assertEquals(drawing.getAssignedTo(), createdAdmin.getUserId());
+    assertNotEquals(textPromptRepository.findByTextPromptId(drawing.getPreviousTextPrompt()).getCreator(), createdAdmin);
+
   }
 
   @Transactional
@@ -1525,11 +1561,32 @@ public class GameServiceIntegrationTest {
 
     game.setGameSessions(gameSessions);
 
+    TextPrompt textPrompt1 = new TextPrompt();
+    textPrompt1.setContent("Admin content");
+    textPrompt1.setCreator(createdAdmin);
+    textPrompt1.setGameSession(createdGameSession);
+
+    TextPrompt textPrompt2 = new TextPrompt();
+    textPrompt2.setContent("Player content");
+    textPrompt2.setCreator(createdPlayer);
+    textPrompt2.setGameSession(createdGameSession);
+
+    TextPrompt textPrompt3 = new TextPrompt();
+    textPrompt3.setContent("Player content");
+    textPrompt3.setCreator(createdPlayer);
+    textPrompt3.setGameSession(createdGameSession);
+
+    TextPrompt createdTextPromptAdmin = textPromptRepository.save(textPrompt1);
+    TextPrompt createdTextPromptPlayer = textPromptRepository.save(textPrompt2);
+    TextPrompt createdTextPromptPlayer2 = textPromptRepository.save(textPrompt3);
+    textPromptRepository.flush();
+
     Drawing drawingAdmin = new Drawing();
     drawingAdmin.setEncodedImage("test encoded");
     drawingAdmin.setCreator(createdAdmin);
     drawingAdmin.setGameSessionId(createdGameSession.getGameSessionId());
     drawingAdmin.setCreationDateTime(LocalDateTime.now());
+    drawingAdmin.setPreviousTextPrompt(textPrompt1.getTextPromptId());
 
     Drawing drawingPlayer = new Drawing();
     drawingPlayer.setEncodedImage("test encoded 1");
@@ -1537,6 +1594,7 @@ public class GameServiceIntegrationTest {
     drawingPlayer.setGameSessionId(createdGameSession.getGameSessionId());
     drawingPlayer.setCreationDateTime(LocalDateTime.now());
     drawingPlayer.setAssignedTo(createdPlayer2.getUserId());
+    drawingPlayer.setPreviousTextPrompt(textPrompt2.getTextPromptId());
 
     Drawing drawingPlayer2 = new Drawing();
     drawingPlayer2.setEncodedImage("test encoded 1");
@@ -1544,16 +1602,20 @@ public class GameServiceIntegrationTest {
     drawingPlayer2.setGameSessionId(createdGameSession.getGameSessionId());
     drawingPlayer2.setCreationDateTime(LocalDateTime.now());
     drawingPlayer2.setAssignedTo(createdPlayer.getUserId());
+    drawingPlayer2.setPreviousTextPrompt(textPrompt3.getTextPromptId());
     
     Drawing createdDrawingAdmin = drawingRepository.save(drawingAdmin);
     Drawing createdDrawingPlayer = drawingRepository.save(drawingPlayer);
+    Drawing createdDrawingPlayer2 = drawingRepository.save(drawingPlayer2);
     drawingRepository.flush();
 
     Drawing drawing = gameService.getDrawing(createdGameSession.getGameSessionId(), createdAdmin.getUserId());
     entityManager.flush();
 
     assertEquals(drawing.getEncodedImage(), "test encoded 1");
+    assertNotEquals(textPromptRepository.findByTextPromptId(drawing.getPreviousTextPrompt()).getCreator(), createdAdmin);
   }
+  
 
   @Transactional
   @Test

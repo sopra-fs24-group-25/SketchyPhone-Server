@@ -188,6 +188,7 @@ public class GameService {
         // add gameLoopStatus and set it to TEXTPROMPT
         gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
         gameSessionRepository.save(gameSession);
+        gameSessionRepository.flush();
 
         // add users who are currently in the room
         for (int i = 0; i < game.getUsers().size(); i++) {
@@ -513,7 +514,7 @@ public class GameService {
         List<Drawing> availableDrawings = drawingRepository.findAll().stream()
                 .filter(drawing -> drawing.getAssignedTo() == null && !drawing.getCreator().getUserId().equals(userId)
                         && drawing.getRound() == gameSession.getRoundCounter() - 1
-                        && drawing.getGameSessionId().equals(gameSessionId))
+                        && drawing.getGameSessionId().equals(gameSessionId) && textPromptRepository.findByTextPromptId(drawing.getPreviousTextPrompt()).getCreator() != user)
                 .collect(Collectors.toList());
 
         List<Drawing> lastDrawings = drawingRepository.findAll().stream()
