@@ -535,8 +535,8 @@ public class GameService {
         int randomNumber = 0;
         Drawing assignedDrawing = new Drawing();
         if(!availableDrawings.isEmpty()){
-        randomNumber = random.nextInt(availableDrawings.size());
-        assignedDrawing = availableDrawings.get(randomNumber);
+            randomNumber = random.nextInt(availableDrawings.size());
+            assignedDrawing = availableDrawings.get(randomNumber);
         }
         
 
@@ -613,12 +613,17 @@ public class GameService {
             nextId = assignedPrompt.getTextPromptId();
             while (nextId != null) {
                 sequence.add(assignedPrompt);
-                drawing = drawingRepository.findByDrawingId(assignedPrompt.getNextDrawingId());
-                sequence.add(drawing);
-                nextId = drawing.getNextTextPrompt();
-                if (nextId != null) {
-                    assignedPrompt = textPromptRepository.findByTextPromptId(nextId);
+                if (assignedPrompt.getNextDrawingId() != null){
+                    drawing = drawingRepository.findByDrawingId(assignedPrompt.getNextDrawingId());
+                    sequence.add(drawing);
+                    nextId = drawing.getNextTextPrompt();
+                    if (nextId != null) {
+                        assignedPrompt = textPromptRepository.findByTextPromptId(nextId);
+                    }
+                }else{
+                    break;
                 }
+                
             }
         }
         
