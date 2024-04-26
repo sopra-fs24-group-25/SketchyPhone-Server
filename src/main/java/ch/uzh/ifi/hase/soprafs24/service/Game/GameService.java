@@ -262,6 +262,7 @@ public class GameService {
                 }
 
                 game.getUsers().get(randomNumber).setRole("admin");
+                game.setAdmin(game.getUsers().get(randomNumber).getUserId());
             }
         }
         int size = game.getGameSessions().size();
@@ -271,8 +272,11 @@ public class GameService {
             game.getGameSessions().get(size - 1).getUsersInSession().remove(user.getUserId());
         }
 
+        game.getUsers().remove(user);
+
         // delete user from repository
         userRepository.delete(user);
+        userRepository.flush();
     }
 
     public Game getGameByGamePIN(Long gamePin) {

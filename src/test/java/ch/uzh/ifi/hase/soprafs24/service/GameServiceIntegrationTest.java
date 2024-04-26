@@ -17,12 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import javax.persistence.EntityManager;
+
 import java.util.ArrayList;
 
 /**
@@ -46,6 +49,9 @@ public class GameServiceIntegrationTest {
 
   @Autowired
   private GameService gameService;
+
+  @Autowired
+  private EntityManager entityManager;
 
   @BeforeEach
   public void setup() {
@@ -278,6 +284,24 @@ public class GameServiceIntegrationTest {
   }
 
   @Test
+  public void authenticate_notAdmin_wrongToken_throwsException() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setStatus(UserStatus.ONLINE);
+    admin.setRole("admin");
+    admin.setToken("test token");
+
+    User createdAdmin = userRepository.save(admin);
+    userRepository.flush();
+
+    // attempt to authenticate user that's not an admin
+    // check that an error is thrown
+    assertThrows(ResponseStatusException.class, () -> gameService.authenticateAdmin("test toke", createdAdmin));
+  }
+
+  @Test
   public void joinGame_validInputs_success() {
 
     User admin = new User();
@@ -453,6 +477,135 @@ public class GameServiceIntegrationTest {
     // attempt to remove user that hasn't been created
     // check that an error is thrown
     assertThrows(ResponseStatusException.class, () -> gameService.leaveRoom(foundGame.getGameId(), 34L));
+  }
+
+  @Transactional
+  @Test
+  public void leaveGame_Success_reassignAdmin() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setToken("test token");
+    admin.setRole("admin");
+    admin.setStatus(UserStatus.ONLINE);
+
+    User createdAdmin = userRepository.save(admin);
+    userRepository.flush();
+
+    User player = new User();
+    player.setNickname("testNickname");
+    player.setCreationDate(LocalDate.now());
+    player.setToken("test token 2");
+    player.setRole("player");
+    player.setStatus(UserStatus.ONLINE);
+
+    User createdPlayer = userRepository.save(player);
+    userRepository.flush();
+
+    GameSettings gameSettings = new GameSettings();
+    gameSettings.setGameSettingsId(2L);
+
+    List<User> users = new ArrayList<User>();
+    users.add(admin);
+    users.add(createdPlayer);
+
+    List<GameSession> gameSessions = new ArrayList<GameSession>();
+
+    Game game = new Game();
+    game.setGamePin(777777L);
+    game.setGameToken("test token");
+    game.setStatus(GameStatus.OPEN);
+    game.setAdmin(createdAdmin.getUserId());
+    game.setGameSettingsId(gameSettings.getGameSettingsId());
+    game.setUsers(users);
+    game.setGameSessions(gameSessions);
+
+    Game foundGame = gameRepository.save(game);
+    gameRepository.flush();
+
+    
+
+    // call function should reassign admin role to createdPlayer
+    gameService.leaveRoom(foundGame.getGameId(), createdAdmin.getUserId());
+    gameRepository.flush();
+    entityManager.flush();
+
+    assertEquals(foundGame.getUsers().size(), 1);
+    assertEquals(foundGame.getAdmin(), createdPlayer.getUserId());
+    assertEquals(foundGame.getUsers().get(0).getRole(), "admin");
+  }
+
+  @Transactional
+  @Test
+  public void leaveGame_Success_NoReassignAdmin() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setToken("test token");
+    admin.setRole("admin");
+    admin.setStatus(UserStatus.ONLINE);
+
+    User createdAdmin = userRepository.save(admin);
+    userRepository.flush();
+
+    User player = new User();
+    player.setNickname("testNickname");
+    player.setCreationDate(LocalDate.now());
+    player.setToken("test token 2");
+    player.setRole("player");
+    player.setStatus(UserStatus.ONLINE);
+
+    User createdPlayer = userRepository.save(player);
+    userRepository.flush();
+
+    GameSettings gameSettings = new GameSettings();
+    gameSettings.setGameSettingsId(2L);
+
+    List<User> users = new ArrayList<User>();
+    users.add(admin);
+    users.add(createdPlayer);
+
+    List<Long> userIds = new ArrayList<Long>();
+    userIds.add(createdAdmin.getUserId());
+    userIds.add(createdPlayer.getUserId());
+
+    GameSession gameSession = new GameSession();
+    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setStatus(GameStatus.IN_PLAY);
+    gameSession.setToken("test token");
+    gameSession.setUsersInSession(userIds);
+
+    GameSession createdGameSession = gameSessionRepository.save(gameSession);
+    gameSessionRepository.flush();
+
+    List<GameSession> gameSessions = new ArrayList<GameSession>();
+    gameSessions.add(createdGameSession);
+
+    Game game = new Game();
+    game.setGamePin(777777L);
+    game.setGameToken("test token");
+    game.setStatus(GameStatus.OPEN);
+    game.setAdmin(createdAdmin.getUserId());
+    game.setGameSettingsId(gameSettings.getGameSettingsId());
+    game.setUsers(users);
+    game.setGameSessions(gameSessions);
+
+    Game foundGame = gameRepository.save(game);
+    gameRepository.flush();
+
+    
+
+    // call function should reassign admin role to createdPlayer
+    gameService.leaveRoom(foundGame.getGameId(), createdPlayer.getUserId());
+    gameRepository.flush();
+    entityManager.flush();
+
+    assertEquals(foundGame.getUsers().size(), 1);
+    assertEquals(foundGame.getAdmin(), createdAdmin.getUserId());
+    assertEquals(gameSession.getUsersInSession().size(), 1);
+
   }
 
 }
