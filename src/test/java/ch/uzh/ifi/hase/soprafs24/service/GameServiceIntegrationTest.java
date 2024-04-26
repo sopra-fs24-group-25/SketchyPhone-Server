@@ -72,8 +72,11 @@ public class GameServiceIntegrationTest {
   @BeforeEach
   public void setup() {
     gameSessionRepository.deleteAll();
-    userRepository.deleteAll();
     gameRepository.deleteAll();
+    userRepository.deleteAll();
+    gameSettingsRepository.deleteAll();
+    drawingRepository.deleteAll();
+    textPromptRepository.deleteAll();
   }
 
   @Test
