@@ -557,8 +557,7 @@ public class GameService {
 
     }
 
-    // TODO ending a game session should create a sessionHistory entity with all
-    // drawings and textprompts
+    // TODO ending a game session should create a sessionHistory entity with all drawings and textprompts
     public void endGameSessionAndDeleteTextPrompts(Long gameSessionId) {
         // Check if the game session exists and whether it can be ended
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
