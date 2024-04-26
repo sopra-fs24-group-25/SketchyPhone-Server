@@ -67,6 +67,9 @@ public class GameServiceIntegrationTest {
   private GameService gameService;
 
   @Autowired
+  private UserService userService;
+
+  @Autowired
   private EntityManager entityManager;
 
   @BeforeEach
@@ -137,8 +140,7 @@ public class GameServiceIntegrationTest {
     admin.setToken("test token");
     admin.setStatus(UserStatus.ONLINE);
 
-    userRepository.save(admin);
-    userRepository.flush();
+    User createdAdmin = userService.createUser(admin);
 
     GameSettings gameSettings = new GameSettings();
     gameSettings.setGameSettingsId(2L);
@@ -147,14 +149,14 @@ public class GameServiceIntegrationTest {
     game.setGamePin(777777L);
     game.setGameToken("test token");
     game.setStatus(GameStatus.OPEN);
-    game.setAdmin(admin.getUserId());
+    game.setAdmin(createdAdmin.getUserId());
     game.setGameSettingsId(gameSettings.getGameSettingsId());
 
     gameRepository.save(game);
     gameRepository.flush();
 
     // when
-    Game createdGame = gameService.createGame(admin.getUserId());
+    Game createdGame = gameService.createGame(createdAdmin.getUserId());
 
     // then
     assertEquals(String.valueOf(game.getGamePin()).length(), 6);
@@ -183,8 +185,7 @@ public class GameServiceIntegrationTest {
     admin.setToken("test token");
     admin.setStatus(UserStatus.ONLINE);
 
-    userRepository.save(admin);
-    userRepository.flush();
+    User createdAdmin = userService.createUser(admin);
 
     GameSettings gameSettings = new GameSettings();
     gameSettings.setGameSettingsId(2L);
@@ -200,16 +201,8 @@ public class GameServiceIntegrationTest {
     List<GameSession> gameSessions = new ArrayList<GameSession>();
     gameSessions.add(gameSession);
 
-    Game game = new Game();
-    game.setGamePin(777777L);
-    game.setGameToken("test token");
-    game.setStatus(GameStatus.OPEN);
-    game.setAdmin(admin.getUserId());
-    game.setGameSettingsId(gameSettings.getGameSettingsId());
+    Game game = gameService.createGame(createdAdmin.getUserId());
     game.setGameSessions(gameSessions);
-
-    game = gameRepository.save(game);
-    gameRepository.flush();
 
     // when
     Game createdGame = gameService.createGameSession(game.getGameId());
