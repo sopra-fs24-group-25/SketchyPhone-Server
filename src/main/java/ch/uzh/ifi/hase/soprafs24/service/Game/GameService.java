@@ -584,18 +584,7 @@ public class GameService {
                         && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
                 .collect(Collectors.toList());
 
-        if (availablePrompts.size() == 0) {
-            gameSession.setCurrentIndex(0);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No more sequences left");
-        }
-
-        SecureRandom random = new SecureRandom();
-        int randomNumber = random.nextInt(availablePrompts.size());
-        TextPrompt assignedPrompt = availablePrompts.get(randomNumber);
-
-        // set previous drawing to 776 so that when trying to present the next sequence
-        // we won't repeat the same sequence
-        assignedPrompt.setPreviousDrawingId(776L);
+        TextPrompt assignedPrompt = new TextPrompt();
 
         Long nextId = assignedPrompt.getTextPromptId();
 
@@ -603,15 +592,20 @@ public class GameService {
 
         Drawing drawing = new Drawing();
 
-        while (nextId != null) {
-            sequence.add(assignedPrompt);
-            drawing = drawingRepository.findByDrawingId(assignedPrompt.getNextDrawingId());
-            sequence.add(drawing);
-            nextId = drawing.getNextTextPrompt();
-            if (nextId != null) {
-                assignedPrompt = textPromptRepository.findByTextPromptId(nextId);
+        for (int i = 0; i < availablePrompts.size(); i++) {
+            assignedPrompt = availablePrompts.get(i);
+            nextId = assignedPrompt.getTextPromptId();
+            while (nextId != null) {
+                sequence.add(assignedPrompt);
+                drawing = drawingRepository.findByDrawingId(assignedPrompt.getNextDrawingId());
+                sequence.add(drawing);
+                nextId = drawing.getNextTextPrompt();
+                if (nextId != null) {
+                    assignedPrompt = textPromptRepository.findByTextPromptId(nextId);
+                }
             }
         }
+        
 
         return sequence;
     }
