@@ -1358,6 +1358,205 @@ public class GameServiceIntegrationTest {
 
   @Transactional
   @Test
+  public void getDrawing_AlreadyAssigned_Success() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setToken("test token");
+    admin.setRole("admin");
+    admin.setStatus(UserStatus.ONLINE);
+
+    User createdAdmin = userRepository.save(admin);
+    userRepository.flush();
+
+    User player = new User();
+    player.setNickname("testNickname");
+    player.setCreationDate(LocalDate.now());
+    player.setToken("test token 2");
+    player.setRole("player");
+    player.setStatus(UserStatus.ONLINE);
+
+    User createdPlayer = userRepository.save(player);
+    userRepository.flush();
+
+    GameSettings gameSettings = new GameSettings();
+    gameSettings.setEnableTextToSpeech(true);
+    gameSettings.setGameSpeed(40);
+    gameSettings.setNumCycles(4);
+
+    GameSettings createdGameSettings = gameSettingsRepository.save(gameSettings);
+    gameSettingsRepository.flush();
+
+    List<User> users = new ArrayList<User>();
+    users.add(admin);
+    users.add(createdPlayer);
+
+    List<Long> usersInSession = new ArrayList<Long>();
+    usersInSession.add(createdAdmin.getUserId());
+    usersInSession.add(createdPlayer.getUserId());
+
+    Game game = new Game();
+    game.setGamePin(777777L);
+    game.setGameToken("test token");
+    game.setStatus(GameStatus.OPEN);
+    game.setAdmin(createdAdmin.getUserId());
+    game.setGameSettingsId(createdGameSettings.getGameSettingsId());
+    game.setUsers(users);
+
+    Game foundGame = gameRepository.save(game);
+    gameRepository.flush();
+
+    GameSession gameSession = new GameSession();
+    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setToken("testtokens");
+    gameSession.setStatus(GameStatus.IN_PLAY);
+    gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
+    gameSession.setUsersInSession(usersInSession);
+    gameSession.setGame(foundGame);
+
+    GameSession createdGameSession = gameSessionRepository.save(gameSession);
+    gameSessionRepository.flush();
+
+    List<GameSession> gameSessions = new ArrayList<GameSession>();
+    gameSessions.add(createdGameSession);
+
+    game.setGameSessions(gameSessions);
+
+    Drawing drawingAdmin = new Drawing();
+    drawingAdmin.setEncodedImage("test encoded");
+    drawingAdmin.setCreator(createdAdmin);
+    drawingAdmin.setGameSessionId(createdGameSession.getGameSessionId());
+    drawingAdmin.setCreationDateTime(LocalDateTime.now());
+    drawingAdmin.setAssignedTo(createdPlayer.getUserId());
+
+    Drawing drawingPlayer = new Drawing();
+    drawingPlayer.setEncodedImage("test encoded");
+    drawingPlayer.setCreator(createdPlayer);
+    drawingPlayer.setGameSessionId(createdGameSession.getGameSessionId());
+    drawingPlayer.setCreationDateTime(LocalDateTime.now());
+    
+    Drawing createdDrawingAdmin = drawingRepository.save(drawingAdmin);
+    Drawing createdDrawingPlayer = drawingRepository.save(drawingPlayer);
+    drawingRepository.flush();
+
+    Drawing drawing = gameService.getDrawing(createdGameSession.getGameSessionId(), createdAdmin.getUserId());
+    entityManager.flush();
+
+    assertEquals(drawing.getEncodedImage(), "test encoded");
+    assertEquals(drawing.getCreator(), createdPlayer);
+    assertEquals(drawing.getAssignedTo(), createdAdmin.getUserId());
+  }
+
+  @Transactional
+  @Test
+  public void getDrawing_LastDrawingOwn_Success() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setToken("test token");
+    admin.setRole("admin");
+    admin.setStatus(UserStatus.ONLINE);
+
+    User createdAdmin = userRepository.save(admin);
+    userRepository.flush();
+
+    User player = new User();
+    player.setNickname("testNickname");
+    player.setCreationDate(LocalDate.now());
+    player.setToken("test token 2");
+    player.setRole("player");
+    player.setStatus(UserStatus.ONLINE);
+
+    User createdPlayer = userRepository.save(player);
+    userRepository.flush();
+
+    User player2 = new User();
+    player2.setNickname("testNickname");
+    player2.setCreationDate(LocalDate.now());
+    player2.setToken("test token 2");
+    player2.setRole("player");
+    player2.setStatus(UserStatus.ONLINE);
+
+    User createdPlayer2 = userRepository.save(player);
+    userRepository.flush();
+
+    GameSettings gameSettings = new GameSettings();
+    gameSettings.setEnableTextToSpeech(true);
+    gameSettings.setGameSpeed(40);
+    gameSettings.setNumCycles(4);
+
+    GameSettings createdGameSettings = gameSettingsRepository.save(gameSettings);
+    gameSettingsRepository.flush();
+
+    List<User> users = new ArrayList<User>();
+    users.add(admin);
+    users.add(createdPlayer);
+
+    List<Long> usersInSession = new ArrayList<Long>();
+    usersInSession.add(createdAdmin.getUserId());
+    usersInSession.add(createdPlayer.getUserId());
+
+    Game game = new Game();
+    game.setGamePin(777777L);
+    game.setGameToken("test token");
+    game.setStatus(GameStatus.OPEN);
+    game.setAdmin(createdAdmin.getUserId());
+    game.setGameSettingsId(createdGameSettings.getGameSettingsId());
+    game.setUsers(users);
+
+    Game foundGame = gameRepository.save(game);
+    gameRepository.flush();
+
+    GameSession gameSession = new GameSession();
+    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setToken("testtokens");
+    gameSession.setStatus(GameStatus.IN_PLAY);
+    gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
+    gameSession.setUsersInSession(usersInSession);
+    gameSession.setGame(foundGame);
+
+    GameSession createdGameSession = gameSessionRepository.save(gameSession);
+    gameSessionRepository.flush();
+
+    List<GameSession> gameSessions = new ArrayList<GameSession>();
+    gameSessions.add(createdGameSession);
+
+    game.setGameSessions(gameSessions);
+
+    Drawing drawingAdmin = new Drawing();
+    drawingAdmin.setEncodedImage("test encoded");
+    drawingAdmin.setCreator(createdAdmin);
+    drawingAdmin.setGameSessionId(createdGameSession.getGameSessionId());
+    drawingAdmin.setCreationDateTime(LocalDateTime.now());
+
+    Drawing drawingPlayer = new Drawing();
+    drawingPlayer.setEncodedImage("test encoded 1");
+    drawingPlayer.setCreator(createdPlayer);
+    drawingPlayer.setGameSessionId(createdGameSession.getGameSessionId());
+    drawingPlayer.setCreationDateTime(LocalDateTime.now());
+    drawingPlayer.setAssignedTo(createdPlayer2.getUserId());
+
+    Drawing drawingPlayer2 = new Drawing();
+    drawingPlayer2.setEncodedImage("test encoded 1");
+    drawingPlayer2.setCreator(createdPlayer);
+    drawingPlayer2.setGameSessionId(createdGameSession.getGameSessionId());
+    drawingPlayer2.setCreationDateTime(LocalDateTime.now());
+    drawingPlayer2.setAssignedTo(createdPlayer.getUserId());
+    
+    Drawing createdDrawingAdmin = drawingRepository.save(drawingAdmin);
+    Drawing createdDrawingPlayer = drawingRepository.save(drawingPlayer);
+    drawingRepository.flush();
+
+    Drawing drawing = gameService.getDrawing(createdGameSession.getGameSessionId(), createdAdmin.getUserId());
+    entityManager.flush();
+
+    assertEquals(drawing.getEncodedImage(), "test encoded 1");
+  }
+
+  @Transactional
+  @Test
   public void startNextRound_Success_Presentation() {
 
     User admin = new User();
@@ -1730,8 +1929,99 @@ public class GameServiceIntegrationTest {
 
     entityManager.flush();
 
-    assertEquals(createdGameSession.getCurrentIndex(), 4);
+    assertEquals(gameService.getCurrentIndex(createdGameSession.getGameSessionId()), 4);
 
+  }
+
+  @Test
+  public void endGameSession_NotFound_throwsException() {
+
+    assertThrows(ResponseStatusException.class, () -> gameService.endGameSessionAndDeleteTextPrompts(2L));
+
+  }
+
+  @Transactional
+  @Test
+  public void endGameSession_Success() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setToken("test token");
+    admin.setRole("admin");
+    admin.setStatus(UserStatus.ONLINE);
+
+    User createdAdmin = userRepository.save(admin);
+    userRepository.flush();
+
+    User player = new User();
+    player.setNickname("testNickname");
+    player.setCreationDate(LocalDate.now());
+    player.setToken("test token 2");
+    player.setRole("player");
+    player.setStatus(UserStatus.ONLINE);
+
+    User createdPlayer = userRepository.save(player);
+    userRepository.flush();
+
+    GameSettings gameSettings = new GameSettings();
+    gameSettings.setGameSettingsId(2L);
+
+    List<User> users = new ArrayList<User>();
+    users.add(admin);
+    users.add(createdPlayer);
+
+    List<Long> usersInSession = new ArrayList<Long>();
+    usersInSession.add(createdAdmin.getUserId());
+    usersInSession.add(createdPlayer.getUserId());
+
+    GameSession gameSession = new GameSession();
+    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setToken("testtokens");
+    gameSession.setStatus(GameStatus.IN_PLAY);
+    gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
+    gameSession.setUsersInSession(usersInSession);
+
+    GameSession createdGameSession = gameSessionRepository.save(gameSession);
+    gameSessionRepository.flush();
+
+    List<GameSession> gameSessions = new ArrayList<GameSession>();
+    gameSessions.add(createdGameSession);
+
+    TextPrompt textPromptAdmin = new TextPrompt();
+    textPromptAdmin.setContent("Admin content");
+    textPromptAdmin.setCreator(createdAdmin);
+    textPromptAdmin.setGameSession(createdGameSession);
+
+    TextPrompt textPromptPlayer = new TextPrompt();
+    textPromptPlayer.setContent("Player content");
+    textPromptPlayer.setCreator(createdPlayer);
+    textPromptPlayer.setGameSession(createdGameSession);
+
+    TextPrompt createdTextPromptAdmin = textPromptRepository.save(textPromptAdmin);
+    TextPrompt createdTextPromptPlayer = textPromptRepository.save(textPromptPlayer);
+    textPromptRepository.flush();
+
+    Game game = new Game();
+    game.setGamePin(777777L);
+    game.setGameToken("test token");
+    game.setStatus(GameStatus.OPEN);
+    game.setAdmin(createdAdmin.getUserId());
+    game.setGameSettingsId(gameSettings.getGameSettingsId());
+    game.setUsers(users);
+    game.setGameSessions(gameSessions);
+
+    Game foundGame = gameRepository.save(game);
+    gameRepository.flush();
+
+    
+
+
+    gameService.endGameSessionAndDeleteTextPrompts(createdGameSession.getGameSessionId());
+
+    entityManager.flush();
+
+    assertEquals(textPromptRepository.findAll().size(), 0);
   }
 
 }

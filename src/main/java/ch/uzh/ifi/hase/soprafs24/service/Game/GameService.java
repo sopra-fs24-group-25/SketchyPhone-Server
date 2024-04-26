@@ -411,10 +411,15 @@ public class GameService {
                         && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
                 .collect(Collectors.toList());
 
+        int randomNumber = 0;
+        TextPrompt assignedPrompt = new TextPrompt();
         // select random prompting
         SecureRandom random = new SecureRandom();
-        int randomNumber = random.nextInt(availablePrompts.size());
-        TextPrompt assignedPrompt = availablePrompts.get(randomNumber);
+        if (!availablePrompts.isEmpty()){
+            randomNumber = random.nextInt(availablePrompts.size());
+            assignedPrompt = availablePrompts.get(randomNumber);
+        }
+        
 
         // if last prompt would be the one userId drew -> choose random already assigned
         // prompt
@@ -525,8 +530,14 @@ public class GameService {
 
         // select random drawing
         SecureRandom random = new SecureRandom();
-        int randomNumber = random.nextInt(availableDrawings.size());
-        Drawing assignedDrawing = availableDrawings.get(randomNumber);
+
+        int randomNumber = 0;
+        Drawing assignedDrawing = new Drawing();
+        if(!availableDrawings.isEmpty()){
+        randomNumber = random.nextInt(availableDrawings.size());
+        assignedDrawing = availableDrawings.get(randomNumber);
+        }
+        
 
         // if last drawing would be the one userId drew -> choose random alreaday
         // assigned drawing
