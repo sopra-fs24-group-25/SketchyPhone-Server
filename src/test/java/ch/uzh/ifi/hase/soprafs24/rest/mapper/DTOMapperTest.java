@@ -49,6 +49,25 @@ public class DTOMapperTest {
   }
 
   @Test
+  public void testCreateUser_fromUserPostDTO_toUser_success_02() {
+    // create UserPostDTO
+    UserPostDTO userPostDTO = new UserPostDTO();
+    userPostDTO.setNickname("name");
+    userPostDTO.setPassword("password");
+    userPostDTO.setEmail("email@gmail.com");
+    userPostDTO.setAvatarId(1L);
+
+    // MAP -> Create user
+    User user = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+
+    // check content
+    assertEquals(userPostDTO.getNickname(), user.getNickname());
+    assertEquals(userPostDTO.getPassword(), user.getPassword());
+    assertEquals(userPostDTO.getEmail(), user.getEmail());
+    assertEquals(userPostDTO.getAvatarId(), user.getAvatarId());
+  }
+
+  @Test
   public void testGetUser_fromUser_toUserGetDTO_success() {
     // create User
     User user = new User();
