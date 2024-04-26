@@ -8,6 +8,7 @@ public class UserPostDTO {
   private String password;
   private Boolean persistent;
   private String email;
+  private Long avatarId;
 
   // setters
   public void setNickname(String nickname) {
@@ -26,6 +27,10 @@ public class UserPostDTO {
     this.email = email;
   }
 
+  public void setAvatarId(Long avatarId){
+    this.avatarId = avatarId;
+  }
+
   // getters
 
   public String getNickname() {
@@ -42,6 +47,10 @@ public class UserPostDTO {
 
   public String getEmail() {
     return email;
+  }
+
+  public Long getAvatarId() {
+    return avatarId;
   }
 
   
