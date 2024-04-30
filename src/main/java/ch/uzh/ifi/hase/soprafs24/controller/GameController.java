@@ -214,5 +214,15 @@ public class GameController {
 
     return DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
   }
+
+  // put mapping to update number of votes for given text prompt
+  @PutMapping("/games/{gameSessionId}/prompt/{textPromptId}/vote")
+  @ResponseStatus(HttpStatus.OK)
+  public void increasePromptVotes(@PathVariable Long gameSessionId, @PathVariable Long textPromptId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+      
+      userService.authenticateUser(token, userService.getUserById(id));
+      
+      gameService.increasePromptVotes(gameSessionId, textPromptId);
+  }
   
 }

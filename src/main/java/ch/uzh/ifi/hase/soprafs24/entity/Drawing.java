@@ -51,6 +51,9 @@ public class Drawing implements Serializable {
   @Column
   private int round;
 
+  @Column
+  private int numVotes = 0;
+
   public int getRound(){
     return round;
   }
@@ -59,6 +62,13 @@ public class Drawing implements Serializable {
     this.round = round;
   }
 
+  public int getNumVotes(){
+    return round;
+  }
+
+  public void setNumVotes(int round){
+    this.round = round;
+  }
    
   public Long getDrawingId(){
     return drawingId;

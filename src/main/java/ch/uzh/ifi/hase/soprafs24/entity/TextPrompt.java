@@ -1,7 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "TextPrompt")
@@ -35,6 +34,9 @@ public class TextPrompt implements Serializable {
     @Column
     private int round;
 
+    @Column
+    private int numVotes = 0;
+
 
     public Long getTextPromptId() {
         return textPromptId;
@@ -42,6 +44,14 @@ public class TextPrompt implements Serializable {
 
     public void setTextPromptId(Long textPromptId) {
         this.textPromptId = textPromptId;
+    }
+
+    public int getNumVotes() {
+        return numVotes;
+    }
+
+    public void setNumVotes(int numVotes) {
+        this.numVotes = numVotes;
     }
 
     public Long getPreviousDrawingId(){

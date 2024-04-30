@@ -640,4 +640,17 @@ public class GameService {
         gameSession.setCurrentIndex(gameSession.getCurrentIndex() + 1);
         return gameSession.getCurrentIndex();
     }
+
+    public void increasePromptVotes(Long gameSessionId, Long textPromptId){
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
+        if (gameSession == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
+        }
+        TextPrompt text = textPromptRepository.findByTextPromptId(textPromptId);
+        if (text == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Text prompt not found");
+        }
+
+        text.setNumVotes(text.getNumVotes() + 1);
+    }
 }

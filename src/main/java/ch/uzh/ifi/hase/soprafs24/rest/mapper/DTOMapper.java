@@ -93,6 +93,7 @@ public interface DTOMapper {
   @Mapping(source = "nextDrawingId", target = "nextDrawingId")
   @Mapping(source = "textPromptId", target = "textPromptId")
   @Mapping(source = "round", target = "round")
+  @Mapping(source = "numVotes", target = "numVotes")
   TextPrompt convertTextPromptDTOtoEntity(TextPromptDTO textPromptDTO);
 
   @Mapping(source = "content", target = "content")
@@ -101,7 +102,9 @@ public interface DTOMapper {
   @Mapping(source = "assignedTo", target = "assignedTo")
   @Mapping(source = "previousDrawingId", target = "previousDrawingId")
   @Mapping(source = "nextDrawingId", target = "nextDrawingId")
+  @Mapping(source = "textPromptId", target = "textPromptId")
   @Mapping(source = "round", target = "round")
+  @Mapping(source = "numVotes", target = "numVotes")
   TextPromptDTO convertEntityToTextPromptDTO(TextPrompt textPrompt);
 
   @Mapping(source = "gameSpeed", target = "gameSpeed")
@@ -132,6 +135,7 @@ public interface DTOMapper {
   @Mapping(source = "nextTextPrompt", target = "nextTextPrompt")
   @Mapping(source = "assignedTo", target = "assignedTo")
   @Mapping(source = "round", target = "round")
+  @Mapping(source = "numVotes", target = "numVotes")
   Drawing convertDrawingDTOtoEntity(DrawingDTO drawingDTO);
 
   @Mapping(source = "encodedImage", target = "encodedImage")
@@ -142,5 +146,6 @@ public interface DTOMapper {
   @Mapping(source = "nextTextPrompt", target = "nextTextPrompt")
   @Mapping(source = "assignedTo", target = "assignedTo")
   @Mapping(source = "round", target = "round")
+  @Mapping(source = "numVotes", target = "numVotes")
   DrawingDTO convertEntityToDrawingDTO(Drawing drawing);
 }
