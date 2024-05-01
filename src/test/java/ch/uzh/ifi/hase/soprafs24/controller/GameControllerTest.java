@@ -652,6 +652,33 @@ public class GameControllerTest {
       .andExpect(status().isOk());
   }
 
+  @Test
+  public void increaseNumVotesDrawingValidInput() throws Exception{
+    //given
+
+    User admin = new User();
+    admin.setRole("admin");
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+
+    Drawing drawing = new Drawing();
+    drawing.setDrawingId(2L);
+
+    // when
+    MockHttpServletRequestBuilder putRequest = put(String.format("/games/%x/drawing/%x/vote", gameSession.getGameSessionId(), drawing.getDrawingId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+
+    // then
+    mockMvc.perform(putRequest)
+      .andExpect(status().isOk());
+  }
+
   /**
    * Helper Method to convert userPostDTO into a JSON string such that the input
    * can be processed

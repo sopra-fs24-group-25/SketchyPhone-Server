@@ -224,5 +224,15 @@ public class GameController {
       
       gameService.increasePromptVotes(gameSessionId, textPromptId);
   }
+
+  // put mapping to update number of votes for given text prompt
+  @PutMapping("/games/{gameSessionId}/drawing/{drawingId}/vote")
+  @ResponseStatus(HttpStatus.OK)
+  public void increaseDrawingVotes(@PathVariable Long gameSessionId, @PathVariable Long drawingId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+      
+      userService.authenticateUser(token, userService.getUserById(id));
+      
+      gameService.increaseDrawingVotes(gameSessionId, drawingId);
+  }
   
 }

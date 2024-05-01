@@ -653,4 +653,17 @@ public class GameService {
 
         text.setNumVotes(text.getNumVotes() + 1);
     }
+
+    public void increaseDrawingVotes(Long gameSessionId, Long drawingId){
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
+        if (gameSession == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
+        }
+        Drawing drawing = drawingRepository.findByDrawingId(drawingId);
+        if (drawing == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drawing not found");
+        }
+
+        drawing.setNumVotes(drawing.getNumVotes() + 1);
+    }
 }
