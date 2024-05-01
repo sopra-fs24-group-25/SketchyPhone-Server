@@ -16,6 +16,7 @@ public class DrawingDTO {
   private Long gameSessionId;
   private Long assignedTo;
   private int round;
+  private int numVotes;
 
   public Long getDrawingId() {
     return drawingId;
@@ -23,6 +24,14 @@ public class DrawingDTO {
 
   public void setDrawingId(Long drawingId) {
     this.drawingId = drawingId;
+  }
+
+  public int getNumVotes() {
+    return numVotes;
+  }
+
+  public void setNumVotes(int numVotes) {
+    this.numVotes = numVotes;
   }
 
   public User getCreator() {

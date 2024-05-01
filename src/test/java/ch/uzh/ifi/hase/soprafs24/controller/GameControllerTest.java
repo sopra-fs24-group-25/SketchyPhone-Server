@@ -625,6 +625,114 @@ public class GameControllerTest {
       .andExpect(jsonPath("$.gamePin", is(game.getGamePin().intValue())));
   }
 
+  @Test
+  public void increaseNumVotesTextPromptValidInput() throws Exception{
+    //given
+
+    User admin = new User();
+    admin.setRole("admin");
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+
+    TextPrompt textPrompt = new TextPrompt();
+    textPrompt.setTextPromptId(2L);
+
+    // when
+    MockHttpServletRequestBuilder putRequest = put(String.format("/games/%x/prompt/%x/vote", gameSession.getGameSessionId(), textPrompt.getTextPromptId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+
+    // then
+    mockMvc.perform(putRequest)
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  public void increaseNumVotesDrawingValidInput() throws Exception{
+    //given
+
+    User admin = new User();
+    admin.setRole("admin");
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+
+    Drawing drawing = new Drawing();
+    drawing.setDrawingId(2L);
+
+    // when
+    MockHttpServletRequestBuilder putRequest = put(String.format("/games/%x/drawing/%x/vote", gameSession.getGameSessionId(), drawing.getDrawingId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+
+    // then
+    mockMvc.perform(putRequest)
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  public void decreaseNumVotesTextPromptValidInput() throws Exception{
+    //given
+
+    User admin = new User();
+    admin.setRole("admin");
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+
+    TextPrompt textPrompt = new TextPrompt();
+    textPrompt.setTextPromptId(2L);
+
+    // when
+    MockHttpServletRequestBuilder putRequest = put(String.format("/games/%x/prompt/%x/unvote", gameSession.getGameSessionId(), textPrompt.getTextPromptId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+
+    // then
+    mockMvc.perform(putRequest)
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  public void decreaseNumVotesDrawingValidInput() throws Exception{
+    //given
+
+    User admin = new User();
+    admin.setRole("admin");
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+
+    Drawing drawing = new Drawing();
+    drawing.setDrawingId(2L);
+
+    // when
+    MockHttpServletRequestBuilder putRequest = put(String.format("/games/%x/drawing/%x/unvote", gameSession.getGameSessionId(), drawing.getDrawingId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+
+    // then
+    mockMvc.perform(putRequest)
+      .andExpect(status().isOk());
+  }
+
   /**
    * Helper Method to convert userPostDTO into a JSON string such that the input
    * can be processed

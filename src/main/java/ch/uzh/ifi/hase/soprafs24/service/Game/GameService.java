@@ -640,4 +640,58 @@ public class GameService {
         gameSession.setCurrentIndex(gameSession.getCurrentIndex() + 1);
         return gameSession.getCurrentIndex();
     }
+
+    public void increasePromptVotes(Long gameSessionId, Long textPromptId){
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
+        if (gameSession == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
+        }
+        TextPrompt text = textPromptRepository.findByTextPromptId(textPromptId);
+        if (text == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Text prompt not found");
+        }
+
+        text.setNumVotes(text.getNumVotes() + 1);
+    }
+
+    public void increaseDrawingVotes(Long gameSessionId, Long drawingId){
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
+        if (gameSession == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
+        }
+        Drawing drawing = drawingRepository.findByDrawingId(drawingId);
+        if (drawing == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drawing not found");
+        }
+
+        drawing.setNumVotes(drawing.getNumVotes() + 1);
+    }
+
+    public void decreasePromptVotes(Long gameSessionId, Long textPromptId){
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
+        if (gameSession == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
+        }
+        TextPrompt text = textPromptRepository.findByTextPromptId(textPromptId);
+        if (text == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Text prompt not found");
+        }
+        if (text.getNumVotes() != 0){ 
+            text.setNumVotes(text.getNumVotes() - 1);
+        }
+    }
+
+    public void decreaseDrawingVotes(Long gameSessionId, Long drawingId){
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
+        if (gameSession == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
+        }
+        Drawing drawing = drawingRepository.findByDrawingId(drawingId);
+        if (drawing == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drawing not found");
+        }
+        if (drawing.getNumVotes() != 0){ 
+            drawing.setNumVotes(drawing.getNumVotes() - 1);
+        }
+    }
 }

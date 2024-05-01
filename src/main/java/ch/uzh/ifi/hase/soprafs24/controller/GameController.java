@@ -214,5 +214,44 @@ public class GameController {
 
     return DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
   }
+
+  // put mapping to increase number of votes for given text prompt
+  @PutMapping("/games/{gameSessionId}/prompt/{textPromptId}/vote")
+  @ResponseStatus(HttpStatus.OK)
+  public void increasePromptVotes(@PathVariable Long gameSessionId, @PathVariable Long textPromptId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+      
+      userService.authenticateUser(token, userService.getUserById(id));
+      
+      gameService.increasePromptVotes(gameSessionId, textPromptId);
+  }
+
+  // put mapping to increase number of votes for given drawing
+  @PutMapping("/games/{gameSessionId}/drawing/{drawingId}/vote")
+  @ResponseStatus(HttpStatus.OK)
+  public void increaseDrawingVotes(@PathVariable Long gameSessionId, @PathVariable Long drawingId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+      
+      userService.authenticateUser(token, userService.getUserById(id));
+      
+      gameService.increaseDrawingVotes(gameSessionId, drawingId);
+  }
   
+  // put mapping to decrease number of votes for given text prompt
+  @PutMapping("/games/{gameSessionId}/prompt/{textPromptId}/unvote")
+  @ResponseStatus(HttpStatus.OK)
+  public void decreasePromptVotes(@PathVariable Long gameSessionId, @PathVariable Long textPromptId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+      
+      userService.authenticateUser(token, userService.getUserById(id));
+      
+      gameService.decreasePromptVotes(gameSessionId, textPromptId);
+  }
+  
+  // put mapping to decrease number of votes for given drawing
+  @PutMapping("/games/{gameSessionId}/drawing/{drawingId}/unvote")
+  @ResponseStatus(HttpStatus.OK)
+  public void decreaseDrawingVotes(@PathVariable Long gameSessionId, @PathVariable Long drawingId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+      
+      userService.authenticateUser(token, userService.getUserById(id));
+      
+      gameService.decreaseDrawingVotes(gameSessionId, drawingId);
+  }
 }
