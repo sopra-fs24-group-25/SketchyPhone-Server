@@ -3,9 +3,8 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "History")
-@Inheritance(strategy = InheritanceType.JOINED)
-public abstract class History {
+@Table(name = "SESSION_HISTORY")
+public class SessionHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long historyId;
@@ -16,6 +15,14 @@ public abstract class History {
 
     @Column(nullable = false)
     private Long userId;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "textPromptId")
+    private TextPrompt textPrompt;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "drawingId")
+    private Drawing drawing;
 
     // Getters and Setters
     public Long getHistoryId() {
@@ -42,4 +49,19 @@ public abstract class History {
         this.userId = userId;
     }
 
+    public TextPrompt getTextPrompt() {
+        return textPrompt;
+    }
+
+    public void setTextPrompt(TextPrompt textPrompt) {
+        this.textPrompt = textPrompt;
+    }
+
+    public Drawing getDrawing() {
+        return drawing;
+    }
+
+    public void setDrawing(Drawing drawing) {
+        this.drawing = drawing;
+    }
 }

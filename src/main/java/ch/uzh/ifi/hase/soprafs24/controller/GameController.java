@@ -6,7 +6,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.entity.History;
+import ch.uzh.ifi.hase.soprafs24.entity.SessionHistory;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
@@ -25,12 +25,15 @@ import java.util.ArrayList;
 
 import ch.uzh.ifi.hase.soprafs24.rest.dto.DrawingDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.SessionHistoryDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.beans.factory.annotation.Autowired;
+
 
 
 /**
@@ -45,13 +48,21 @@ public class GameController {
 
   private final GameService gameService;
   private final UserService userService;
-  private final HistoryService historyService;
+  // private final HistoryService historyService;
 
-  GameController(GameService gameService, UserService userService, HistoryService historyService) {
+  @Autowired
+  public GameController(GameService gameService, UserService userService) {
     this.gameService = gameService;
     this.userService = userService;  
-    this.historyService = historyService;
   }
+
+  // @Autowired
+  // public GameController(GameService gameService, UserService userService, HistoryService historyService) {
+  //   this.gameService = gameService;
+  //   this.userService = userService;  
+  //   this.historyService = historyService;
+  // }
+
 
   // Post Mapping to create a game room - when testing with Postman, the body should be a JSON object with the key "username" and 'name' as the value
   @PostMapping("/gameRooms/create/{userId}")
@@ -93,7 +104,6 @@ public class GameController {
   @ResponseBody
   public List<User> getGameRoomUsers(@PathVariable Long gameRoomId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
     userService.authenticateUser(token, userService.getUserById(id));
-
 
     return gameService.getGameRoomUsers(gameRoomId);
   }
@@ -260,23 +270,23 @@ public class GameController {
   }
 
   // save the flow of the text-to-drawing-to-text cycle in the game session - History
-  @PutMapping("/games/{gameSessionId}/savehistory")
-  @ResponseStatus(HttpStatus.OK)
-  public void saveFlow(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+  // ...
+
+  // @PutMapping("/games/{gameSessionId}/savehistory")
+  // @ResponseStatus(HttpStatus.OK)
+  // public void saveFlow(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
     
-    userService.loginUser(userService.getUserById(id));
+  //   userService.authenticateUser(token, userService.getUserById(id));
 
-    historyService.saveHistory(new ArrayList<>(), gameSessionId);
+  //   historyService.saveHistory(new ArrayList<>(), gameSessionId);
+  // }
 
-  }
+  // // get mapping to get the history of the game session
+  // @GetMapping("/games/{gameSessionId}/history")
+  // public List<Object> getHistory(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+  //   userService.loginUser(userService.getUserById(id));
 
-  // get mapping to get the history of the game session
-  @GetMapping("/games/{gameSessionId}/history")
-  @ResponseStatus(HttpStatus.OK)
-  @ResponseBody
-  public List<Object> getHistory(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
-    userService.authenticateUser(token, userService.getUserById(id));
-
-    return historyService.getHistory(gameSessionId);
-  }
+  //   return historyService.getHistory(gameSessionId);
+  // }
+ 
 }

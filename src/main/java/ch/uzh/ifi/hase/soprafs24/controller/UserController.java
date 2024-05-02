@@ -104,7 +104,6 @@ public class UserController {
   public AvatarDTO getAvatar(@PathVariable Long avatarId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long userId){
     userService.authenticateUser(token, userService.getUserById(userId));
 
-
     Avatar avatar = userService.getAvatar(avatarId);
 
     return DTOMapper.INSTANCE.convertEntityToAvatarDTO(avatar);

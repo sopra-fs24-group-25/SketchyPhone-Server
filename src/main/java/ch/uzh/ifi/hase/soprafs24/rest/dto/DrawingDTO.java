@@ -3,8 +3,6 @@ package ch.uzh.ifi.hase.soprafs24.rest.dto;
 import java.time.LocalDateTime;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-
 public class DrawingDTO {
 
   private Long drawingId;

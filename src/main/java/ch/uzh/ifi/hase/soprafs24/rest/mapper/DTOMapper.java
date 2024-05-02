@@ -16,9 +16,11 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.SessionHistoryDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionGetDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
+import ch.uzh.ifi.hase.soprafs24.entity.SessionHistory;
 
 /**
  * DTOMapper
@@ -148,4 +150,17 @@ public interface DTOMapper {
   @Mapping(source = "round", target = "round")
   @Mapping(source = "numVotes", target = "numVotes")
   DrawingDTO convertEntityToDrawingDTO(Drawing drawing);
+
+  @Mapping(source = "gameSession.gameSessionId", target = "gameSessionId")
+  @Mapping(source = "userId", target = "userId")
+  @Mapping(source = "textPrompt.textPromptId", target = "textPromptId")
+  @Mapping(source = "drawing.drawingId", target = "drawingId")
+  SessionHistoryDTO convertEntityToHistoryDTO(SessionHistory history);
+
+  @Mapping(source = "gameSessionId", target = "gameSession.gameSessionId")
+  @Mapping(source = "userId", target = "userId")
+  @Mapping(source = "textPromptId", target = "textPrompt.textPromptId")
+  @Mapping(source = "drawingId", target = "drawing.drawingId")
+  SessionHistory convertHistoryDTOToEntity(SessionHistoryDTO dto);
+
 }

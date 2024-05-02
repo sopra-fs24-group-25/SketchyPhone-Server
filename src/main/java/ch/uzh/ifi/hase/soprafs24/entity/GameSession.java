@@ -28,12 +28,6 @@ public class GameSession implements Serializable{
     @OneToMany(mappedBy = "gameSession")
     private List<Drawing> drawings;
 
-    @OneToMany(mappedBy = "gameSession")
-    private Long drawingId;
-
-    @OneToMany(mappedBy = "gameSession")
-    private Long textPromptId;
-
     @ManyToOne()
     @JoinColumn(name = "userId")
     private User creator;
