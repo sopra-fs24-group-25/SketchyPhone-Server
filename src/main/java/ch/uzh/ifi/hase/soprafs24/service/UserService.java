@@ -60,6 +60,54 @@ public class UserService {
     return newUser;
   }
 
+  // persistent user 
+  public User loginUser(User user){
+    User userToLogin = userRepository.findByUserId(user.getUserId());
+
+    if (userToLogin == null){
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+    }
+
+    if (!userToLogin.getPassword().equals(user.getPassword())){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password incorrect.");
+    }
+
+    userToLogin.setToken(UUID.randomUUID().toString());
+    userToLogin.setStatus(UserStatus.ONLINE);
+
+    return userRepository.save(userToLogin);
+  }
+
+  // check if user is persistent(exists in the database)
+  public void checkIfUserExists(User user){
+    User userToCheck = userRepository.findByUserId(user.getUserId());
+    
+    if (userToCheck == null){
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+    }
+    // Check if the user is persistent
+    boolean isPersistent = userToCheck.getPersistent();
+    
+    if (!isPersistent){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not persistent.");
+    }
+  }
+
+  // logout persistent user
+  public User logoutUser(User user){
+    User userToLogout = userRepository.findByUserId(user.getUserId());
+
+    if (userToLogout == null){
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+    }
+
+    userToLogout.setStatus(UserStatus.OFFLINE);
+    userToLogout.setToken(null);
+
+    return userRepository.save(userToLogout);
+  }
+
+
   public User updateUser(long userId, User userInput){
     User oldUser = userRepository.findByUserId(userId);
 

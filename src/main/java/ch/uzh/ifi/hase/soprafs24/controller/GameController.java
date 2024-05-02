@@ -6,18 +6,22 @@ import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.entity.History;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
+
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import ch.uzh.ifi.hase.soprafs24.service.Game.GameService;
+import ch.uzh.ifi.hase.soprafs24.service.Game.HistoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 import ch.uzh.ifi.hase.soprafs24.rest.dto.DrawingDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
@@ -27,8 +31,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
-
 
 
 /**
@@ -43,10 +45,12 @@ public class GameController {
 
   private final GameService gameService;
   private final UserService userService;
+  private final HistoryService historyService;
 
-  GameController(GameService gameService, UserService userService) {
+  GameController(GameService gameService, UserService userService, HistoryService historyService) {
     this.gameService = gameService;
-    this.userService = userService;
+    this.userService = userService;  
+    this.historyService = historyService;
   }
 
   // Post Mapping to create a game room - when testing with Postman, the body should be a JSON object with the key "username" and 'name' as the value
@@ -253,5 +257,26 @@ public class GameController {
       userService.authenticateUser(token, userService.getUserById(id));
       
       gameService.decreaseDrawingVotes(gameSessionId, drawingId);
+  }
+
+  // save the flow of the text-to-drawing-to-text cycle in the game session - History
+  @PutMapping("/games/{gameSessionId}/savehistory")
+  @ResponseStatus(HttpStatus.OK)
+  public void saveFlow(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    
+    userService.loginUser(userService.getUserById(id));
+
+    historyService.saveHistory(new ArrayList<>(), gameSessionId);
+
+  }
+
+  // get mapping to get the history of the game session
+  @GetMapping("/games/{gameSessionId}/history")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public List<Object> getHistory(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    userService.authenticateUser(token, userService.getUserById(id));
+
+    return historyService.getHistory(gameSessionId);
   }
 }

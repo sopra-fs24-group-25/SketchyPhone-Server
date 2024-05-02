@@ -10,6 +10,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.DrawingRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.HistoryRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.GameSessionRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.GameSettingsRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.TextPromptRepository;
@@ -625,7 +626,6 @@ public class GameService {
                 
             }
         }
-        
 
         return sequence;
     }
@@ -694,4 +694,5 @@ public class GameService {
             drawing.setNumVotes(drawing.getNumVotes() - 1);
         }
     }
+
 }

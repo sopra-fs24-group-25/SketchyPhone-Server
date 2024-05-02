@@ -45,6 +45,11 @@ public class Drawing implements Serializable {
   @Column
   private Long gameSessionId;
 
+  @ManyToOne()
+  @JoinColumn(name = "gameId")
+  private GameSession gameSession;
+
+
   @Column
   private Long assignedTo;
 
@@ -133,4 +138,13 @@ public class Drawing implements Serializable {
   public void setAssignedTo(Long assignedTo){
     this.assignedTo = assignedTo;
   }
+
+  public GameSession getGameSession() {
+    return gameSession;
+  }
+
+  public void setGameSession(GameSession gameSession) {
+    this.gameSession = gameSession;
+  }
+
 }

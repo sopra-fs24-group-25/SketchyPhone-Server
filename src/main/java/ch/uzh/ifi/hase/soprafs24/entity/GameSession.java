@@ -25,6 +25,19 @@ public class GameSession implements Serializable{
     @OneToMany(mappedBy = "gameSession")
     private List<TextPrompt> textPrompts;
 
+    @OneToMany(mappedBy = "gameSession")
+    private List<Drawing> drawings;
+
+    @OneToMany(mappedBy = "gameSession")
+    private Long drawingId;
+
+    @OneToMany(mappedBy = "gameSession")
+    private Long textPromptId;
+
+    @ManyToOne()
+    @JoinColumn(name = "userId")
+    private User creator;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long gameSessionId;
@@ -47,7 +60,8 @@ public class GameSession implements Serializable{
     @Column int currentIndex = 0;
 
     @Column
-    private GameLoopStatus gameLoopStatus;
+    private GameLoopStatus gameLoopStatus;    
+
 
     public int getRoundCounter(){
         return roundCounter;
@@ -120,4 +134,29 @@ public class GameSession implements Serializable{
     public void setUsersInSession(List<Long> usersInSession){
         this.usersInSession = usersInSession;
     }
+
+    public List<TextPrompt> getTextPrompts(){
+        return textPrompts;
+    }
+
+    public void setTextPrompts(List<TextPrompt> textPrompts){
+        this.textPrompts = textPrompts;
+    }
+
+    public List<Drawing> getDrawings(){
+        return drawings;
+    }
+
+    public void setDrawings(List<Drawing> drawings){
+        this.drawings = drawings;
+    }
+
+    // Combine drawings and text prompts into a single list representing the history
+    public List<Object> getHistory() {
+        List<Object> history = new ArrayList<>();
+        history.addAll(textPrompts);
+        history.addAll(drawings);
+        return history;
+    }
+
 }
