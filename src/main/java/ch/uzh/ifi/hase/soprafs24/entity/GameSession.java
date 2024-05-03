@@ -144,13 +144,4 @@ public class GameSession implements Serializable{
     public void setDrawings(List<Drawing> drawings){
         this.drawings = drawings;
     }
-
-    // Combine drawings and text prompts into a single list representing the history
-    public List<Object> getHistory() {
-        List<Object> history = new ArrayList<>();
-        history.addAll(textPrompts);
-        history.addAll(drawings);
-        return history;
-    }
-
 }

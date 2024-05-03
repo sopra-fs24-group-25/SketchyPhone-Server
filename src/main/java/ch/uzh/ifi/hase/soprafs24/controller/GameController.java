@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 
 
+
 /**
  * User Controller
  * This class is responsible for handling all REST request that are related to
@@ -48,12 +49,13 @@ public class GameController {
 
   private final GameService gameService;
   private final UserService userService;
-  // private final HistoryService historyService;
+  //private final HistoryService historyService;
 
   @Autowired
   public GameController(GameService gameService, UserService userService) {
     this.gameService = gameService;
     this.userService = userService;  
+    //this.historyService = historyService;
   }
 
   // @Autowired
@@ -272,21 +274,5 @@ public class GameController {
   // save the flow of the text-to-drawing-to-text cycle in the game session - History
   // ...
 
-  // @PutMapping("/games/{gameSessionId}/savehistory")
-  // @ResponseStatus(HttpStatus.OK)
-  // public void saveFlow(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
-    
-  //   userService.authenticateUser(token, userService.getUserById(id));
 
-  //   historyService.saveHistory(new ArrayList<>(), gameSessionId);
-  // }
-
-  // // get mapping to get the history of the game session
-  // @GetMapping("/games/{gameSessionId}/history")
-  // public List<Object> getHistory(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
-  //   userService.loginUser(userService.getUserById(id));
-
-  //   return historyService.getHistory(gameSessionId);
-  // }
- 
 }
