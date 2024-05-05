@@ -58,13 +58,6 @@ public class GameController {
     this.historyService = historyService;
   }
 
-  // @Autowired
-  // public GameController(GameService gameService, UserService userService, HistoryService historyService) {
-  //   this.gameService = gameService;
-  //   this.userService = userService;  
-  //   this.historyService = historyService;
-  // }
-
 
   // Post Mapping to create a game room - when testing with Postman, the body should be a JSON object with the key "username" and 'name' as the value
   @PostMapping("/gameRooms/create/{userId}")
@@ -273,13 +266,13 @@ public class GameController {
 
   // save the flow of the text-to-drawing-to-text cycle in the game session - History
   // ...
-  @PutMapping("/games/{gameSessionId}/savehistory")
-  @ResponseStatus(HttpStatus.OK)
-  public void saveFlow(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
-    
-    userService.authenticateUser(token, userService.getUserById(id));
+  @PostMapping("/games/{gameSessionId}/savehistory")
+  @ResponseStatus(HttpStatus.CREATED)
+  @ResponseBody
+  public void saveFlow(@PathVariable Long gameSessionId, @RequestHeader("Authorization") String token, @RequestHeader("X-User-ID") Long id) {
+      userService.authenticateUser(token, userService.getUserById(id));
 
-    historyService.saveHistory(new ArrayList<>(), gameSessionId);
+      historyService.saveHistory(gameSessionId);
   }
 
   // get mapping to get the history of the game session
@@ -288,7 +281,6 @@ public class GameController {
     userService.loginUser(userService.getUserById(id));
 
     return historyService.getHistory(gameSessionId);
-}
-
+  }
 
 }
