@@ -276,11 +276,13 @@ public class GameController {
   }
 
   // get mapping to get the history of the game session
+  // can not be tested yet, because need implementation of persistent user in usercontroller
   @GetMapping("/games/{gameSessionId}/history")
   public List<Object> getHistory(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
     userService.loginUser(userService.getUserById(id));
 
     return historyService.getHistory(gameSessionId);
   }
+
 
 }
