@@ -13,6 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 /**
  * User Controller
@@ -46,6 +49,7 @@ public class UserController {
   }
 
   // Post Mapping to create a user - when testing with Postman, the body should be a JSON object with the key "username", "nickname" and 'name' as the value
+  // guest user
   @PostMapping("/users")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
@@ -60,6 +64,9 @@ public class UserController {
   }
 
   // Put mapping to update existing user's profile
+  // For guest users: the user can only update their nickname
+  // For persistent users: the user can update their nickname, username, password
+
   @PutMapping("/users/{userId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
@@ -110,4 +117,56 @@ public class UserController {
   }
 
   // to do: post put and get mappings for persistent users! 
+
+  // Post mapping to signup a user
+  // username is unique 
+  // to test the endpoint with Postman, the body should be a JSON object with the key "username", "password" as the value
+  // tested with Postman
+  @PostMapping("/signUp")
+  @ResponseStatus(HttpStatus.CREATED)
+  @ResponseBody
+  public UserGetDTO signUpUser(@RequestBody UserPostDTO userPostDTO){
+    User userCredentials = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+
+    User createdUser = userService.signUpUser(userCredentials);
+
+    return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser);
+  }
+
+
+  // Post mapping to login a user
+  // to test the endpoint with Postman, the body should be a JSON object with the key "username", "password" as the value
+  //tested with Postman
+  @PostMapping("/logIn")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public UserGetDTO loginUser(@RequestBody UserPostDTO userPostDTO){
+    User userCredentials = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+
+    User loggedInUser = userService.loginUser(userCredentials);
+
+    return DTOMapper.INSTANCE.convertEntityToUserGetDTO(loggedInUser);
+  }
+
+  // Post mapping to logout a user
+  @PostMapping("/logOut")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void logoutUser(@RequestHeader("Authorization")String token){
+  
+    userService.logoutUser(token);
+  }
+
+  // Delete mapping to delete a user
+  @DeleteMapping("/users/{userId}")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void deleteUser(@PathVariable Long userId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id){
+    userService.authenticateUser(token, userService.getUserById(id));
+    User user = userService.getUserById(userId);
+
+    userService.deleteUser(user);
+  }
+  
+
 }

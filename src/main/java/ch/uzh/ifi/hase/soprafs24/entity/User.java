@@ -27,10 +27,10 @@ public class User implements Serializable {
   private List<TextPrompt> textPrompts;
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long userId;
 
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String nickname;
 
   @Column(nullable = false)
@@ -59,6 +59,9 @@ public class User implements Serializable {
 
   @ManyToOne(fetch = FetchType.EAGER)
   private Game gameRoom;
+
+  @Column(nullable = true, unique = false)
+  private String username;
 
   // getters and setters
 
@@ -148,6 +151,14 @@ public class User implements Serializable {
 
   public void setToken(String token) {
     this.token = token;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
   }
 
 }

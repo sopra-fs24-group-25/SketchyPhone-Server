@@ -35,7 +35,6 @@ import ch.uzh.ifi.hase.soprafs24.entity.SessionHistory;
  */
 @Mapper
 public interface DTOMapper {
-
   DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
 
   @Mapping(source = "nickname", target = "nickname")
@@ -43,6 +42,7 @@ public interface DTOMapper {
   @Mapping(source = "persistent", target = "persistent")
   @Mapping(source = "email", target = "email")
   @Mapping(source = "avatarId", target = "avatarId")
+  @Mapping(source = "username", target = "username")
   User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
   @Mapping(source = "userId", target = "userId")
