@@ -116,7 +116,6 @@ public class UserController {
     return DTOMapper.INSTANCE.convertEntityToAvatarDTO(avatar);
   }
 
-  // to do: post put and get mappings for persistent users! 
 
   // Post mapping to signup a user
   // username is unique 

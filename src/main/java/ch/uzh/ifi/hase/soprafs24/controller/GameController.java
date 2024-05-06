@@ -269,7 +269,7 @@ public class GameController {
   @PostMapping("/games/{gameSessionId}/savehistory")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public void saveFlow(@PathVariable Long gameSessionId, @RequestHeader("Authorization") String token, @RequestHeader("X-User-ID") Long id) {
+  public void savehistory(@PathVariable Long gameSessionId, @RequestHeader("Authorization") String token, @RequestHeader("X-User-ID") Long id) {
       userService.authenticateUser(token, userService.getUserById(id));
 
       historyService.saveHistory(gameSessionId);

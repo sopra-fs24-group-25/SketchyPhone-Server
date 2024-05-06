@@ -35,6 +35,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.SessionHistory;
  */
 @Mapper
 public interface DTOMapper {
+  
   DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
 
   @Mapping(source = "nickname", target = "nickname")
