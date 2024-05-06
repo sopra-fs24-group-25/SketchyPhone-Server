@@ -273,6 +273,16 @@ public class GameController {
 
       return gameService.getTopThreeTextPrompts(gameSessionId);
   }
+
+  // get mapping to get top three text prompts
+  @GetMapping("/games/{gameSessionId}/top/drawing")
+  @ResponseStatus(HttpStatus.OK)
+  public List<Drawing> getTopThreeDrawings(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+
+      gameService.authenticateAdmin(token, userService.getUserById(id));
+
+      return gameService.getTopThreeDrawings(gameSessionId);
+  }
   
 
   // save the flow of the text-to-drawing-to-text cycle in the game session - History

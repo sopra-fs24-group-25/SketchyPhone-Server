@@ -787,6 +787,55 @@ public class GameControllerTest {
       .andExpect(jsonPath("$[1].numVotes", is(1)));
   }
 
+  @Test
+  public void getTopThreeDrawings() throws Exception {
+    // given
+    Game game = new Game();
+    game.setAdmin(2L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+    gameSession.setGame(game);
+
+    User admin = new User();
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+
+    Drawing d1 = new Drawing();
+    d1.setEncodedImage("test");
+    d1.setGameSession(gameSession);
+    Drawing d2 = new Drawing();
+    d2.setEncodedImage("test");
+    d2.setNumVotes(1);
+    d2.setGameSession(gameSession);
+    Drawing d3 = new Drawing();
+    d3.setEncodedImage("test");
+    d3.setNumVotes(2);
+    d3.setGameSession(gameSession);
+
+    List<Drawing> drawings = new ArrayList<Drawing>();
+    drawings.add(d3);
+    drawings.add(d2);
+    drawings.add(d1);
+
+    given(gameService.getTopThreeDrawings(Mockito.any())).willReturn(drawings);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/top/drawing", gameSession.getGameSessionId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$[0].numVotes", is(2)))
+      .andExpect(jsonPath("$[1].numVotes", is(1)));
+  }
+
   /**
    * Helper Method to convert userPostDTO into a JSON string such that the input
    * can be processed

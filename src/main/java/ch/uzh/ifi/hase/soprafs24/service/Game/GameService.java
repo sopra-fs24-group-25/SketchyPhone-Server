@@ -396,12 +396,26 @@ public class GameService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         // get list of all available textprompts
-        List<TextPrompt> availablePrompts = textPromptRepository.findAll().stream()
+        // if it's the first time getting text prompts -> select all available text prompts
+        List<TextPrompt> availablePrompts = new ArrayList<TextPrompt>();
+        if(gameSession.getRoundCounter() < 2){
+            availablePrompts = textPromptRepository.findAll().stream()
                 .filter(textPrompt -> textPrompt.getAssignedTo() == null
                         && !textPrompt.getCreator().getUserId().equals(userId)
                         && textPrompt.getRound() == gameSession.getRoundCounter() - 1
                         && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
                 .collect(Collectors.toList());
+        }
+        // if it's the second, third, ... time -> select text prompt that wasn't created from a drawing of the creator
+        else {
+            availablePrompts = textPromptRepository.findAll().stream()
+                .filter(textPrompt -> textPrompt.getAssignedTo() == null
+                        && !textPrompt.getCreator().getUserId().equals(userId)
+                        && textPrompt.getRound() == gameSession.getRoundCounter() - 1
+                        && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId)
+                        && drawingRepository.findByDrawingId(textPrompt.getPreviousDrawingId()).getCreator() != user)
+                .collect(Collectors.toList());
+        }
 
         List<TextPrompt> lastPrompts = textPromptRepository.findAll().stream()
                 .filter(textPrompt -> textPrompt.getAssignedTo() == null
@@ -710,6 +724,10 @@ public class GameService {
         if (gameSession == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session Not Found");
         }
+
+        if (gameSession.getGameLoopStatus() != GameLoopStatus.LEADERBOARD){
+            gameSession.setGameLoopStatus(GameLoopStatus.LEADERBOARD);
+        }
         // get a list of all text prompts
         List<TextPrompt> availablePrompts = textPromptRepository.findAll().stream()
                 .filter(textPrompt -> textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
@@ -721,7 +739,35 @@ public class GameService {
             }
         });
 
+        Collections.reverse(availablePrompts);
+
         return availablePrompts;
+    }
+
+    public List<Drawing> getTopThreeDrawings(Long gameSessionId){
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
+        if (gameSession == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session Not Found");
+        }
+
+        if (gameSession.getGameLoopStatus() != GameLoopStatus.LEADERBOARD){
+            gameSession.setGameLoopStatus(GameLoopStatus.LEADERBOARD);
+        }
+
+        // get a list of all drawings
+        List<Drawing> availableDrawings = drawingRepository.findAll().stream()
+                .filter(drawing -> drawing.getGameSessionId().equals(gameSessionId))
+                .collect(Collectors.toList());
+
+        Collections.sort(availableDrawings, new Comparator<Drawing>() {
+            public int compare(Drawing t1, Drawing t2){
+                return t1.getNumVotes() - t2.getNumVotes();
+            }
+        });
+
+        Collections.reverse(availableDrawings);
+
+        return availableDrawings;
     }
 
 }
