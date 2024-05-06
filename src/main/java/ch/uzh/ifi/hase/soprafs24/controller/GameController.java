@@ -236,7 +236,7 @@ public class GameController {
       
       userService.authenticateUser(token, userService.getUserById(id));
       
-      gameService.increasePromptVotes(gameSessionId, textPromptId);
+      gameService.increasePromptVotes(gameSessionId, textPromptId, id);
   }
 
   // put mapping to increase number of votes for given drawing
@@ -246,7 +246,7 @@ public class GameController {
       
       userService.authenticateUser(token, userService.getUserById(id));
       
-      gameService.increaseDrawingVotes(gameSessionId, drawingId);
+      gameService.increaseDrawingVotes(gameSessionId, drawingId, id);
   }
   
   // put mapping to decrease number of votes for given text prompt
@@ -256,7 +256,7 @@ public class GameController {
       
       userService.authenticateUser(token, userService.getUserById(id));
       
-      gameService.decreasePromptVotes(gameSessionId, textPromptId);
+      gameService.decreasePromptVotes(gameSessionId, textPromptId, id);
   }
   
   // put mapping to decrease number of votes for given drawing
@@ -266,8 +266,19 @@ public class GameController {
       
       userService.authenticateUser(token, userService.getUserById(id));
       
-      gameService.decreaseDrawingVotes(gameSessionId, drawingId);
+      gameService.decreaseDrawingVotes(gameSessionId, drawingId, id);
   }
+
+  // get mapping to get top three text prompts
+  @GetMapping("/games/{gameSessionId}/top/text")
+  @ResponseStatus(HttpStatus.OK)
+  public List<TextPrompt> getTopThreeTextPrompts(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+
+      gameService.authenticateAdmin(token, userService.getUserById(id));
+
+      return gameService.getTopThreeTextPrompts(gameSessionId);
+  }
+  
 
   // save the flow of the text-to-drawing-to-text cycle in the game session - History
   // ...

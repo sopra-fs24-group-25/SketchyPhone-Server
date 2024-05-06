@@ -733,6 +733,55 @@ public class GameControllerTest {
       .andExpect(status().isOk());
   }
 
+  @Test
+  public void getTopThreeTextPrompts() throws Exception {
+    // given
+    Game game = new Game();
+    game.setAdmin(2L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+    gameSession.setGame(game);
+
+    User admin = new User();
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+
+    TextPrompt t1 = new TextPrompt();
+    t1.setContent("test");
+    t1.setGameSession(gameSession);
+    TextPrompt t2 = new TextPrompt();
+    t2.setContent("test");
+    t2.setNumVotes(1);
+    t2.setGameSession(gameSession);
+    TextPrompt t3 = new TextPrompt();
+    t3.setContent("test");
+    t3.setNumVotes(2);
+    t3.setGameSession(gameSession);
+
+    List<TextPrompt> texts = new ArrayList<TextPrompt>();
+    texts.add(t3);
+    texts.add(t2);
+    texts.add(t1);
+
+    given(gameService.getTopThreeTextPrompts(Mockito.any())).willReturn(texts);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/top/text", gameSession.getGameSessionId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$[0].numVotes", is(2)))
+      .andExpect(jsonPath("$[1].numVotes", is(1)));
+  }
+
   /**
    * Helper Method to convert userPostDTO into a JSON string such that the input
    * can be processed

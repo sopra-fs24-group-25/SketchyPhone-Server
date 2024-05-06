@@ -38,6 +38,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.stream.Collectors;
+import java.util.Comparator;
+import java.util.Collections;
 
 @Service
 @Transactional
@@ -641,7 +643,7 @@ public class GameService {
         return gameSession.getCurrentIndex();
     }
 
-    public void increasePromptVotes(Long gameSessionId, Long textPromptId){
+    public void increasePromptVotes(Long gameSessionId, Long textPromptId, Long userId){
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
         if (gameSession == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
@@ -650,11 +652,14 @@ public class GameService {
         if (text == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Text prompt not found");
         }
+        User user = userRepository.findByUserId(userId);
+        if (user != text.getCreator()) {
+            text.setNumVotes(text.getNumVotes() + 1);
+        }
 
-        text.setNumVotes(text.getNumVotes() + 1);
     }
 
-    public void increaseDrawingVotes(Long gameSessionId, Long drawingId){
+    public void increaseDrawingVotes(Long gameSessionId, Long drawingId, Long userId){
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
         if (gameSession == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
@@ -663,11 +668,14 @@ public class GameService {
         if (drawing == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drawing not found");
         }
+        User user = userRepository.findByUserId(userId);
+        if (user != drawing.getCreator()) {
+            drawing.setNumVotes(drawing.getNumVotes() + 1);
+        }
 
-        drawing.setNumVotes(drawing.getNumVotes() + 1);
     }
 
-    public void decreasePromptVotes(Long gameSessionId, Long textPromptId){
+    public void decreasePromptVotes(Long gameSessionId, Long textPromptId, Long userId){
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
         if (gameSession == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
@@ -676,12 +684,13 @@ public class GameService {
         if (text == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Text prompt not found");
         }
-        if (text.getNumVotes() != 0){ 
+        User user = userRepository.findByUserId(userId);
+        if (text.getNumVotes() != 0 && user != text.getCreator()){ 
             text.setNumVotes(text.getNumVotes() - 1);
         }
     }
 
-    public void decreaseDrawingVotes(Long gameSessionId, Long drawingId){
+    public void decreaseDrawingVotes(Long gameSessionId, Long drawingId, Long userId){
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
         if (gameSession == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
@@ -690,9 +699,29 @@ public class GameService {
         if (drawing == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drawing not found");
         }
-        if (drawing.getNumVotes() != 0){ 
+        User user = userRepository.findByUserId(userId);
+        if (drawing.getNumVotes() != 0 && user != drawing.getCreator()){ 
             drawing.setNumVotes(drawing.getNumVotes() - 1);
         }
+    }
+
+    public List<TextPrompt> getTopThreeTextPrompts(Long gameSessionId){
+        GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
+        if (gameSession == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session Not Found");
+        }
+        // get a list of all text prompts
+        List<TextPrompt> availablePrompts = textPromptRepository.findAll().stream()
+                .filter(textPrompt -> textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
+                .collect(Collectors.toList());
+
+        Collections.sort(availablePrompts, new Comparator<TextPrompt>() {
+            public int compare(TextPrompt t1, TextPrompt t2){
+                return t1.getNumVotes() - t2.getNumVotes();
+            }
+        });
+
+        return availablePrompts;
     }
 
 }

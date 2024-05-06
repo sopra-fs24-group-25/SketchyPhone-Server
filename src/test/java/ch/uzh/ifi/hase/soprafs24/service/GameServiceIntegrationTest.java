@@ -2089,7 +2089,7 @@ public class GameServiceIntegrationTest {
   @Test
   public void increaseTextPromptVotes_noGameSession_throwsException() {
 
-    assertThrows(ResponseStatusException.class, () -> gameService.increasePromptVotes(2L, 1L));
+    assertThrows(ResponseStatusException.class, () -> gameService.increasePromptVotes(2L, 1L, 1L));
 
   }
 
@@ -2124,7 +2124,7 @@ public class GameServiceIntegrationTest {
     gameSessionRepository.save(gameSession);
     gameSessionRepository.flush();
 
-    assertThrows(ResponseStatusException.class, () -> gameService.increasePromptVotes(gameSession.getGameSessionId(), 178L));
+    assertThrows(ResponseStatusException.class, () -> gameService.increasePromptVotes(gameSession.getGameSessionId(), 178L, admin.getUserId()));
 
   }
 
@@ -2204,7 +2204,7 @@ public class GameServiceIntegrationTest {
     TextPrompt createdText = textPromptRepository.save(text);
     textPromptRepository.flush();
 
-    gameService.increasePromptVotes(createdGameSession.getGameSessionId(), createdText.getTextPromptId());;
+    gameService.increasePromptVotes(createdGameSession.getGameSessionId(), createdText.getTextPromptId(), admin.getUserId());
     entityManager.flush();
 
     assertEquals(createdText.getNumVotes(), 1);
@@ -2213,7 +2213,7 @@ public class GameServiceIntegrationTest {
   @Test
   public void increaseDrawingVotes_noGameSession_throwsException() {
 
-    assertThrows(ResponseStatusException.class, () -> gameService.increaseDrawingVotes(2L, 1L));
+    assertThrows(ResponseStatusException.class, () -> gameService.increaseDrawingVotes(2L, 1L, 1L));
 
   }
 
@@ -2248,7 +2248,7 @@ public class GameServiceIntegrationTest {
     gameSessionRepository.save(gameSession);
     gameSessionRepository.flush();
 
-    assertThrows(ResponseStatusException.class, () -> gameService.increasePromptVotes(gameSession.getGameSessionId(), 178L));
+    assertThrows(ResponseStatusException.class, () -> gameService.increasePromptVotes(gameSession.getGameSessionId(), 178L, admin.getUserId()));
 
   }
 
@@ -2330,7 +2330,7 @@ public class GameServiceIntegrationTest {
     drawingRepository.save(drawing);
     drawingRepository.flush();
 
-    gameService.increaseDrawingVotes(createdGameSession.getGameSessionId(), drawing.getDrawingId());;
+    gameService.increaseDrawingVotes(createdGameSession.getGameSessionId(), drawing.getDrawingId(), admin.getUserId());;
     entityManager.flush();
 
     assertEquals(drawing.getNumVotes(), 6);
@@ -2339,7 +2339,7 @@ public class GameServiceIntegrationTest {
   @Test
   public void decreaseTextPromptVotes_noGameSession_throwsException() {
 
-    assertThrows(ResponseStatusException.class, () -> gameService.decreasePromptVotes(2L, 1L));
+    assertThrows(ResponseStatusException.class, () -> gameService.decreasePromptVotes(2L, 1L, 1L));
 
   }
 
@@ -2374,7 +2374,7 @@ public class GameServiceIntegrationTest {
     gameSessionRepository.save(gameSession);
     gameSessionRepository.flush();
 
-    assertThrows(ResponseStatusException.class, () -> gameService.decreasePromptVotes(gameSession.getGameSessionId(), 178L));
+    assertThrows(ResponseStatusException.class, () -> gameService.decreasePromptVotes(gameSession.getGameSessionId(), 178L, 1L));
 
   }
 
@@ -2455,7 +2455,7 @@ public class GameServiceIntegrationTest {
     TextPrompt createdText = textPromptRepository.save(text);
     textPromptRepository.flush();
 
-    gameService.decreasePromptVotes(createdGameSession.getGameSessionId(), createdText.getTextPromptId());;
+    gameService.decreasePromptVotes(createdGameSession.getGameSessionId(), createdText.getTextPromptId(), admin.getUserId());;
     entityManager.flush();
 
     assertEquals(createdText.getNumVotes(), 1);
@@ -2464,7 +2464,7 @@ public class GameServiceIntegrationTest {
   @Test
   public void decreaseDrawingVotes_noGameSession_throwsException() {
 
-    assertThrows(ResponseStatusException.class, () -> gameService.decreaseDrawingVotes(2L, 1L));
+    assertThrows(ResponseStatusException.class, () -> gameService.decreaseDrawingVotes(2L, 1L, 1L));
 
   }
 
@@ -2499,7 +2499,7 @@ public class GameServiceIntegrationTest {
     gameSessionRepository.save(gameSession);
     gameSessionRepository.flush();
 
-    assertThrows(ResponseStatusException.class, () -> gameService.decreasePromptVotes(gameSession.getGameSessionId(), 178L));
+    assertThrows(ResponseStatusException.class, () -> gameService.decreasePromptVotes(gameSession.getGameSessionId(), 178L, admin.getUserId()));
 
   }
 
@@ -2581,7 +2581,7 @@ public class GameServiceIntegrationTest {
     drawingRepository.save(drawing);
     drawingRepository.flush();
 
-    gameService.decreaseDrawingVotes(createdGameSession.getGameSessionId(), drawing.getDrawingId());;
+    gameService.decreaseDrawingVotes(createdGameSession.getGameSessionId(), drawing.getDrawingId(), admin.getUserId());;
     entityManager.flush();
 
     assertEquals(drawing.getNumVotes(), 4);
