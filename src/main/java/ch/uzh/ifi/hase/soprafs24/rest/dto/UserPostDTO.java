@@ -9,6 +9,7 @@ public class UserPostDTO {
   private Boolean persistent;
   private String email;
   private Long avatarId;
+  private String username;
 
   // setters
   public void setNickname(String nickname) {
@@ -53,5 +54,12 @@ public class UserPostDTO {
     return avatarId;
   }
 
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
   
 }

@@ -9,5 +9,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
   // User findByNickname(String name); can't use it, since nickname isn't unique
 
   User findByUserId(long id);
+
+  User findByUsername(String username);
+
+  User findByToken(String token);
 }
 

@@ -50,6 +50,9 @@ public class UserService {
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.OFFLINE);
     newUser.setCreationDate(LocalDate.now());
+    if (newUser.getNickname() == null){
+      throw new IllegalArgumentException("Nickname cannot be null");
+    }
     // checkIfUserExists(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called
@@ -60,26 +63,64 @@ public class UserService {
     return newUser;
   }
 
-  // persistent user 
-  public User loginUser(User user){
-    User userToLogin = userRepository.findByUserId(user.getUserId());
+  // persistent user sign up
+  public User signUpUser(User user){
+    if (user.getUsername() == null){
+      throw new IllegalArgumentException("Username cannot be null");
+    }
 
-    if (userToLogin == null){
+    User existingUser = userRepository.findByUsername(user.getUsername());
+    if (existingUser != null) {
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists.");
+    }
+    user.setPersistent(true);
+    user.setNickname(null);
+    user.setToken(UUID.randomUUID().toString());
+    user.setStatus(UserStatus.OFFLINE);
+    user.setCreationDate(LocalDate.now());
+    // more accurate to set their status to OFFLINE upon signup and then change it to ONLINE when they log in successfully.
+    //user.setStatus(UserStatus.ONLINE);
+
+
+    return userRepository.save(user);
+  }
+
+  // persistent user sign in
+  public User loginUser(User user){
+    // Check if the username is provided
+    if (user.getUsername() == null || user.getUsername().isEmpty()) {
+      throw new IllegalArgumentException("Username cannot be null or empty.");
+    }
+
+    // Check if the password is provided
+    if (user.getPassword() == null || user.getPassword().isEmpty()) {
+        throw new IllegalArgumentException("Password cannot be null or empty.");
+    }
+
+    // Find the user by username
+    User userToLogin = userRepository.findByUsername(user.getUsername());
+
+    if (userToLogin == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
     }
 
     if (userToLogin.getPassword() == null || !userToLogin.getPassword().equals(user.getPassword())){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password incorrect.");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password incorrect.");
     }
 
     userToLogin.setToken(UUID.randomUUID().toString());
     userToLogin.setStatus(UserStatus.ONLINE);
 
-    return userRepository.save(userToLogin);
+    // Save the updated user (with token and status) to the database
+    userRepository.save(userToLogin);
+
+    // Return the authenticated user
+    return userToLogin;
   }
 
   // check if user is persistent(exists in the database)
   public void checkIfUserExists(User user){
+
     User userToCheck = userRepository.findByUserId(user.getUserId());
     
     if (userToCheck == null){
@@ -94,17 +135,32 @@ public class UserService {
   }
 
   // logout persistent user
-  public User logoutUser(User user){
-    User userToLogout = userRepository.findByUserId(user.getUserId());
+  public void logoutUser(String token) {
+    // Retrieve the user based on the provided token from the repository
+    User currentUser = userRepository.findByToken(token);
 
-    if (userToLogout == null){
+    // Check if the user is found
+    if (currentUser != null) {
+        // Set the user status to offline and remove the token
+        currentUser.setStatus(UserStatus.OFFLINE);
+
+        // Save the changes to the repository
+        userRepository.save(currentUser);
+    } else {
+        // Handle case when user is not found based on the provided token
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+    }
+  }
+
+  // delete persistent user
+  public void deleteUser(User user){
+    User userToDelete = userRepository.findByUserId(user.getUserId());
+
+    if (userToDelete == null){
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
     }
 
-    userToLogout.setStatus(UserStatus.OFFLINE);
-    userToLogout.setToken(null);
-
-    return userRepository.save(userToLogout);
+    userRepository.delete(userToDelete);
   }
 
 

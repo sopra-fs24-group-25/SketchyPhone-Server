@@ -35,7 +35,7 @@ public class HistoryService {
         this.drawingRepository = drawingRepository;
     }
 
-    public List<Object> saveHistory( Long gameSessionId) {
+    public List<Object> saveHistory(Long gameSessionId) {
         // Retrieve the game session by ID
         GameSession gameSession = gameSessionRepository.findById(gameSessionId).orElseThrow(() -> new IllegalArgumentException("Game session not found"));
 
