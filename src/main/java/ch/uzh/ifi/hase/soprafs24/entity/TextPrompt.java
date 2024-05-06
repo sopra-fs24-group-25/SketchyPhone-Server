@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 import javax.persistence.*;
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "TextPrompt")
@@ -14,10 +15,12 @@ public class TextPrompt implements Serializable {
     @Column(nullable = false)
     private String content;
 
+    @JsonIgnore
     @ManyToOne()
     @JoinColumn(name = "userId")
     private User creator;
 
+    @JsonIgnore
     @ManyToOne()
     @JoinColumn(name = "gameId")
     private GameSession gameSession;

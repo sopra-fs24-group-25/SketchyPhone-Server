@@ -45,7 +45,7 @@ public class UserController {
     return users;
   }
 
-  // Post Mapping to create a user - when testing with Postman, the body should be a JSON object with the key "username" and 'name' as the value
+  // Post Mapping to create a user - when testing with Postman, the body should be a JSON object with the key "username", "nickname" and 'name' as the value
   @PostMapping("/users")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
@@ -108,4 +108,6 @@ public class UserController {
 
     return DTOMapper.INSTANCE.convertEntityToAvatarDTO(avatar);
   }
+
+  // to do: post put and get mappings for persistent users! 
 }

@@ -11,6 +11,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.service.Game.GameService;
+import ch.uzh.ifi.hase.soprafs24.service.Game.HistoryService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,6 +57,10 @@ public class GameControllerTest {
 
   @MockBean
   private UserService userService;
+
+  @MockBean
+  private HistoryService historyService;
+
 
   @Test
   public void createGameRoomValidInput() throws Exception {
