@@ -68,7 +68,7 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
     }
 
-    if (!userToLogin.getPassword().equals(user.getPassword())){
+    if (userToLogin.getPassword() == null || !userToLogin.getPassword().equals(user.getPassword())){
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password incorrect.");
     }
 

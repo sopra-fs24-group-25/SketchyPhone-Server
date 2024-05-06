@@ -4,6 +4,8 @@ import ch.uzh.ifi.hase.soprafs24.entity.Drawing;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.repository.HistoryRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.TextPromptRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.DrawingRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.GameSessionRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,38 +22,34 @@ import org.slf4j.LoggerFactory;
 @Transactional
 public class HistoryService {
 
-    private final Logger log = LoggerFactory.getLogger(HistoryService.class);
-
     private final HistoryRepository historyRepository;
     private final GameSessionRepository gameSessionRepository;
+    private final TextPromptRepository textPromptRepository;
+    private final DrawingRepository drawingRepository;
 
     @Autowired
-    public HistoryService(HistoryRepository historyRepository, GameSessionRepository gameSessionRepository) {
+    public HistoryService(HistoryRepository historyRepository, GameSessionRepository gameSessionRepository, TextPromptRepository textPromptRepository, DrawingRepository drawingRepository) {
         this.historyRepository = historyRepository;
         this.gameSessionRepository = gameSessionRepository;
+        this.textPromptRepository = textPromptRepository;
+        this.drawingRepository = drawingRepository;
     }
 
-    public void saveHistory(List<Object> sequence, Long gameSessionId) {
+    public List<Object> saveHistory( Long gameSessionId) {
         // Retrieve the game session by ID
         GameSession gameSession = gameSessionRepository.findById(gameSessionId).orElseThrow(() -> new IllegalArgumentException("Game session not found"));
 
-        for (Object item : sequence) {
-            if (item instanceof TextPrompt || item instanceof Drawing) {
-                SessionHistory history = new SessionHistory(); // Instantiate History
-                history.setGameSession(gameSession);
+        List<Object> allPromptsAndDrawings = new ArrayList<>();
     
-                if (item instanceof TextPrompt) {
-                    history.setTextPrompt((TextPrompt) item); // Set text prompt
-                } else if (item instanceof Drawing) {
-                    history.setDrawing((Drawing) item); // Set drawing
-                }
-    
-                historyRepository.save(history); // Save the history object
-            } else {
-                // Handle other types of items if necessary
-                continue; // Skip to the next iteration
-            }
-        }
+        // Retrieve all text prompts associated with the game session ID
+        List<TextPrompt> textPrompts = textPromptRepository.findByGameSessionGameSessionId(gameSessionId);
+        allPromptsAndDrawings.addAll(textPrompts);
+        
+        // Retrieve all drawings associated with the game session ID
+        List<Drawing> drawings = drawingRepository.findByGameSessionGameSessionId(gameSessionId);
+        allPromptsAndDrawings.addAll(drawings);
+        
+        return allPromptsAndDrawings;
     }
 
     public List<Object> getHistory(Long gameSessionId) {
@@ -75,4 +73,5 @@ public class HistoryService {
         }
         return historyList;
     }
+
 }

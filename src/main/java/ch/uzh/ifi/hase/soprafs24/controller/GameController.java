@@ -49,21 +49,14 @@ public class GameController {
 
   private final GameService gameService;
   private final UserService userService;
-  //private final HistoryService historyService;
+  private final HistoryService historyService;
 
   @Autowired
-  public GameController(GameService gameService, UserService userService) {
+  public GameController(GameService gameService, UserService userService, HistoryService historyService) {
     this.gameService = gameService;
     this.userService = userService;  
-    //this.historyService = historyService;
+    this.historyService = historyService;
   }
-
-  // @Autowired
-  // public GameController(GameService gameService, UserService userService, HistoryService historyService) {
-  //   this.gameService = gameService;
-  //   this.userService = userService;  
-  //   this.historyService = historyService;
-  // }
 
 
   // Post Mapping to create a game room - when testing with Postman, the body should be a JSON object with the key "username" and 'name' as the value
@@ -273,6 +266,23 @@ public class GameController {
 
   // save the flow of the text-to-drawing-to-text cycle in the game session - History
   // ...
+  @PostMapping("/games/{gameSessionId}/savehistory")
+  @ResponseStatus(HttpStatus.CREATED)
+  @ResponseBody
+  public void saveFlow(@PathVariable Long gameSessionId, @RequestHeader("Authorization") String token, @RequestHeader("X-User-ID") Long id) {
+      userService.authenticateUser(token, userService.getUserById(id));
+
+      historyService.saveHistory(gameSessionId);
+  }
+
+  // get mapping to get the history of the game session
+  // can not be tested yet, because need implementation of persistent user in usercontroller
+  @GetMapping("/games/{gameSessionId}/history")
+  public List<Object> getHistory(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    userService.loginUser(userService.getUserById(id));
+
+    return historyService.getHistory(gameSessionId);
+  }
 
 
 }
