@@ -739,18 +739,19 @@ public class GameControllerTest {
   }
 
   @Test
+
   public void savehistory_successful() throws Exception {
     // given
     Game game = new Game();
     game.setAdmin(2L);
     game.setGameId(1L);
     game.setGamePin(666666L);
-
+    
     User admin = new User();
     admin.setNickname("TestAdmin");
     admin.setToken("Test token");
     admin.setUserId(1L);
-
+    
     GameSession gameSession = new GameSession();
     gameSession.setGame(game);
     gameSession.setGameSessionId(1L);
@@ -773,10 +774,59 @@ public class GameControllerTest {
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
       .header("X-User-ID", String.valueOf(admin.getUserId()));
-
+    
     // then
     mockMvc.perform(postRequest)
       .andExpect(status().isCreated());
+   }
+    
+    
+  public void getTopThreeTextPrompts() throws Exception {
+    // given
+    Game game = new Game();
+    game.setAdmin(2L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+    
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+    gameSession.setGame(game);
+    
+    User admin = new User();
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+    
+    TextPrompt t1 = new TextPrompt();
+    t1.setContent("test");
+    t1.setGameSession(gameSession);
+    TextPrompt t2 = new TextPrompt();
+    t2.setContent("test");
+    t2.setNumVotes(1);
+    t2.setGameSession(gameSession);
+    TextPrompt t3 = new TextPrompt();
+    t3.setContent("test");
+    t3.setNumVotes(2);
+    t3.setGameSession(gameSession);
+
+    List<TextPrompt> texts = new ArrayList<TextPrompt>();
+    texts.add(t3);
+    texts.add(t2);
+    texts.add(t1);
+
+    given(gameService.getTopThreeTextPrompts(Mockito.any())).willReturn(texts);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/top/text", gameSession.getGameSessionId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+    
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$[0].numVotes", is(2)))
+      .andExpect(jsonPath("$[1].numVotes", is(1)));
   }
 
   @Test
@@ -786,12 +836,12 @@ public class GameControllerTest {
     game.setAdmin(2L);
     game.setGameId(1L);
     game.setGamePin(666666L);
-
+    
     User admin = new User();
     admin.setNickname("TestAdmin");
     admin.setToken("Test token");
     admin.setUserId(1L);
-
+    
     GameSession gameSession = new GameSession();
     gameSession.setGame(game);
     gameSession.setGameSessionId(1L);
@@ -819,6 +869,55 @@ public class GameControllerTest {
     mockMvc.perform(getRequest)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$", hasSize(2)));
+  }
+
+  @Test
+  public void getTopThreeDrawings() throws Exception {
+    // given
+    Game game = new Game();
+    game.setAdmin(2L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+    gameSession.setGame(game);
+
+    User admin = new User();
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+
+    Drawing d1 = new Drawing();
+    d1.setEncodedImage("test");
+    d1.setGameSession(gameSession);
+    Drawing d2 = new Drawing();
+    d2.setEncodedImage("test");
+    d2.setNumVotes(1);
+    d2.setGameSession(gameSession);
+    Drawing d3 = new Drawing();
+    d3.setEncodedImage("test");
+    d3.setNumVotes(2);
+    d3.setGameSession(gameSession);
+
+    List<Drawing> drawings = new ArrayList<Drawing>();
+    drawings.add(d3);
+    drawings.add(d2);
+    drawings.add(d1);
+
+    given(gameService.getTopThreeDrawings(Mockito.any())).willReturn(drawings);
+
+    // when
+    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/top/drawing", gameSession.getGameSessionId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+
+    // then
+    mockMvc.perform(getRequest)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$[0].numVotes", is(2)))
+      .andExpect(jsonPath("$[1].numVotes", is(1)));
   }
 
 
