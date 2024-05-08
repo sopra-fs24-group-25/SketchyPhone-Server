@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Drawing;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
+import ch.uzh.ifi.hase.soprafs24.entity.SessionHistory;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.AvatarDTO;
@@ -20,6 +21,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.SessionHistoryDTO;
 
 import org.junit.jupiter.api.Test;
 
@@ -56,6 +58,7 @@ public class DTOMapperTest {
     userPostDTO.setPassword("password");
     userPostDTO.setEmail("email@gmail.com");
     userPostDTO.setAvatarId(1L);
+    userPostDTO.setUsername(null);
 
     // MAP -> Create user
     User user = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
@@ -65,6 +68,7 @@ public class DTOMapperTest {
     assertEquals(userPostDTO.getPassword(), user.getPassword());
     assertEquals(userPostDTO.getEmail(), user.getEmail());
     assertEquals(userPostDTO.getAvatarId(), user.getAvatarId());
+    assertEquals(userPostDTO.getUsername(), user.getUsername());
   }
 
   @Test
@@ -355,5 +359,69 @@ public class DTOMapperTest {
     assertEquals(drawing.getRound(), drawingDTO.getRound());
     assertEquals(drawing.getPreviousTextPrompt(), drawingDTO.getPreviousTextPrompt());
     assertEquals(drawing.getNextTextPrompt(), drawingDTO.getNextTextPrompt());
+  }
+
+  @Test
+  public void testSaveSessionHistory_fromSessionHistoryDTO_toSessionHistory_success() {
+    User admin = new User();
+    admin.setUserId(1L);
+    admin.setNickname("test name");
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+
+    TextPrompt textPrompt = new TextPrompt();
+    textPrompt.setTextPromptId(2L);
+
+    Drawing drawing = new Drawing();
+    drawing.setDrawingId(3L);
+
+    // create SessionHistoryDTO
+    SessionHistoryDTO sessionHistoryDTO = new SessionHistoryDTO();
+    sessionHistoryDTO.setGameSessionId(gameSession.getGameSessionId());
+    sessionHistoryDTO.setUserId(admin.getUserId());
+    sessionHistoryDTO.setTextPromptId(textPrompt.getTextPromptId());
+    sessionHistoryDTO.setDrawingId(drawing.getDrawingId());
+
+    // MAP -> Create sessionHistory
+    SessionHistory sessionHistory = DTOMapper.INSTANCE.convertHistoryDTOToEntity(sessionHistoryDTO);
+
+    // check content
+    assertEquals(sessionHistoryDTO.getGameSessionId(), sessionHistory.getGameSession().getGameSessionId());
+    assertEquals(sessionHistoryDTO.getUserId(), sessionHistory.getUserId());
+    assertEquals(sessionHistoryDTO.getTextPromptId(), sessionHistory.getTextPrompt().getTextPromptId());
+    assertEquals(sessionHistoryDTO.getDrawingId(), sessionHistory.getDrawing().getDrawingId());
+  }
+  
+  @Test
+  public void testGetSessionHistory_fromSessionHistory_toSessionHistoryDTO_success() {
+    User admin = new User();
+    admin.setUserId(1L);
+    admin.setNickname("test name");
+
+    GameSession gameSession = new GameSession();
+    gameSession.setGameSessionId(1L);
+
+    TextPrompt textPrompt = new TextPrompt();
+    textPrompt.setTextPromptId(2L);
+
+    Drawing drawing = new Drawing();
+    drawing.setDrawingId(3L);
+
+    // create SessionHistory
+    SessionHistory sessionHistory = new SessionHistory();
+    sessionHistory.setGameSession(gameSession);
+    sessionHistory.setUserId(admin.getUserId());
+    sessionHistory.setTextPrompt(textPrompt);
+    sessionHistory.setDrawing(drawing);
+
+    // MAP -> Create SessionHistoryDTO
+    SessionHistoryDTO sessionHistoryDTO = DTOMapper.INSTANCE.convertEntityToHistoryDTO(sessionHistory);
+
+    // check content
+    assertEquals(sessionHistory.getGameSession().getGameSessionId(), sessionHistoryDTO.getGameSessionId());
+    assertEquals(sessionHistory.getUserId(), sessionHistoryDTO.getUserId());
+    assertEquals(sessionHistory.getTextPrompt().getTextPromptId(), sessionHistoryDTO.getTextPromptId());
+    assertEquals(sessionHistory.getDrawing().getDrawingId(), sessionHistoryDTO.getDrawingId());
   }
 }

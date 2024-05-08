@@ -10,8 +10,6 @@ public interface HistoryRepository extends JpaRepository<SessionHistory, Long> {
     // Delete all HistoryItems associated with a specific GameSession ID
     void deleteByGameSession_GameSessionId (Long gameSessionId);
 
-    SessionHistory findByHistoryId(long historyId);
-
     // Retrieve all HistoryItems associated with a specific GameSession ID
     List<SessionHistory> findByGameSession_GameSessionId(Long gameSessionId);
 }
