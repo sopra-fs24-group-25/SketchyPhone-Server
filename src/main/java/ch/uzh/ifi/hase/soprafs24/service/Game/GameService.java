@@ -741,6 +741,9 @@ public class GameService {
 
         Collections.reverse(availablePrompts);
 
+        // removes all prompts with 0 votes
+        availablePrompts.removeIf(textprompt -> textprompt.getNumVotes() == 0);
+
         return availablePrompts;
     }
 
@@ -766,6 +769,9 @@ public class GameService {
         });
 
         Collections.reverse(availableDrawings);
+
+        // remove all drawings with 0 votes
+        availableDrawings.removeIf(drawing -> drawing.getNumVotes() == 0);
 
         return availableDrawings;
     }
