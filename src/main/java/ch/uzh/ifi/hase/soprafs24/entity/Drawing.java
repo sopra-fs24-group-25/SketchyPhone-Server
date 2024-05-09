@@ -68,11 +68,11 @@ public class Drawing implements Serializable {
   }
 
   public int getNumVotes(){
-    return round;
+    return numVotes;
   }
 
-  public void setNumVotes(int round){
-    this.round = round;
+  public void setNumVotes(int numVotes){
+    this.numVotes = numVotes;
   }
    
   public Long getDrawingId(){
