@@ -398,7 +398,7 @@ public class GameService {
         // get list of all available textprompts
         // if it's the first time getting text prompts -> select all available text prompts
         List<TextPrompt> availablePrompts = new ArrayList<TextPrompt>();
-        if(gameSession.getRoundCounter() < 2){
+        if(gameSession.getRoundCounter() - 1 < 2){
             availablePrompts = textPromptRepository.findAll().stream()
                 .filter(textPrompt -> textPrompt.getAssignedTo() == null
                         && !textPrompt.getCreator().getUserId().equals(userId)
