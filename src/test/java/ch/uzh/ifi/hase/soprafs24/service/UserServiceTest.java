@@ -41,6 +41,14 @@ public class UserServiceTest {
   public void createUser_validInputs_success() {
     // when -> any object is being save in the userRepository -> return the dummy
     // testUser
+    // given
+    testUser = new User();
+    testUser.setUserId(1L);
+    testUser.setNickname("testNickname");
+
+    // when -> any object is being save in the userRepository -> return the dummy
+    // testUser
+    Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
     User createdUser = userService.createUser(testUser);
 
     // then

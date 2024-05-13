@@ -198,6 +198,170 @@ public class UserServiceIntegrationTest {
     assertNotNull(foundAvatar.getAvatarId());
   }
 
+  @Test
+  public void signUpUser_validInputs_success() {
+
+    User testUser = new User();
+    testUser.setUsername("testUsername");
+    testUser.setPassword("testPasword");
+
+    // when
+    User createdUser = userService.signUpUser(testUser);
+
+    // then
+    assertEquals(testUser.getUserId(), createdUser.getUserId());
+    assertEquals(testUser.getUsername(), createdUser.getUsername());
+    assertEquals(testUser.getPassword(), createdUser.getPassword());
+    assertNotNull(createdUser.getToken());
+    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertTrue(createdUser.getPersistent());
+  }
+
+  @Test
+  public void signUpUser_invalidInput_UsernameAlreadyExists() {
+
+    User testUser = new User();
+    testUser.setUsername("testUsername");
+    testUser.setPassword("testPasword");
+
+    // when
+    User createdUser = userService.signUpUser(testUser);
+
+    // then
+    assertEquals(testUser.getUserId(), createdUser.getUserId());
+    assertEquals(testUser.getUsername(), createdUser.getUsername());
+    assertEquals(testUser.getPassword(), createdUser.getPassword());
+    assertNotNull(createdUser.getToken());
+    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertTrue(createdUser.getPersistent());
+
+    // attempt to create second user with same username
+    User testUser2 = new User();
+    testUser2.setUsername("testUsername");
+    testUser2.setPassword("testPasword");
+
+    // check that an error is thrown
+    assertThrows(ResponseStatusException.class, () -> userService.signUpUser(testUser2));
+  }
+
+  @Test
+  public void loginUser_validInput_userLoggedIn() {
+
+    User testUser = new User();
+    testUser.setUsername("testUsername");
+    testUser.setPassword("testPasword");
+
+    // when
+    User createdUser = userService.signUpUser(testUser);
+
+    // then
+    assertEquals(testUser.getUserId(), createdUser.getUserId());
+    assertEquals(testUser.getUsername(), createdUser.getUsername());
+    assertEquals(testUser.getPassword(), createdUser.getPassword());
+    assertNotNull(createdUser.getToken());
+    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertTrue(createdUser.getPersistent());
+
+    // when
+    User loggedInUser = userService.loginUser(testUser);
+
+    // then
+    assertEquals(testUser.getUserId(), loggedInUser.getUserId());
+    assertEquals(testUser.getUsername(), loggedInUser.getUsername());
+    assertEquals(testUser.getPassword(), loggedInUser.getPassword());
+    assertNotNull(loggedInUser.getToken());
+    assertEquals(UserStatus.ONLINE, loggedInUser.getStatus());
+    assertTrue(loggedInUser.getPersistent());
+  }
+
+  @Test
+  public void loginUser_invalidInput_userNotFound() {
+
+    User testUser = new User();
+    testUser.setUsername("testUsername");
+    testUser.setPassword("testPasword");
+
+    // when
+    User createdUser = userService.signUpUser(testUser);
+
+    // then
+    assertEquals(testUser.getUserId(), createdUser.getUserId());
+    assertEquals(testUser.getUsername(), createdUser.getUsername());
+    assertEquals(testUser.getPassword(), createdUser.getPassword());
+    assertNotNull(createdUser.getToken());
+    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertTrue(createdUser.getPersistent());
+
+    // attempt to login with wrong username
+    User testUser2 = new User();
+    testUser2.setUsername("testUsername2");
+    testUser2.setPassword("testPasword");
+
+    // check that an error is thrown
+    assertThrows(ResponseStatusException.class, () -> userService.loginUser(testUser2));
+  }
+
+  @Test
+  public void loginUser_invalidInput_wrongPassword() {
+
+    User testUser = new User();
+    testUser.setUsername("testUsername");
+    testUser.setPassword("testPasword");
+
+    // when
+    User createdUser = userService.signUpUser(testUser);
+
+    // then
+    assertEquals(testUser.getUserId(), createdUser.getUserId());
+    assertEquals(testUser.getUsername(), createdUser.getUsername());
+    assertEquals(testUser.getPassword(), createdUser.getPassword());
+    assertNotNull(createdUser.getToken());
+    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertTrue(createdUser.getPersistent());
+
+    // attempt to login with wrong password
+    User testUser2 = new User();
+    testUser2.setUsername("testUsername");
+    testUser2.setPassword("testPasword2");
+
+    // check that an error is thrown
+    assertThrows(ResponseStatusException.class, () -> userService.loginUser(testUser2));
+  }
+
+  @Test
+  public void logoutUser_validInput_userLoggedOut() {
+
+    User testUser = new User();
+    testUser.setUsername("testUsername");
+    testUser.setPassword("testPasword");
+
+    // when
+    User createdUser = userService.signUpUser(testUser);
+
+    // then
+    assertEquals(testUser.getUserId(), createdUser.getUserId());
+    assertEquals(testUser.getUsername(), createdUser.getUsername());
+    assertEquals(testUser.getPassword(), createdUser.getPassword());
+    assertNotNull(createdUser.getToken());
+    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertTrue(createdUser.getPersistent());
+
+    // when
+    User loggedInUser = userService.loginUser(testUser);
+    assertEquals(UserStatus.ONLINE, loggedInUser.getStatus());
+    
+    // when
+    userService.logoutUser(loggedInUser.getToken()); 
+
+    // then
+    // verify that the user's status is now offline after logging out
+    User loggedOutUser = userRepository.findByUsername("testUsername");
+    assertEquals(UserStatus.OFFLINE, loggedOutUser.getStatus());
+  }
+
+
+
+  
   // @Test
   // public void createUser_duplicateNickname_throwsException() {
 
