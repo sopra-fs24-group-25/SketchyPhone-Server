@@ -269,7 +269,7 @@ public class GameController {
   @ResponseStatus(HttpStatus.OK)
   public List<TextPrompt> getTopThreeTextPrompts(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
 
-      gameService.authenticateAdmin(token, userService.getUserById(id));
+      userService.authenticateUser(token, userService.getUserById(id));
 
       return gameService.getTopThreeTextPrompts(gameSessionId);
   }
@@ -279,7 +279,7 @@ public class GameController {
   @ResponseStatus(HttpStatus.OK)
   public List<Drawing> getTopThreeDrawings(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
 
-      gameService.authenticateAdmin(token, userService.getUserById(id));
+      userService.authenticateUser(token, userService.getUserById(id));
 
       return gameService.getTopThreeDrawings(gameSessionId);
   }
