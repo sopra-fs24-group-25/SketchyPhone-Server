@@ -15,7 +15,7 @@ public class TextPrompt implements Serializable {
     @Column(nullable = false)
     private String content;
 
-    @JsonIgnore
+    // @JsonIgnore
     @ManyToOne()
     @JoinColumn(name = "userId")
     private User creator;
