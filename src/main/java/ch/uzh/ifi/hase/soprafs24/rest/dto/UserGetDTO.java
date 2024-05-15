@@ -17,6 +17,7 @@ public class UserGetDTO {
   private String role;
   private String token;
   private Game gameRoom;
+  private String username;
 
   // getters
 
@@ -60,6 +61,10 @@ public class UserGetDTO {
     return role;
   }
 
+  public String getUsername() {
+    return username;
+  }
+
   // setters
 
   public void setToken(String token){
@@ -100,5 +105,9 @@ public class UserGetDTO {
 
   public void setRole(String role) {
     this.role = role;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
   }
 }

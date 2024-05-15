@@ -32,6 +32,10 @@ public class UserPostDTO {
     this.avatarId = avatarId;
   }
 
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
   // getters
 
   public String getNickname() {
@@ -56,10 +60,6 @@ public class UserPostDTO {
 
   public String getUsername() {
     return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
   }
   
 }

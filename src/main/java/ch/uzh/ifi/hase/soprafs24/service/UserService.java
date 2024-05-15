@@ -74,15 +74,14 @@ public class UserService {
         throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists.");
     }
     user.setPersistent(true);
-    user.setNickname(null);
     user.setToken(UUID.randomUUID().toString());
-    user.setStatus(UserStatus.OFFLINE);
     user.setCreationDate(LocalDate.now());
-    // more accurate to set their status to OFFLINE upon signup and then change it to ONLINE when they log in successfully.
-    //user.setStatus(UserStatus.ONLINE);
+    user.setStatus(UserStatus.ONLINE);
 
+    user = userRepository.save(user);
+    userRepository.flush();
 
-    return userRepository.save(user);
+    return user;
   }
 
   // persistent user sign in
@@ -112,7 +111,8 @@ public class UserService {
     userToLogin.setStatus(UserStatus.ONLINE);
 
     // Save the updated user (with token and status) to the database
-    userRepository.save(userToLogin);
+    userToLogin = userRepository.save(userToLogin);
+    userRepository.flush();
 
     // Return the authenticated user
     return userToLogin;
@@ -180,8 +180,8 @@ public class UserService {
     if (userInput.getAvatarId() != null){
       oldUser.setAvatarId(userInput.getAvatarId());
     }
-    if (userInput.getEmail() != null){
-      oldUser.setEmail(userInput.getEmail());
+    if (userInput.getUsername() != null){
+      oldUser.setUsername(userInput.getUsername());
     }
     if (userInput.getPassword() != null){
       oldUser.setPassword(userInput.getPassword());
