@@ -2824,6 +2824,16 @@ public class GameServiceIntegrationTest {
     Drawing createdDrawing3 = drawingRepository.save(drawing3);
     drawingRepository.flush();
 
+    Drawing drawing4 = new Drawing();
+    drawing4.setEncodedImage("test content");
+    drawing4.setCreator(createdPlayer2);
+    drawing4.setGameSessionId(createdGameSession.getGameSessionId());
+    drawing4.setCreationDateTime(LocalDateTime.now());
+    drawing4.setNumVotes(4);
+
+    Drawing createdDrawing4 = drawingRepository.save(drawing4);
+    drawingRepository.flush();
+
     gameService.increaseDrawingVotes(createdGameSession.getGameSessionId(), createdDrawing.getDrawingId(), admin.getUserId());
     gameService.increaseDrawingVotes(createdGameSession.getGameSessionId(), createdDrawing2.getDrawingId(), createdPlayer.getUserId());
     gameService.increaseDrawingVotes(createdGameSession.getGameSessionId(), createdDrawing2.getDrawingId(), createdPlayer2.getUserId());
@@ -2834,6 +2844,7 @@ public class GameServiceIntegrationTest {
     assertEquals(topThree.get(0), createdDrawing2);
     assertEquals(topThree.get(1), createdDrawing);
     assertEquals(topThree.get(2), createdDrawing3);
+    assertEquals(topThree.size(), 3);
     assertEquals(createdGameSession.getGameLoopStatus(), GameLoopStatus.LEADERBOARD);
   }
 

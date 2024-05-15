@@ -88,10 +88,6 @@ public class GameService {
         return pin;
     }
 
-    // TODO if permanent users are allowed -> add condition to check whether admin
-    // is already a user -> if not, create new user
-    // else just save that user
-
     public Game createGame(Long adminId) {
         User savedUser = userRepository.findByUserId(adminId);
         if (savedUser == null) {
@@ -744,7 +740,15 @@ public class GameService {
         // removes all prompts with 0 votes
         availablePrompts.removeIf(textprompt -> textprompt.getNumVotes() == 0);
 
-        return availablePrompts;
+        // only return the top three if there are more drawings
+        if(availablePrompts.size() <= 3){
+
+            return availablePrompts;
+
+        }
+        else {
+            return availablePrompts.subList(0, 3);
+        }
     }
 
     public List<Drawing> getTopThreeDrawings(Long gameSessionId){
@@ -773,7 +777,16 @@ public class GameService {
         // remove all drawings with 0 votes
         availableDrawings.removeIf(drawing -> drawing.getNumVotes() == 0);
 
-        return availableDrawings;
+        // only return the top three if there are more drawings
+        if(availableDrawings.size() <= 3){
+
+            return availableDrawings;
+
+        }
+        else {
+            return availableDrawings.subList(0, 3);
+        }
+
     }
 
 }
