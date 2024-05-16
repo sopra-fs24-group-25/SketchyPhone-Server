@@ -12,11 +12,11 @@ public class UserGetDTO {
   private LocalDate creationDate;
   private UserStatus status;
   private Boolean persistent;
-  private String email;
   private Long avatarId;
   private String role;
   private String token;
   private Game gameRoom;
+  private String username;
 
   // getters
 
@@ -48,16 +48,16 @@ public class UserGetDTO {
     return persistent;
   }
 
-  public String getEmail() {
-    return email;
-  }
-
   public Long getAvatarId() {
     return avatarId;
   }
 
   public String getRole() {
     return role;
+  }
+
+  public String getUsername() {
+    return username;
   }
 
   // setters
@@ -90,15 +90,15 @@ public class UserGetDTO {
     this.persistent = persistent;
   }
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
   public void setAvatarId(Long avatarId) {
     this.avatarId = avatarId;
   }
 
   public void setRole(String role) {
     this.role = role;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
   }
 }

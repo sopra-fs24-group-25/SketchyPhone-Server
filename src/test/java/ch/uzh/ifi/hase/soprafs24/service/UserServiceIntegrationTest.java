@@ -124,7 +124,6 @@ public class UserServiceIntegrationTest {
     User update = new User();
     update.setNickname("newNickname");
     update.setPersistent(true);
-    update.setEmail("testemail");
 
     // when
     User user = userService.updateUser(testUser.getUserId(), update);
@@ -135,7 +134,6 @@ public class UserServiceIntegrationTest {
     assertEquals(testUser.getToken(), user.getToken());
     assertEquals(testUser.getStatus(), user.getStatus());
     assertEquals(user.getPersistent(), true);
-    assertEquals(user.getEmail(), update.getEmail());
   }
 
   @Test
@@ -213,7 +211,7 @@ public class UserServiceIntegrationTest {
     assertEquals(testUser.getUsername(), createdUser.getUsername());
     assertEquals(testUser.getPassword(), createdUser.getPassword());
     assertNotNull(createdUser.getToken());
-    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertEquals(UserStatus.ONLINE, createdUser.getStatus());
     assertTrue(createdUser.getPersistent());
   }
 
@@ -232,7 +230,7 @@ public class UserServiceIntegrationTest {
     assertEquals(testUser.getUsername(), createdUser.getUsername());
     assertEquals(testUser.getPassword(), createdUser.getPassword());
     assertNotNull(createdUser.getToken());
-    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertEquals(UserStatus.ONLINE, createdUser.getStatus());
     assertTrue(createdUser.getPersistent());
 
     // attempt to create second user with same username
@@ -259,7 +257,7 @@ public class UserServiceIntegrationTest {
     assertEquals(testUser.getUsername(), createdUser.getUsername());
     assertEquals(testUser.getPassword(), createdUser.getPassword());
     assertNotNull(createdUser.getToken());
-    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertEquals(UserStatus.ONLINE, createdUser.getStatus());
     assertTrue(createdUser.getPersistent());
 
     // when
@@ -289,7 +287,7 @@ public class UserServiceIntegrationTest {
     assertEquals(testUser.getUsername(), createdUser.getUsername());
     assertEquals(testUser.getPassword(), createdUser.getPassword());
     assertNotNull(createdUser.getToken());
-    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertEquals(UserStatus.ONLINE, createdUser.getStatus());
     assertTrue(createdUser.getPersistent());
 
     // attempt to login with wrong username
@@ -316,7 +314,7 @@ public class UserServiceIntegrationTest {
     assertEquals(testUser.getUsername(), createdUser.getUsername());
     assertEquals(testUser.getPassword(), createdUser.getPassword());
     assertNotNull(createdUser.getToken());
-    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertEquals(UserStatus.ONLINE, createdUser.getStatus());
     assertTrue(createdUser.getPersistent());
 
     // attempt to login with wrong password
@@ -343,7 +341,7 @@ public class UserServiceIntegrationTest {
     assertEquals(testUser.getUsername(), createdUser.getUsername());
     assertEquals(testUser.getPassword(), createdUser.getPassword());
     assertNotNull(createdUser.getToken());
-    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertEquals(UserStatus.ONLINE, createdUser.getStatus());
     assertTrue(createdUser.getPersistent());
 
     // when

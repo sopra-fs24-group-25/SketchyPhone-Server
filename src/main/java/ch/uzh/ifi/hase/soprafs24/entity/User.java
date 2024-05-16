@@ -43,9 +43,6 @@ public class User implements Serializable {
   private Boolean persistent;
 
   @Column(nullable = true)
-  private String email;
-
-  @Column(nullable = true)
   private String password;
 
   @Column(nullable = true)
@@ -111,14 +108,6 @@ public class User implements Serializable {
 
   public void setPersistent(Boolean persistent) {
     this.persistent = persistent;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
   }
 
   public String getPassword() {
