@@ -7,7 +7,6 @@ public class UserPostDTO {
   private String nickname;
   private String password;
   private Boolean persistent;
-  private String email;
   private Long avatarId;
   private String username;
 
@@ -22,10 +21,6 @@ public class UserPostDTO {
 
   public void setPersistent(Boolean persistent){
     this.persistent = persistent;
-  }
-
-  public void setEmail(String email){
-    this.email = email;
   }
 
   public void setAvatarId(Long avatarId){
@@ -48,10 +43,6 @@ public class UserPostDTO {
 
   public Boolean getPersistent() {
     return persistent;
-  }
-
-  public String getEmail() {
-    return email;
   }
 
   public Long getAvatarId() {

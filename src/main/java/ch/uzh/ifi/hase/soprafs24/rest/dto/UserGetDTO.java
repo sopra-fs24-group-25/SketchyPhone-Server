@@ -12,7 +12,6 @@ public class UserGetDTO {
   private LocalDate creationDate;
   private UserStatus status;
   private Boolean persistent;
-  private String email;
   private Long avatarId;
   private String role;
   private String token;
@@ -47,10 +46,6 @@ public class UserGetDTO {
 
   public Boolean getPersistent() {
     return persistent;
-  }
-
-  public String getEmail() {
-    return email;
   }
 
   public Long getAvatarId() {
@@ -93,10 +88,6 @@ public class UserGetDTO {
 
   public void setPersistent(Boolean persistent) {
     this.persistent = persistent;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
   }
 
   public void setAvatarId(Long avatarId) {

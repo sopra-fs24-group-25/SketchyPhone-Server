@@ -56,7 +56,6 @@ public class DTOMapperTest {
     UserPostDTO userPostDTO = new UserPostDTO();
     userPostDTO.setNickname("name");
     userPostDTO.setPassword("password");
-    userPostDTO.setEmail("email@gmail.com");
     userPostDTO.setAvatarId(1L);
     userPostDTO.setUsername(null);
 
@@ -66,7 +65,6 @@ public class DTOMapperTest {
     // check content
     assertEquals(userPostDTO.getNickname(), user.getNickname());
     assertEquals(userPostDTO.getPassword(), user.getPassword());
-    assertEquals(userPostDTO.getEmail(), user.getEmail());
     assertEquals(userPostDTO.getAvatarId(), user.getAvatarId());
     assertEquals(userPostDTO.getUsername(), user.getUsername());
   }
