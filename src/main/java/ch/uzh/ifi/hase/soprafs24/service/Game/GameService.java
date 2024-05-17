@@ -120,9 +120,9 @@ public class GameService {
 
         // create game settings with some standard values
         GameSettings gameSettings = new GameSettings();
-        gameSettings.setGameSpeed(40);
-        gameSettings.setNumCycles(4);
-        gameSettings.setEnableTextToSpeech(false);
+        gameSettings.setGameSpeed(25);
+        gameSettings.setNumCycles(3);
+        gameSettings.setEnableTextToSpeech(true);
         gameSettingsRepository.save(gameSettings);
         gameSettingsRepository.flush();
         newGame.setGameSettingsId(gameSettings.getGameSettingsId());

@@ -39,7 +39,7 @@ public class User implements Serializable {
   @Column(nullable = false)
   private UserStatus status = UserStatus.OFFLINE; // Default value
 
-  @Column(nullable = true)
+  @Column(nullable = false)
   private Boolean persistent = false;
 
   @Column(nullable = true)
