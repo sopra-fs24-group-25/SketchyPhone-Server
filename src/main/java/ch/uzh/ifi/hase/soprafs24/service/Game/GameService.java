@@ -273,10 +273,6 @@ public class GameService {
         }
 
         game.getUsers().remove(user);
-
-        // delete user from repository
-        userRepository.delete(user);
-        userRepository.flush();
     }
 
     public Game getGameByGamePIN(Long gamePin) {
@@ -787,6 +783,6 @@ public class GameService {
             return availableDrawings.subList(0, 3);
         }
 
-    }
+     }
 
 }
