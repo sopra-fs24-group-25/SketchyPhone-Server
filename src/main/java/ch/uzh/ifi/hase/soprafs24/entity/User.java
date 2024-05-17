@@ -40,7 +40,7 @@ public class User implements Serializable {
   private UserStatus status = UserStatus.OFFLINE; // Default value
 
   @Column(nullable = true)
-  private Boolean persistent;
+  private Boolean persistent = false;
 
   @Column(nullable = true)
   private String password;

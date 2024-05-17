@@ -48,7 +48,7 @@ public class UserService {
 
   public User createUser(User newUser) {
     newUser.setToken(UUID.randomUUID().toString());
-    newUser.setStatus(UserStatus.OFFLINE);
+    newUser.setStatus(UserStatus.ONLINE);
     newUser.setCreationDate(LocalDate.now());
     if (newUser.getNickname() == null){
       throw new IllegalArgumentException("Nickname cannot be null");
