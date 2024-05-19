@@ -127,41 +127,13 @@ public class GameService {
         gameSettingsRepository.flush();
         newGame.setGameSettingsId(gameSettings.getGameSettingsId());
 
-        // Gamesession
-        // Create a new GameGetDTO instance
-        GameGetDTO game = new GameGetDTO();
-
         // Set the other fields of game...
 
         // Create a list of GameSession instances
         List<GameSession> gameSessions = new ArrayList<>();
 
-        // // Populate the list with GameSessionGetDTO instances
-        // // For example:
-        // GameSession session = new GameSession();
-        // session.setStatus(GameStatus.OPEN);
-        // session.setGameSessionId(1L);
-        // session.setToken("session-pin-here");
-        // gameSessions.add(session);
-
-        // Set the gameSessions field of game
-        game.setGameSessions(gameSessions);
-        // // Convert game to JSON
-        // ObjectMapper objectMapper = new ObjectMapper();
-        // String json;
-        // try {
-        // json = objectMapper.writeValueAsString(game);
-        // } catch (JsonProcessingException e) {
-        // // Handle JSON processing exception
-        // e.printStackTrace();
-        // json = ""; // or some default value
-        // }
-
-        // // Now json contains the JSON representation of the game object
-        // System.out.println(json);
-
-        // saves the given entity but data is only persisted in the database once
-        // flush() is called
+        newGame.setGameSessions(gameSessions);
+        
         newGame = gameRepository.save(newGame);
         gameRepository.flush();
 
@@ -230,6 +202,12 @@ public class GameService {
             if (!userAlreadyInGame){
                 game.getUsers().add(joinUser);
             }
+
+        // if 8 (max) player joined change game status to CLOSED
+        if(game.getUsers().size() == 8) {
+            game.setStatus(GameStatus.CLOSED);
+        }
+
         gameRepository.save(game);
 
         // Return a successful join message
@@ -273,6 +251,11 @@ public class GameService {
         }
 
         game.getUsers().remove(user);
+
+        // if game status is CLOSED and there's now less than 8 players in the game -> set status back to OPEN
+        if(game.getStatus() == GameStatus.CLOSED && game.getUsers().size() < 8){
+            game.setStatus(GameStatus.OPEN);
+        }
     }
 
     public Game getGameByGamePIN(Long gamePin) {
