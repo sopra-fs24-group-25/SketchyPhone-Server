@@ -121,6 +121,10 @@ public class Game implements Serializable{
     this.gameSettingsId = gameSettingsId;
     }
 
+    public void setLastActivity(Instant lastActivity){
+        this.lastActivity = lastActivity;
+    }
+
     public Instant getLastActivity() {
         return lastActivity;
     }

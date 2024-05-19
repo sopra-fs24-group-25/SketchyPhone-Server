@@ -17,6 +17,7 @@ import ch.uzh.ifi.hase.soprafs24.repository.TextPromptRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.service.Game.GameService;
 
+import org.apache.catalina.connector.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.Duration;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -488,27 +491,13 @@ public class GameServiceIntegrationTest {
 
     User admin = new User();
     admin.setNickname("testNickname");
-    admin.setCreationDate(LocalDate.now());
-    admin.setToken("test token");
-    admin.setStatus(UserStatus.ONLINE);
 
-    userRepository.save(admin);
-    userRepository.flush();
+    User createdAdmin = userService.createUser(admin);
 
-    GameSettings gameSettings = new GameSettings();
-    gameSettings.setGameSettingsId(2L);
-
-    Game game = new Game();
-    game.setGamePin(777777L);
-    game.setGameToken("test token");
+    Game game = gameService.createGame(createdAdmin.getUserId());
     game.setStatus(GameStatus.CLOSED);
-    game.setAdmin(admin.getUserId());
-    game.setGameSettingsId(gameSettings.getGameSettingsId());
 
-    Game createdGame = gameRepository.save(game);
-    gameRepository.flush();
-
-    assertThrows(ResponseStatusException.class, () -> gameService.joinGame(admin.getUserId(), createdGame.getGameId()));
+    assertThrows(ResponseStatusException.class, () -> gameService.joinGame(createdAdmin.getUserId(), gameRepository.findByGameId(game.getGameId()).getGameId()));
   }
 
   @Test
@@ -516,27 +505,21 @@ public class GameServiceIntegrationTest {
 
     User admin = new User();
     admin.setNickname("testNickname");
-    admin.setCreationDate(LocalDate.now());
-    admin.setToken("test token");
-    admin.setStatus(UserStatus.ONLINE);
+    
+    User createdAdmin = userService.createUser(admin);
 
-    userRepository.save(admin);
-    userRepository.flush();
-
-    GameSettings gameSettings = new GameSettings();
-    gameSettings.setGameSettingsId(2L);
-
-    Game game = new Game();
-    game.setGamePin(777777L);
-    game.setGameToken("test token");
+    Game game = gameService.createGame(createdAdmin.getUserId());
     game.setStatus(GameStatus.IN_PLAY);
-    game.setAdmin(admin.getUserId());
-    game.setGameSettingsId(gameSettings.getGameSettingsId());
 
-    Game createdGame = gameRepository.save(game);
-    gameRepository.flush();
+    assertThrows(ResponseStatusException.class, () -> gameService.joinGame(admin.getUserId(), gameRepository.findByGameId(game.getGameId()).getGameId()));
+  }
 
-    assertThrows(ResponseStatusException.class, () -> gameService.joinGame(admin.getUserId(), createdGame.getGameId()));
+  @Test
+  public void leaveGame_noGame_throwsException() {
+
+    // attempt to remove user that hasn't been created
+    // check that an error is thrown
+    assertThrows(ResponseStatusException.class, () -> gameService.leaveRoom(1L, 34L));
   }
 
   @Test
@@ -802,6 +785,21 @@ public class GameServiceIntegrationTest {
   }
 
   @Test
+  public void leaveGame_Success_DeleteGame() {
+    User admin = new User();
+    admin.setNickname("test nickname");
+
+    admin = userService.createUser(admin);
+
+    Game game = gameService.createGame(admin.getUserId());
+
+    gameService.leaveRoom(game.getGameId(), admin.getUserId());
+    Long id = game.getGameId();
+
+    assertThrows(ResponseStatusException.class, () -> gameService.getGame(id));
+  }
+
+  @Test
   public void getGameByGamePin_validInputs_success() {
 
     User admin = new User();
@@ -922,6 +920,42 @@ public class GameServiceIntegrationTest {
 
     assertEquals(cleanGame.getStatus(), GameStatus.CLOSED);
 
+  }
+
+  @Test
+  public void cleanUpGame_ActivityToday(){
+    User admin = new User();
+    admin.setNickname("test nickname");
+    admin = userService.createUser(admin);
+
+    Game game = gameService.createGame(admin.getUserId());
+    game.setLastActivity(Instant.now());
+
+    User player1 = new User();
+    player1.setNickname("test nickname");
+    player1 = userService.createUser(player1);
+
+    gameService.gameroomCleanUp(game.getGameId());
+    assertEquals(game.getStatus(), GameStatus.OPEN);
+  }
+
+  @Test
+  public void cleanUpGame_ActivityBeforeYesterday(){
+    User admin = new User();
+    admin.setNickname("test nickname");
+    admin = userService.createUser(admin);
+
+    Game game = gameService.createGame(admin.getUserId());
+    game.setLastActivity(Instant.now().minus(Duration.ofDays(2)));
+
+    User player1 = new User();
+    player1.setNickname("test nickname");
+    player1 = userService.createUser(player1);
+
+    gameService.gameroomCleanUp(game.getGameId());
+    assertNotNull(game.getLastActivity());
+    assertTrue(game.getLastActivity().isBefore(Instant.now().minus(Duration.ofDays(1))));
+    assertEquals(gameRepository.findByGameId(game.getGameId()).getStatus(), GameStatus.CLOSED);
   }
 
   @Test
@@ -1174,6 +1208,81 @@ public class GameServiceIntegrationTest {
     assertEquals(text.getContent(), "test content");
     assertEquals(text.getPreviousDrawingId(), createdDrawing.getDrawingId());
     assertEquals(text.getCreator(), createdAdmin);;
+  }
+
+  @Transactional
+  @Test
+  public void createTextPrompt_Success_V2() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin = userService.createUser(admin);
+
+    User player = new User();
+    player.setNickname("testNickname");
+    player = userService.createUser(player);
+
+    Game game = gameService.createGame(admin.getUserId());
+    gameService.joinGame(game.getGamePin(), player.getUserId());
+
+    gameService.createGameSession(game.getGameId());
+
+    Drawing drawing = new Drawing();
+    drawing.setEncodedImage("encoded image");
+    drawing.setCreationDateTime(LocalDateTime.now());
+
+    Drawing createdDrawing = drawingRepository.save(drawing);
+    drawingRepository.flush();
+
+    // call function should reassign admin role to createdPlayer
+    TextPrompt text = gameService.createTextPrompt(game.getGameSessions().get(0).getGameSessionId(), admin.getUserId(), 777L, "test content");
+    TextPrompt text2 = gameService.createTextPrompt(game.getGameSessions().get(0).getGameSessionId(), player.getUserId(), 777L, "test content");
+    text.setAssignedTo(player.getUserId());
+    gameRepository.flush();
+    entityManager.flush();
+
+    assertEquals(text.getContent(), "test content");
+    assertEquals(text.getPreviousDrawingId(), 777L);
+    assertEquals(text.getCreator(), admin);
+    assertEquals(game.getGameSessions().get(0).getGameLoopStatus(), GameLoopStatus.DRAWING);
+  }
+
+  @Transactional
+  @Test
+  public void createTextPrompt_Success_PRESENTATION() {
+
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin = userService.createUser(admin);
+
+    User player = new User();
+    player.setNickname("testNickname");
+    player = userService.createUser(player);
+
+    Game game = gameService.createGame(admin.getUserId());
+    gameService.joinGame(game.getGamePin(), player.getUserId());
+
+    gameService.createGameSession(game.getGameId());
+
+    Drawing drawing = new Drawing();
+    drawing.setEncodedImage("encoded image");
+    drawing.setCreationDateTime(LocalDateTime.now());
+
+    Drawing createdDrawing = drawingRepository.save(drawing);
+    drawingRepository.flush();
+
+    game.getGameSessions().get(0).setGameLoopStatus(GameLoopStatus.PRESENTATION);
+
+    // call function should reassign admin role to createdPlayer
+    TextPrompt text = gameService.createTextPrompt(game.getGameSessions().get(0).getGameSessionId(), admin.getUserId(), 777L, "test content");
+    TextPrompt text2 = gameService.createTextPrompt(game.getGameSessions().get(0).getGameSessionId(), player.getUserId(), 777L, "test content");
+    text.setAssignedTo(player.getUserId());
+    gameRepository.flush();
+    entityManager.flush();
+
+    assertEquals(text.getContent(), "test content");
+    assertEquals(text.getPreviousDrawingId(), 777L);
+    assertEquals(text.getCreator(), admin);;
   }
 
   @Test
@@ -3142,6 +3251,33 @@ public class GameServiceIntegrationTest {
     assertEquals(createdDrawing3.getNumVotes(), 0);
     assertEquals(topThree.size(), 0);
     assertEquals(createdGameSession.getGameLoopStatus(), GameLoopStatus.LEADERBOARD);
+  }
+
+  @Test
+  public void openGame_NoGame_throwsException() {
+  // with no game room should throw an error
+    assertThrows(ResponseStatusException.class, () -> gameService.openGame(2L));
+  }
+
+  @Test
+  public void openGame_ValidInputs_success() {
+    // create admin and create 7 players
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setToken("test token");
+    admin.setStatus(UserStatus.ONLINE);
+
+    admin = userService.createUser(admin);
+
+    Game game = gameService.createGame(admin.getUserId());
+    game.setStatus(GameStatus.CLOSED);
+
+    // when
+    gameService.openGame(game.getGameId());
+
+    // then
+    assertEquals(gameRepository.findByGameId(game.getGameId()).getStatus(), GameStatus.OPEN);
   }
 
 }

@@ -85,6 +85,7 @@ public class GameService {
 
         game.setStatus(GameStatus.OPEN);
         gameRepository.save(game);
+        gameRepository.flush();
     }
 
     // function to generate unique game pin
@@ -277,7 +278,6 @@ public class GameService {
         return gameRepository.findByGamePin(gamePin);
     }
 
-    // TODO should delete all temporary users
     public Game gameroomCleanUp(Long gameRoomId) {
         Game game = gameRepository.findByGameId(gameRoomId);
         if (game == null) {
