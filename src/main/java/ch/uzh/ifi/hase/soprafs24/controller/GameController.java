@@ -224,6 +224,15 @@ public class GameController {
     return DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
   }
 
+  // put mapping to open current game
+  @PutMapping("/games/{gameId}")
+  @ResponseStatus(HttpStatus.OK)
+  public void openGame(@PathVariable Long gameId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    userService.authenticateUser(token, userService.getUserById(id));
+
+    gameService.openGame(gameId);
+  }
+
   // put mapping to increase number of votes for given text prompt
   @PutMapping("/games/{gameSessionId}/prompt/{textPromptId}/vote")
   @ResponseStatus(HttpStatus.OK)

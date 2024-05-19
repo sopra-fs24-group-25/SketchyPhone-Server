@@ -371,6 +371,98 @@ public class GameServiceIntegrationTest {
   }
 
   @Test
+  public void joinGame_validInputs_MaxPlayers_success() {
+    // create admin and create 7 players
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setToken("test token");
+    admin.setStatus(UserStatus.ONLINE);
+
+    admin = userService.createUser(admin);
+
+    User player1 = new User();
+    player1.setNickname("testNickname");
+    player1.setCreationDate(LocalDate.now());
+    player1.setToken("test token");
+    player1.setStatus(UserStatus.ONLINE);
+
+    player1 = userService.createUser(player1);
+
+    User player2 = new User();
+    player2.setNickname("testNickname");
+    player2.setCreationDate(LocalDate.now());
+    player2.setToken("test token");
+    player2.setStatus(UserStatus.ONLINE);
+
+    player2 = userService.createUser(player2);
+
+    User player3 = new User();
+    player3.setNickname("testNickname");
+    player3.setCreationDate(LocalDate.now());
+    player3.setToken("test token");
+    player3.setStatus(UserStatus.ONLINE);
+
+    player3 = userService.createUser(player3);
+
+    User player4 = new User();
+    player4.setNickname("testNickname");
+    player4.setCreationDate(LocalDate.now());
+    player4.setToken("test token");
+    player4.setStatus(UserStatus.ONLINE);
+
+    player4 = userService.createUser(player4);
+
+    User player5 = new User();
+    player5.setNickname("testNickname");
+    player5.setCreationDate(LocalDate.now());
+    player5.setToken("test token");
+    player5.setStatus(UserStatus.ONLINE);
+
+    player5 = userService.createUser(player5);
+
+    User player6 = new User();
+    player6.setNickname("testNickname");
+    player6.setCreationDate(LocalDate.now());
+    player6.setToken("test token");
+    player6.setStatus(UserStatus.ONLINE);
+
+    player6 = userService.createUser(player6);
+
+    List<User> users = new ArrayList<User>();
+    users.add(admin);
+    users.add(player1);
+    users.add(player2);
+    users.add(player3);
+    users.add(player4);
+    users.add(player5);
+    users.add(player6);
+
+    Game game = gameService.createGame(admin.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player1.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player2.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player3.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player4.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player5.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player6.getUserId());
+
+    User user = new User();
+    user.setNickname("testNickname");
+    user.setCreationDate(LocalDate.now());
+    user.setToken("test token 2");
+    user.setStatus(UserStatus.ONLINE);
+
+    user = userService.createUser(user);
+
+    // when
+    game = gameService.joinGame(game.getGamePin(), user.getUserId());
+
+    // then
+    assertEquals(game.getUsers().size(), 8);
+    assertEquals(game.getStatus(), GameStatus.CLOSED);
+  }
+
+  @Test
   public void joinGame_noUser_throwsException() {
 
     assertThrows(ResponseStatusException.class, () -> gameService.joinGame(2L, 2L));
@@ -617,6 +709,95 @@ public class GameServiceIntegrationTest {
     assertEquals(foundGame.getUsers().size(), 1);
     assertEquals(foundGame.getAdmin(), createdAdmin.getUserId());
     assertEquals(gameSession.getUsersInSession().size(), 1);
+
+  }
+
+  @Transactional
+  @Test
+  public void leaveGame_Success_BelowMaxPlayers_NoReassignAdmin() {
+
+    // create admin and create 7 players
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin.setCreationDate(LocalDate.now());
+    admin.setToken("test token");
+    admin.setStatus(UserStatus.ONLINE);
+
+    admin = userService.createUser(admin);
+
+    User player1 = new User();
+    player1.setNickname("testNickname");
+    player1.setCreationDate(LocalDate.now());
+    player1.setToken("test token");
+    player1.setStatus(UserStatus.ONLINE);
+
+    player1 = userService.createUser(player1);
+
+    User player2 = new User();
+    player2.setNickname("testNickname");
+    player2.setCreationDate(LocalDate.now());
+    player2.setToken("test token");
+    player2.setStatus(UserStatus.ONLINE);
+
+    player2 = userService.createUser(player2);
+
+    User player3 = new User();
+    player3.setNickname("testNickname");
+    player3.setCreationDate(LocalDate.now());
+    player3.setToken("test token");
+    player3.setStatus(UserStatus.ONLINE);
+
+    player3 = userService.createUser(player3);
+
+    User player4 = new User();
+    player4.setNickname("testNickname");
+    player4.setCreationDate(LocalDate.now());
+    player4.setToken("test token");
+    player4.setStatus(UserStatus.ONLINE);
+
+    player4 = userService.createUser(player4);
+
+    User player5 = new User();
+    player5.setNickname("testNickname");
+    player5.setCreationDate(LocalDate.now());
+    player5.setToken("test token");
+    player5.setStatus(UserStatus.ONLINE);
+
+    player5 = userService.createUser(player5);
+
+    User player6 = new User();
+    player6.setNickname("testNickname");
+    player6.setCreationDate(LocalDate.now());
+    player6.setToken("test token");
+    player6.setStatus(UserStatus.ONLINE);
+
+    player6 = userService.createUser(player6);
+
+    User player7 = new User();
+    player7.setNickname("testNickname");
+    player7.setCreationDate(LocalDate.now());
+    player7.setToken("test token");
+    player7.setStatus(UserStatus.ONLINE);
+
+    player7 = userService.createUser(player7);
+
+    Game game = gameService.createGame(admin.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player1.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player2.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player3.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player4.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player5.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player6.getUserId());
+    game = gameService.joinGame(game.getGamePin(), player7.getUserId());
+
+    // check if game status is correctly CLOSED
+    assertEquals(game.getStatus(), GameStatus.CLOSED);
+
+    // call function should remove user from users and set status back to OPEN
+    gameService.leaveRoom(game.getGameId(), player7.getUserId());
+
+    assertEquals(game.getUsers().size(), 7);
+    assertEquals(game.getStatus(), GameStatus.OPEN);
 
   }
 
