@@ -76,6 +76,17 @@ public class GameService {
         return game;
     }
 
+    public void openGame(Long gameId) {
+        Game game = gameRepository.findByGameId(gameId);
+
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
+
+        game.setStatus(GameStatus.OPEN);
+        gameRepository.save(game);
+    }
+
     // function to generate unique game pin
     public long generateGamePin() {
         final long MIN_PIN = 100000L;
@@ -251,6 +262,10 @@ public class GameService {
         }
 
         game.getUsers().remove(user);
+
+        // revert back role to default
+        user.setRole(null);
+        userRepository.save(user);
 
         // if game status is CLOSED and there's now less than 8 players in the game -> set status back to OPEN
         if(game.getStatus() == GameStatus.CLOSED && game.getUsers().size() < 8){
