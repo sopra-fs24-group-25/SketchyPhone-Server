@@ -293,13 +293,15 @@ public class GameController {
       return gameService.getTopThreeDrawings(gameSessionId);
   }
   
+  // Post mapping to save history of the game session
+  @PostMapping("/games/{gameSessionId}/history/{userId}")
+
   // get mapping to get the history of the game session
   // can not be tested yet, because need implementation of persistent user in usercontroller
-  @GetMapping
+  @GetMapping("/users/{userId}/history")
   public ResponseEntity<List<List<Object>>> getAllUserSequences(@PathVariable Long userId) {
-      List<List<Object>> allSequences = historyService.getAllUserSequences(userId);
+      List<List<Object>> allSequences = historyService.getUserHistory(userId);
       return ResponseEntity.ok(allSequences);
   }
-
 
 }

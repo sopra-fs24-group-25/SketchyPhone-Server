@@ -16,13 +16,6 @@ public class SessionHistory {
     @Column(nullable = false)
     private Long userId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "textPromptId")
-    private TextPrompt textPrompt;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "drawingId")
-    private Drawing drawing;
 
     // Getters and Setters
     public Long getHistoryId() {
@@ -49,19 +42,12 @@ public class SessionHistory {
         this.userId = userId;
     }
 
-    public TextPrompt getTextPrompt() {
-        return textPrompt;
+    public void setGameSessionId(Long gameSessionId) {
+        this.gameSession.setGameSessionId(gameSessionId);
     }
 
-    public void setTextPrompt(TextPrompt textPrompt) {
-        this.textPrompt = textPrompt;
+    public Long getGameSessionId() {
+        return gameSession.getGameSessionId();
     }
 
-    public Drawing getDrawing() {
-        return drawing;
-    }
-
-    public void setDrawing(Drawing drawing) {
-        this.drawing = drawing;
-    }
 }

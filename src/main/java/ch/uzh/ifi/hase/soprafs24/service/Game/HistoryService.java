@@ -38,7 +38,14 @@ public class HistoryService {
     }
 
 
-    public List<List<Object>> getAllUserSequences(Long userId) {
+    public void saveHistory(Long gameSessionId, Long userId) {
+        SessionHistory history = new SessionHistory();
+        history.setGameSessionId(gameSessionId);
+        history.setUserId(userId);
+        historyRepository.save(history);
+    }
+
+    public List<List<Object>> getUserHistory(Long userId) {
         List<SessionHistory> userHistory = historyRepository.findByUserId(userId);
         List<List<Object>> allSequences = new ArrayList<>();
     
@@ -50,5 +57,6 @@ public class HistoryService {
 
     return allSequences;
     }
+
 
 }
