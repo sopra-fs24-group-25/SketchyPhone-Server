@@ -739,7 +739,6 @@ public class GameControllerTest {
   }
 
   @Test
-
   public void savehistory_successful() throws Exception {
     // given
     Game game = new Game();
@@ -780,7 +779,7 @@ public class GameControllerTest {
       .andExpect(status().isCreated());
    }
     
-    
+  @Test  
   public void getTopThreeTextPrompts() throws Exception {
     // given
     Game game = new Game();
@@ -920,6 +919,33 @@ public class GameControllerTest {
       .andExpect(jsonPath("$[1].numVotes", is(1)));
   }
 
+    
+  @Test
+  public void openGameValidInput() throws Exception {
+    // given
+    Game game = new Game();
+    game.setAdmin(2L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+    game.setStatus(GameStatus.OPEN);
+
+    User admin = new User();
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+
+    gameService.openGame(Mockito.any());
+
+    // when
+    MockHttpServletRequestBuilder putRequest = put(String.format("/games/%x", game.getGameId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+
+    // then
+    mockMvc.perform(putRequest)
+      .andExpect(status().isOk());
+  }
 
   /**
    * Helper Method to convert userPostDTO into a JSON string such that the input
