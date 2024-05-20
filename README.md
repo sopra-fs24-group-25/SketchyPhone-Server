@@ -7,6 +7,27 @@ This project aims to synthesise two classical games, namely the telephone game a
 - Gradle (Docs: https://gradle.org/docs/)
 - Google Cloud (Deployment)
 
+## High-level components
+1. **User Service**
+   - **Role:** Handles user registration, authentication, and profile management. This component ensures that users can securely sign up, log in, and manage their profiles.
+   - **Correlation:** Interacts with the Game Service to authenticate users and manage user data during gameplay.
+   - **Reference:** `UserService.java` - [UserService.java](https://github.com/sopra-fs24-group-25/SketchyPhone-Server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/UserService.java)
+
+2. **Game Service**
+   - **Role:** Manages the creation, updating, and retrieval of game instances. This service allows users to join existing game rooms or create new ones. This component is responsible for the game lifecycle, including setting game parameters and tracking game status. This service also handles the main game logic. 
+   - **Correlation:** Works closely with both the User Service for user management.
+   - **Reference:** `GameService.java` - [GameService.java](https://github.com/sopra-fs24-group-25/SketchyPhone-Server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/Game/GameService.java)
+
+3. **Game Controller**
+   - **Role:** Manages all Rest Endpoints concerning the game logic.
+   - **Correlation:** When Client sends http-requests concerning the game they go through game controller where the actual methods in the game service are called.
+   - **Reference:** `GameController.java` - [GameController.java](https://github.com/sopra-fs24-group-25/SketchyPhone-Server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/controller/GameController.java)
+
+4. **User Controller**
+   - **Role:** Manages all Rest Endpoints concerning the user managment.
+   - **Correlation:** When Client sends http-requests concerning the user managment they go through game controller where the actual methods in the user service are called.
+   - **Reference:** `UserController.java` - [UserController.java](https://github.com/sopra-fs24-group-25/SketchyPhone-Server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/controller/UserController.java)
+
 ## Launch & Deployment
 
 Download your IDE of choice (e.g., [IntelliJ](https://www.jetbrains.com/idea/download/), [Visual Studio Code](https://code.visualstudio.com/), or [Eclipse](http://www.eclipse.org/downloads/)). Make sure Java 17 is installed on your system (for Windows, please make sure your `JAVA_HOME` environment variable is set to the correct version of Java).
