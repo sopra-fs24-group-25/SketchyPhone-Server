@@ -294,7 +294,13 @@ public class GameController {
   }
   
   // Post mapping to save history of the game session
-  @PostMapping("/games/{gameSessionId}/history/{userId}")
+  @PostMapping("/users/{gameSessionId}/{userId}/history")
+  @ResponseStatus(HttpStatus.CREATED)
+  @ResponseBody
+  public void saveHistory(@PathVariable Long gameSessionId, @PathVariable Long userId) {
+      historyService.saveHistory(gameSessionId, userId);
+  }
+
 
   // get mapping to get the history of the game session
   // can not be tested yet, because need implementation of persistent user in usercontroller
