@@ -10,7 +10,7 @@ public class SessionHistory {
     private Long historyId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gameSessionId")
+    @JoinColumn(name = "gameSession")
     private GameSession gameSession;
 
     @Column(nullable = false)

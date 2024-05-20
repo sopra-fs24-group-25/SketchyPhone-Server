@@ -50,7 +50,7 @@ public class HistoryService {
         List<List<Object>> allSequences = new ArrayList<>();
     
         for (SessionHistory history : userHistory) {
-            Long gameSessionId = history.getGameSession().getGameSessionId();
+            Long gameSessionId = history.getGameSessionId();
             List<Object> sequence = gameService.getSequence(gameSessionId);
             allSequences.add(sequence);
     }
