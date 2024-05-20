@@ -293,25 +293,12 @@ public class GameController {
       return gameService.getTopThreeDrawings(gameSessionId);
   }
   
-
-  // save the flow of the text-to-drawing-to-text cycle in the game session - History
-  // ...
-  @PostMapping("/games/{gameSessionId}/savehistory")
-  @ResponseStatus(HttpStatus.CREATED)
-  @ResponseBody
-  public void savehistory(@PathVariable Long gameSessionId, @RequestHeader("Authorization") String token, @RequestHeader("X-User-ID") Long id) {
-      userService.authenticateUser(token, userService.getUserById(id));
-
-      historyService.saveHistory(gameSessionId);
-  }
-
   // get mapping to get the history of the game session
   // can not be tested yet, because need implementation of persistent user in usercontroller
-  @GetMapping("/games/{gameSessionId}/history")
-  public List<Object> getHistory(@PathVariable Long gameSessionId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
-    userService.loginUser(userService.getUserById(id));
-
-    return historyService.getHistory(gameSessionId);
+  @GetMapping
+  public ResponseEntity<List<List<Object>>> getAllUserSequences(@PathVariable Long userId) {
+      List<List<Object>> allSequences = historyService.getAllUserSequences(userId);
+      return ResponseEntity.ok(allSequences);
   }
 
 

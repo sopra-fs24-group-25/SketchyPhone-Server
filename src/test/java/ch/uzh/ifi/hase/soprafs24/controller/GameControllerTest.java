@@ -737,49 +737,6 @@ public class GameControllerTest {
     mockMvc.perform(putRequest)
       .andExpect(status().isOk());
   }
-
-  @Test
-
-  public void savehistory_successful() throws Exception {
-    // given
-    Game game = new Game();
-    game.setAdmin(2L);
-    game.setGameId(1L);
-    game.setGamePin(666666L);
-    
-    User admin = new User();
-    admin.setNickname("TestAdmin");
-    admin.setToken("Test token");
-    admin.setUserId(1L);
-    
-    GameSession gameSession = new GameSession();
-    gameSession.setGame(game);
-    gameSession.setGameSessionId(1L);
-
-    TextPrompt textPrompt = new TextPrompt();
-    textPrompt.setTextPromptId(2L);
-
-    Drawing drawing = new Drawing();
-    drawing.setDrawingId(2L);
-
-    // Create a list of objects to return
-    List<Object> historyList = new ArrayList<>();
-    historyList.add(textPrompt);
-    historyList.add(drawing);
-
-    given(historyService.saveHistory(Mockito.anyLong())).willReturn(historyList);
-
-    // when
-    MockHttpServletRequestBuilder postRequest = post(String.format("/games/%x/savehistory", gameSession.getGameSessionId()))
-      .contentType(MediaType.APPLICATION_JSON)
-      .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getUserId()));
-    
-    // then
-    mockMvc.perform(postRequest)
-      .andExpect(status().isCreated());
-   }
-    
     
   public void getTopThreeTextPrompts() throws Exception {
     // given
@@ -827,48 +784,6 @@ public class GameControllerTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$[0].numVotes", is(2)))
       .andExpect(jsonPath("$[1].numVotes", is(1)));
-  }
-
-  @Test
-  public void gethistory_successful() throws Exception {
-    // given
-    Game game = new Game();
-    game.setAdmin(2L);
-    game.setGameId(1L);
-    game.setGamePin(666666L);
-    
-    User admin = new User();
-    admin.setNickname("TestAdmin");
-    admin.setToken("Test token");
-    admin.setUserId(1L);
-    
-    GameSession gameSession = new GameSession();
-    gameSession.setGame(game);
-    gameSession.setGameSessionId(1L);
-
-    TextPrompt textPrompt = new TextPrompt();
-    textPrompt.setTextPromptId(2L);
-
-    Drawing drawing = new Drawing();
-    drawing.setDrawingId(2L);
-
-    // Create a list of objects to return
-    List<Object> historyList = new ArrayList<>();
-    historyList.add(textPrompt);
-    historyList.add(drawing);
-
-    given(historyService.getHistory(Mockito.anyLong())).willReturn(historyList);
-
-    // when
-    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/history", gameSession.getGameSessionId()))
-      .contentType(MediaType.APPLICATION_JSON)
-      .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getUserId()));
-
-    // then
-    mockMvc.perform(getRequest)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$", hasSize(2)));
   }
 
   @Test

@@ -12,4 +12,7 @@ public interface HistoryRepository extends JpaRepository<SessionHistory, Long> {
 
     // Retrieve all HistoryItems associated with a specific GameSession ID
     List<SessionHistory> findByGameSession_GameSessionId(Long gameSessionId);
+
+    // Retrieve all HistoryItems associated with a specific User ID
+    List<SessionHistory> findByUserId(Long userId);
 }
