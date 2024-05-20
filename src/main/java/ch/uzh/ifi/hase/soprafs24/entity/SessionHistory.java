@@ -16,7 +16,8 @@ public class SessionHistory {
     @Column(nullable = false)
     private Long userId;
 
-
+    private Long gameSessionId;
+    
     // Getters and Setters
     public Long getHistoryId() {
         return historyId;
@@ -43,11 +44,11 @@ public class SessionHistory {
     }
 
     public void setGameSessionId(Long gameSessionId) {
-        this.gameSession.setGameSessionId(gameSessionId);
+        this.gameSessionId = gameSessionId;
     }
 
     public Long getGameSessionId() {
-        return gameSession.getGameSessionId();
+        return gameSessionId;
     }
 
 }
