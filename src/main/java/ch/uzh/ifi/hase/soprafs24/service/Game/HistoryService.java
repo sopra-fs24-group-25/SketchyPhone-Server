@@ -26,52 +26,31 @@ public class HistoryService {
     private final GameSessionRepository gameSessionRepository;
     private final TextPromptRepository textPromptRepository;
     private final DrawingRepository drawingRepository;
+    private final GameService gameService;
 
     @Autowired
-    public HistoryService(HistoryRepository historyRepository, GameSessionRepository gameSessionRepository, TextPromptRepository textPromptRepository, DrawingRepository drawingRepository) {
+    public HistoryService(HistoryRepository historyRepository, GameSessionRepository gameSessionRepository, TextPromptRepository textPromptRepository, DrawingRepository drawingRepository, GameService gameService) {
         this.historyRepository = historyRepository;
         this.gameSessionRepository = gameSessionRepository;
         this.textPromptRepository = textPromptRepository;
         this.drawingRepository = drawingRepository;
+        this.gameService = gameService;
     }
 
-    public List<Object> saveHistory(Long gameSessionId) {
-        // Retrieve the game session by ID
-        GameSession gameSession = gameSessionRepository.findById(gameSessionId).orElseThrow(() -> new IllegalArgumentException("Game session not found"));
 
-        List<Object> allPromptsAndDrawings = new ArrayList<>();
+    public void saveHistory(Long gameSessionId, Long userId, String historyName) {
+        GameSession gameSession = gameSessionRepository.findById(gameSessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Game session not found"));
     
-        // Retrieve all text prompts associated with the game session ID
-        List<TextPrompt> textPrompts = textPromptRepository.findByGameSessionGameSessionId(gameSessionId);
-        allPromptsAndDrawings.addAll(textPrompts);
-        
-        // Retrieve all drawings associated with the game session ID
-        List<Drawing> drawings = drawingRepository.findByGameSessionGameSessionId(gameSessionId);
-        allPromptsAndDrawings.addAll(drawings);
-        
-        return allPromptsAndDrawings;
+        SessionHistory history = new SessionHistory();
+        history.setGameSession(gameSession);
+        history.setUserId(userId);
+        history.setHistoryName(historyName);
+        historyRepository.save(history);
     }
 
-    public List<Object> getHistory(Long gameSessionId) {
-        // Retrieve the history entries for the given game session ID
-        List<SessionHistory> history = historyRepository.findByGameSession_GameSessionId(gameSessionId);
-        
-        List<Object> historyList = new ArrayList<>();
-        // Iterate over each history entry
-        for (SessionHistory item : history) {
-            if (item.getTextPrompt() != null) {
-                // Handle text history entry
-                TextPrompt textPrompt = item.getTextPrompt();
-                // Add text prompt to the history list
-                historyList.add(textPrompt);
-            } else if (item.getDrawing() != null) {
-                // Handle drawing history entry
-                Drawing drawing = item.getDrawing();
-                // Add drawing to the history list
-                historyList.add(drawing);
-            } 
-        }
-        return historyList;
+    public List<SessionHistory> getUserHistory(Long userId) {
+        return historyRepository.findByUserId(userId);
     }
 
 }

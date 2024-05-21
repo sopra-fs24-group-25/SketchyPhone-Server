@@ -378,8 +378,6 @@ public class DTOMapperTest {
     SessionHistoryDTO sessionHistoryDTO = new SessionHistoryDTO();
     sessionHistoryDTO.setGameSessionId(gameSession.getGameSessionId());
     sessionHistoryDTO.setUserId(admin.getUserId());
-    sessionHistoryDTO.setTextPromptId(textPrompt.getTextPromptId());
-    sessionHistoryDTO.setDrawingId(drawing.getDrawingId());
 
     // MAP -> Create sessionHistory
     SessionHistory sessionHistory = DTOMapper.INSTANCE.convertHistoryDTOToEntity(sessionHistoryDTO);
@@ -387,8 +385,6 @@ public class DTOMapperTest {
     // check content
     assertEquals(sessionHistoryDTO.getGameSessionId(), sessionHistory.getGameSession().getGameSessionId());
     assertEquals(sessionHistoryDTO.getUserId(), sessionHistory.getUserId());
-    assertEquals(sessionHistoryDTO.getTextPromptId(), sessionHistory.getTextPrompt().getTextPromptId());
-    assertEquals(sessionHistoryDTO.getDrawingId(), sessionHistory.getDrawing().getDrawingId());
   }
   
   @Test
@@ -410,8 +406,6 @@ public class DTOMapperTest {
     SessionHistory sessionHistory = new SessionHistory();
     sessionHistory.setGameSession(gameSession);
     sessionHistory.setUserId(admin.getUserId());
-    sessionHistory.setTextPrompt(textPrompt);
-    sessionHistory.setDrawing(drawing);
 
     // MAP -> Create SessionHistoryDTO
     SessionHistoryDTO sessionHistoryDTO = DTOMapper.INSTANCE.convertEntityToHistoryDTO(sessionHistory);
@@ -419,7 +413,5 @@ public class DTOMapperTest {
     // check content
     assertEquals(sessionHistory.getGameSession().getGameSessionId(), sessionHistoryDTO.getGameSessionId());
     assertEquals(sessionHistory.getUserId(), sessionHistoryDTO.getUserId());
-    assertEquals(sessionHistory.getTextPrompt().getTextPromptId(), sessionHistoryDTO.getTextPromptId());
-    assertEquals(sessionHistory.getDrawing().getDrawingId(), sessionHistoryDTO.getDrawingId());
   }
 }

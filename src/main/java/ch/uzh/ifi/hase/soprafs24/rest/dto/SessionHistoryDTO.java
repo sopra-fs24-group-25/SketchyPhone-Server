@@ -5,10 +5,13 @@ public class SessionHistoryDTO {
     private Long historyId;
     private Long gameSessionId;
     private Long userId;
-    private Long textPromptId;
-    private Long drawingId;
+    private String historyName;
 
     // Getters
+    public String getHistoryName() {
+        return historyName;
+    }
+
     public Long getHistoryId() {
         return historyId;
     }
@@ -21,15 +24,11 @@ public class SessionHistoryDTO {
         return userId;
     }
 
-    public Long getTextPromptId() {
-        return textPromptId;
-    }
-
-    public Long getDrawingId() {
-        return drawingId;
-    }
-
     // Setters
+    public void setHistoryName(String historyName) {
+        this.historyName = historyName;
+    }
+
     public void setHistoryId(Long historyId) {
         this.historyId = historyId;
     }
@@ -40,13 +39,5 @@ public class SessionHistoryDTO {
 
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public void setTextPromptId(Long textPromptId) {
-        this.textPromptId = textPromptId;
-    }
-
-    public void setDrawingId(Long drawingId) {
-        this.drawingId = drawingId;
     }
 }

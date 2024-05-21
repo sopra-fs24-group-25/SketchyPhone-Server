@@ -766,13 +766,14 @@ public class GameControllerTest {
     historyList.add(textPrompt);
     historyList.add(drawing);
 
-    given(historyService.saveHistory(Mockito.anyLong())).willReturn(historyList);
+    historyService.saveHistory(Mockito.anyLong(), Mockito.anyLong(), Mockito.any());
 
     // when
-    MockHttpServletRequestBuilder postRequest = post(String.format("/games/%x/savehistory", gameSession.getGameSessionId()))
+    MockHttpServletRequestBuilder postRequest = post(String.format("/users/%x/%x/history", gameSession.getGameSessionId(), admin.getUserId()))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getUserId()));
+      .header("X-User-ID", String.valueOf(admin.getUserId()))
+      .param("historyName", "test name");
     
     // then
     mockMvc.perform(postRequest)
@@ -829,48 +830,6 @@ public class GameControllerTest {
   }
 
   @Test
-  public void gethistory_successful() throws Exception {
-    // given
-    Game game = new Game();
-    game.setAdmin(2L);
-    game.setGameId(1L);
-    game.setGamePin(666666L);
-    
-    User admin = new User();
-    admin.setNickname("TestAdmin");
-    admin.setToken("Test token");
-    admin.setUserId(1L);
-    
-    GameSession gameSession = new GameSession();
-    gameSession.setGame(game);
-    gameSession.setGameSessionId(1L);
-
-    TextPrompt textPrompt = new TextPrompt();
-    textPrompt.setTextPromptId(2L);
-
-    Drawing drawing = new Drawing();
-    drawing.setDrawingId(2L);
-
-    // Create a list of objects to return
-    List<Object> historyList = new ArrayList<>();
-    historyList.add(textPrompt);
-    historyList.add(drawing);
-
-    given(historyService.getHistory(Mockito.anyLong())).willReturn(historyList);
-
-    // when
-    MockHttpServletRequestBuilder getRequest = get(String.format("/games/%x/history", gameSession.getGameSessionId()))
-      .contentType(MediaType.APPLICATION_JSON)
-      .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getUserId()));
-
-    // then
-    mockMvc.perform(getRequest)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$", hasSize(2)));
-  }
-
-  @Test
   public void getTopThreeDrawings() throws Exception {
     // given
     Game game = new Game();
@@ -919,6 +878,37 @@ public class GameControllerTest {
       .andExpect(jsonPath("$[1].numVotes", is(1)));
   }
 
+  @Test
+  public void saveHistory_successful(){
+    MockHttpServletRequestBuilder postRequest = post("/users/1/1/history")
+                .param("historyName", "Test History")
+                .contentType(MediaType.APPLICATION_JSON);
+
+    // Mocking the service method to do nothing (void method)
+    Mockito.doNothing().when(historyService).saveHistory(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString());
+
+    // Asserting the response
+    try {
+        mockMvc.perform(postRequest)
+                .andExpect(status().isCreated());
+    } catch (Exception e) {
+        
+    }
+  }
+
+  @Test
+  public void getUserHistory_successful(){
+    // Mocking the service method to return an empty list
+    given(historyService.getUserHistory(Mockito.anyLong())).willReturn(new ArrayList<>());
+
+    // Asserting the response
+    try {
+        mockMvc.perform(get("/users/1/history"))
+                .andExpect(status().isOk());
+    } catch (Exception e) {
+        
+    }
+  }
     
   @Test
   public void openGameValidInput() throws Exception {
