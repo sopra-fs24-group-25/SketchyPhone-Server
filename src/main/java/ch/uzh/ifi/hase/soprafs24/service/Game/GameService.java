@@ -145,7 +145,7 @@ public class GameService {
         List<GameSession> gameSessions = new ArrayList<>();
 
         newGame.setGameSessions(gameSessions);
-        
+
         newGame = gameRepository.save(newGame);
         gameRepository.flush();
 
@@ -209,14 +209,14 @@ public class GameService {
         }
 
         boolean userAlreadyInGame = game.getUsers().stream()
-            .anyMatch(existingUser -> existingUser.getUserId().equals(joinUser.getUserId()));
-        
-            if (!userAlreadyInGame){
-                game.getUsers().add(joinUser);
-            }
+                .anyMatch(existingUser -> existingUser.getUserId().equals(joinUser.getUserId()));
+
+        if (!userAlreadyInGame) {
+            game.getUsers().add(joinUser);
+        }
 
         // if 8 (max) player joined change game status to CLOSED
-        if(game.getUsers().size() == 8) {
+        if (game.getUsers().size() == 8) {
             game.setStatus(GameStatus.CLOSED);
         }
 
@@ -224,7 +224,7 @@ public class GameService {
 
         // Return a successful join message
         return game;
-        
+
     }
 
     public void leaveRoom(Long gameRoomId, long userId) {
@@ -268,8 +268,9 @@ public class GameService {
         user.setRole(null);
         userRepository.save(user);
 
-        // if game status is CLOSED and there's now less than 8 players in the game -> set status back to OPEN
-        if(game.getStatus() == GameStatus.CLOSED && game.getUsers().size() < 8){
+        // if game status is CLOSED and there's now less than 8 players in the game ->
+        // set status back to OPEN
+        if (game.getStatus() == GameStatus.CLOSED && game.getUsers().size() < 8) {
             game.setStatus(GameStatus.OPEN);
         }
     }
@@ -369,7 +370,7 @@ public class GameService {
         // once every user has created a text prompt switch game loop status to drawing
         if (textPrompts.size() % gameSession.getUsersInSession().size() == 0) {
             startNextRound(gameSessionId);
-            
+
             List<Long> usersInSession = new ArrayList<Long>();
             usersInSession = gameSession.getUsersInSession();
 
@@ -379,46 +380,47 @@ public class GameService {
             List<TextPrompt> availablePrompts = new ArrayList<TextPrompt>();
 
             List<TextPrompt> lastPrompts = new ArrayList<TextPrompt>();
-            
-            SecureRandom random = new SecureRandom();
-            int randomNumber = 0; 
 
-            for(int i = 0; i < usersInSession.size(); i++){
+            SecureRandom random = new SecureRandom();
+            int randomNumber = 0;
+
+            for (int i = 0; i < usersInSession.size(); i++) {
                 User dude = userRepository.findByUserId(usersInSession.get(i));
 
                 // find all text prompts that could be assigned to a user
-                if(gameSession.getRoundCounter() - 1 < 2){
+                if (gameSession.getRoundCounter() - 1 < 2) {
                     // first round
                     availablePrompts = textPromptRepository.findAll().stream()
-                .filter(textprompt -> textprompt.getAssignedTo() == null
-                        && textprompt.getCreator() != dude
-                        && textprompt.getRound() == gameSession.getRoundCounter() - 1
-                        && textprompt.getGameSession().getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList()); 
-                }
-                else{
-                    // from the second round on we don't want to get textprompts that were made from our drawings
+                            .filter(textprompt -> textprompt.getAssignedTo() == null
+                                    && textprompt.getCreator() != dude
+                                    && textprompt.getRound() == gameSession.getRoundCounter() - 1
+                                    && textprompt.getGameSession().getGameSessionId().equals(gameSessionId))
+                            .collect(Collectors.toList());
+                } else {
+                    // from the second round on we don't want to get textprompts that were made from
+                    // our drawings
                     availablePrompts = textPromptRepository.findAll().stream()
-                .filter(textprompt -> textprompt.getAssignedTo() == null
-                        && textprompt.getCreator() != dude
-                        && textprompt.getRound() == gameSession.getRoundCounter() - 1
-                        && textprompt.getGameSession().getGameSessionId().equals(gameSessionId)
-                        && drawingRepository.findByDrawingId(textprompt.getPreviousDrawingId()).getCreator() != dude)
-                .collect(Collectors.toList()); 
+                            .filter(textprompt -> textprompt.getAssignedTo() == null
+                                    && textprompt.getCreator() != dude
+                                    && textprompt.getRound() == gameSession.getRoundCounter() - 1
+                                    && textprompt.getGameSession().getGameSessionId().equals(gameSessionId)
+                                    && drawingRepository.findByDrawingId(textprompt.getPreviousDrawingId())
+                                            .getCreator() != dude)
+                            .collect(Collectors.toList());
                 }
 
                 alreadyAssignedPrompts = textPromptRepository.findAll().stream()
-                .filter(textprompt -> textprompt.getAssignedTo() != null
-                        && textprompt.getRound() == gameSession.getRoundCounter() - 1
-                        && textprompt.getGameSession().getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList());
+                        .filter(textprompt -> textprompt.getAssignedTo() != null
+                                && textprompt.getRound() == gameSession.getRoundCounter() - 1
+                                && textprompt.getGameSession().getGameSessionId().equals(gameSessionId))
+                        .collect(Collectors.toList());
 
                 lastPrompts = textPromptRepository.findAll().stream()
-                .filter(textPrompt -> textPrompt.getAssignedTo() == null
-                        && textPrompt.getRound() == gameSession.getRoundCounter() - 1
-                        && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList());
-            
+                        .filter(textPrompt -> textPrompt.getAssignedTo() == null
+                                && textPrompt.getRound() == gameSession.getRoundCounter() - 1
+                                && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
+                        .collect(Collectors.toList());
+
                 if (availablePrompts.isEmpty()) {
                     randomNumber = random.nextInt(alreadyAssignedPrompts.size());
                     TextPrompt assignedPrompt = alreadyAssignedPrompts.get(randomNumber);
@@ -429,15 +431,14 @@ public class GameService {
                     randomNumber = random.nextInt(availablePrompts.size());
                     availablePrompts.get(randomNumber).setAssignedTo(dude.getUserId());
                 }
+                textPromptRepository.flush();
+
             }
-            textPromptRepository.flush();
 
             if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
                 gameSession.setGameLoopStatus(GameLoopStatus.DRAWING);
             }
         }
-
-        
 
         return text;
     }
@@ -510,7 +511,8 @@ public class GameService {
         int numCycles = gameSettingsRepository.findByGameSettingsId(gameSession.getGame().getGameSettingsId())
                 .getNumCycles();
 
-        // check whether this was the last round and if so set the game loop status to PRESENTATION
+        // check whether this was the last round and if so set the game loop status to
+        // PRESENTATION
         if (drawings.size() % gameSession.getUsersInSession().size() == 0) {
             startNextRound(gameSessionId);
 
@@ -523,56 +525,54 @@ public class GameService {
             List<Drawing> availableDrawings = new ArrayList<Drawing>();
 
             List<Drawing> lastDrawings = new ArrayList<Drawing>();
-            
-            SecureRandom random = new SecureRandom();
-            int randomNumber = 0; 
 
-            for(int i = 0; i < usersInSession.size(); i++){
+            SecureRandom random = new SecureRandom();
+            int randomNumber = 0;
+
+            for (int i = 0; i < usersInSession.size(); i++) {
                 User dude = userRepository.findByUserId(usersInSession.get(i));
 
                 // find all drawings that could be assigned to a user
-                    availableDrawings = drawingRepository.findAll().stream()
-                .filter(draw -> draw.getAssignedTo() == null
-                        && draw.getCreator() != dude
-                        && draw.getRound() == gameSession.getRoundCounter() - 1
-                        && draw.getGameSessionId().equals(gameSessionId)
-                        && textPromptRepository.findByTextPromptId(draw.getPreviousTextPrompt()).getCreator() != dude)
-                .collect(Collectors.toList());
+                availableDrawings = drawingRepository.findAll().stream()
+                        .filter(draw -> draw.getAssignedTo() == null
+                                && draw.getCreator() != dude
+                                && draw.getRound() == gameSession.getRoundCounter() - 1
+                                && draw.getGameSessionId().equals(gameSessionId)
+                                && textPromptRepository.findByTextPromptId(draw.getPreviousTextPrompt())
+                                        .getCreator() != dude)
+                        .collect(Collectors.toList());
 
                 alreadyAssignedDrawings = drawingRepository.findAll().stream()
-                .filter(draw -> draw.getAssignedTo() != null
-                        && draw.getRound() == gameSession.getRoundCounter() - 1
-                        && draw.getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList());
+                        .filter(draw -> draw.getAssignedTo() != null
+                                && draw.getRound() == gameSession.getRoundCounter() - 1
+                                && draw.getGameSessionId().equals(gameSessionId))
+                        .collect(Collectors.toList());
 
                 lastDrawings = drawingRepository.findAll().stream()
-                .filter(draw -> draw.getAssignedTo() == null
-                        && draw.getRound() == gameSession.getRoundCounter() - 1
-                        && draw.getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList());
-                
+                        .filter(draw -> draw.getAssignedTo() == null
+                                && draw.getRound() == gameSession.getRoundCounter() - 1
+                                && draw.getGameSessionId().equals(gameSessionId))
+                        .collect(Collectors.toList());
+
                 if (availableDrawings.isEmpty()) {
                     randomNumber = random.nextInt(alreadyAssignedDrawings.size());
                     Drawing assignedDrawing = alreadyAssignedDrawings.get(randomNumber);
                     lastDrawings.get(0).setAssignedTo(assignedDrawing.getAssignedTo());
                     assignedDrawing.setAssignedTo(dude.getUserId());
-                }
-                else {
+                } else {
                     // choose a random one
                     randomNumber = random.nextInt(availableDrawings.size());
                     availableDrawings.get(randomNumber).setAssignedTo(dude.getUserId());
-                }               
-            }
+                }
+                drawingRepository.flush();
 
-            drawingRepository.flush();
+            }
 
             if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
                 gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
             }
 
         }
-
-        
 
         return savedDrawing;
     }
@@ -619,9 +619,10 @@ public class GameService {
         } else {
             int countRounds = gameSettingsRepository.findByGameSettingsId(gameSession.getGame().getGameSettingsId())
                     .getNumCycles();
-            int nextRound = (gameSession.getRoundCounter() + 1);
-            gameSession.setRoundCounter(nextRound);
         }
+        
+        int nextRound = (gameSession.getRoundCounter() + 1);
+        gameSession.setRoundCounter(nextRound);
 
     }
 
@@ -652,17 +653,17 @@ public class GameService {
             nextId = assignedPrompt.getTextPromptId();
             while (nextId != null) {
                 sequence.add(assignedPrompt);
-                if (assignedPrompt.getNextDrawingId() != null){
+                if (assignedPrompt.getNextDrawingId() != null) {
                     drawing = drawingRepository.findByDrawingId(assignedPrompt.getNextDrawingId());
                     sequence.add(drawing);
                     nextId = drawing.getNextTextPrompt();
                     if (nextId != null) {
                         assignedPrompt = textPromptRepository.findByTextPromptId(nextId);
                     }
-                }else{
+                } else {
                     break;
                 }
-                
+
             }
         }
 
@@ -680,13 +681,13 @@ public class GameService {
         return gameSession.getCurrentIndex();
     }
 
-    public void increasePromptVotes(Long gameSessionId, Long textPromptId, Long userId){
+    public void increasePromptVotes(Long gameSessionId, Long textPromptId, Long userId) {
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
-        if (gameSession == null){
+        if (gameSession == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
         }
         TextPrompt text = textPromptRepository.findByTextPromptId(textPromptId);
-        if (text == null){
+        if (text == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Text prompt not found");
         }
         User user = userRepository.findByUserId(userId);
@@ -696,9 +697,9 @@ public class GameService {
 
     }
 
-    public void increaseDrawingVotes(Long gameSessionId, Long drawingId, Long userId){
+    public void increaseDrawingVotes(Long gameSessionId, Long drawingId, Long userId) {
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
-        if (gameSession == null){
+        if (gameSession == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
         }
         Drawing drawing = drawingRepository.findByDrawingId(drawingId);
@@ -712,24 +713,24 @@ public class GameService {
 
     }
 
-    public void decreasePromptVotes(Long gameSessionId, Long textPromptId, Long userId){
+    public void decreasePromptVotes(Long gameSessionId, Long textPromptId, Long userId) {
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
-        if (gameSession == null){
+        if (gameSession == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
         }
         TextPrompt text = textPromptRepository.findByTextPromptId(textPromptId);
-        if (text == null){
+        if (text == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Text prompt not found");
         }
         User user = userRepository.findByUserId(userId);
-        if (text.getNumVotes() != 0 && user != text.getCreator()){ 
+        if (text.getNumVotes() != 0 && user != text.getCreator()) {
             text.setNumVotes(text.getNumVotes() - 1);
         }
     }
 
-    public void decreaseDrawingVotes(Long gameSessionId, Long drawingId, Long userId){
+    public void decreaseDrawingVotes(Long gameSessionId, Long drawingId, Long userId) {
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
-        if (gameSession == null){
+        if (gameSession == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session not found");
         }
         Drawing drawing = drawingRepository.findByDrawingId(drawingId);
@@ -737,18 +738,18 @@ public class GameService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Drawing not found");
         }
         User user = userRepository.findByUserId(userId);
-        if (drawing.getNumVotes() != 0 && user != drawing.getCreator()){ 
+        if (drawing.getNumVotes() != 0 && user != drawing.getCreator()) {
             drawing.setNumVotes(drawing.getNumVotes() - 1);
         }
     }
 
-    public List<TextPrompt> getTopThreeTextPrompts(Long gameSessionId){
+    public List<TextPrompt> getTopThreeTextPrompts(Long gameSessionId) {
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
-        if (gameSession == null){
+        if (gameSession == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session Not Found");
         }
 
-        if (gameSession.getGameLoopStatus() != GameLoopStatus.LEADERBOARD){
+        if (gameSession.getGameLoopStatus() != GameLoopStatus.LEADERBOARD) {
             gameSession.setGameLoopStatus(GameLoopStatus.LEADERBOARD);
         }
         // get a list of all text prompts
@@ -757,7 +758,7 @@ public class GameService {
                 .collect(Collectors.toList());
 
         Collections.sort(availablePrompts, new Comparator<TextPrompt>() {
-            public int compare(TextPrompt t1, TextPrompt t2){
+            public int compare(TextPrompt t1, TextPrompt t2) {
                 return t1.getNumVotes() - t2.getNumVotes();
             }
         });
@@ -768,23 +769,22 @@ public class GameService {
         availablePrompts.removeIf(textprompt -> textprompt.getNumVotes() == 0);
 
         // only return the top three if there are more drawings
-        if(availablePrompts.size() <= 3){
+        if (availablePrompts.size() <= 3) {
 
             return availablePrompts;
 
-        }
-        else {
+        } else {
             return availablePrompts.subList(0, 3);
         }
     }
 
-    public List<Drawing> getTopThreeDrawings(Long gameSessionId){
+    public List<Drawing> getTopThreeDrawings(Long gameSessionId) {
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);
-        if (gameSession == null){
+        if (gameSession == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Session Not Found");
         }
 
-        if (gameSession.getGameLoopStatus() != GameLoopStatus.LEADERBOARD){
+        if (gameSession.getGameLoopStatus() != GameLoopStatus.LEADERBOARD) {
             gameSession.setGameLoopStatus(GameLoopStatus.LEADERBOARD);
         }
 
@@ -794,7 +794,7 @@ public class GameService {
                 .collect(Collectors.toList());
 
         Collections.sort(availableDrawings, new Comparator<Drawing>() {
-            public int compare(Drawing t1, Drawing t2){
+            public int compare(Drawing t1, Drawing t2) {
                 return t1.getNumVotes() - t2.getNumVotes();
             }
         });
@@ -805,15 +805,14 @@ public class GameService {
         availableDrawings.removeIf(drawing -> drawing.getNumVotes() == 0);
 
         // only return the top three if there are more drawings
-        if(availableDrawings.size() <= 3){
+        if (availableDrawings.size() <= 3) {
 
             return availableDrawings;
 
-        }
-        else {
+        } else {
             return availableDrawings.subList(0, 3);
         }
 
-     }
+    }
 
 }
