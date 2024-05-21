@@ -769,10 +769,11 @@ public class GameControllerTest {
     historyService.saveHistory(Mockito.anyLong(), Mockito.anyLong(), Mockito.any());
 
     // when
-    MockHttpServletRequestBuilder postRequest = post(String.format("/games/%x/savehistory", gameSession.getGameSessionId()))
+    MockHttpServletRequestBuilder postRequest = post(String.format("/users/%x/%x/history", gameSession.getGameSessionId(), admin.getUserId()))
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getUserId()));
+      .header("X-User-ID", String.valueOf(admin.getUserId()))
+      .param("historyName", "test name");
     
     // then
     mockMvc.perform(postRequest)
