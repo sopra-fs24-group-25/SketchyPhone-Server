@@ -203,7 +203,7 @@ public class GameService {
 
         // If the game is CLOSED or IN_PLAY, return an informative message
         if (game.getStatus() == GameStatus.CLOSED) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game is closed.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Game is closed.");
         } else if (game.getStatus() == GameStatus.IN_PLAY) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Game is in play.");
         }
