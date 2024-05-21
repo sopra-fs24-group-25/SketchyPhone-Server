@@ -5,8 +5,13 @@ public class SessionHistoryDTO {
     private Long historyId;
     private Long gameSessionId;
     private Long userId;
+    private String historyName;
 
     // Getters
+    public String getHistoryName() {
+        return historyName;
+    }
+
     public Long getHistoryId() {
         return historyId;
     }
@@ -20,6 +25,10 @@ public class SessionHistoryDTO {
     }
 
     // Setters
+    public void setHistoryName(String historyName) {
+        this.historyName = historyName;
+    }
+
     public void setHistoryId(Long historyId) {
         this.historyId = historyId;
     }

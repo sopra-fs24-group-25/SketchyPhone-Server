@@ -34,9 +34,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
-
-
 /**
  * User Controller
  * This class is responsible for handling all REST request that are related to
@@ -293,21 +290,23 @@ public class GameController {
       return gameService.getTopThreeDrawings(gameSessionId);
   }
   
-  // Post mapping to save history of the game session
+  //post mapping to save history of the game session
   @PostMapping("/users/{gameSessionId}/{userId}/history")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public void saveHistory(@PathVariable Long gameSessionId, @PathVariable Long userId) {
-      historyService.saveHistory(gameSessionId, userId);
+  public void saveHistory(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestParam String historyName) {
+      historyService.saveHistory(gameSessionId, userId, historyName);
   }
 
 
   // get mapping to get the history of the game session
   // can not be tested yet, because need implementation of persistent user in usercontroller
   @GetMapping("/users/{userId}/history")
-  public ResponseEntity<List<List<Object>>> getAllUserSequences(@PathVariable Long userId) {
-      List<List<Object>> allSequences = historyService.getUserHistory(userId);
-      return ResponseEntity.ok(allSequences);
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<List<SessionHistory>> getHistory(@PathVariable Long userId) {
+      List<SessionHistory> history = historyService.getUserHistory(userId);
+      return ResponseEntity.ok(history);  
   }
 
 }

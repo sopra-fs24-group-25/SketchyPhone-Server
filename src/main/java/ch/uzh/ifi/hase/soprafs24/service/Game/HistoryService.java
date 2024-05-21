@@ -38,25 +38,19 @@ public class HistoryService {
     }
 
 
-    public void saveHistory(Long gameSessionId, Long userId) {
+    public void saveHistory(Long gameSessionId, Long userId, String historyName) {
+        GameSession gameSession = gameSessionRepository.findById(gameSessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Game session not found"));
+    
         SessionHistory history = new SessionHistory();
-        history.setGameSessionId(gameSessionId);
+        history.setGameSession(gameSession);
         history.setUserId(userId);
+        history.setHistoryName(historyName);
         historyRepository.save(history);
     }
 
-    public List<List<Object>> getUserHistory(Long userId) {
-        List<SessionHistory> userHistory = historyRepository.findByUserId(userId);
-        List<List<Object>> allSequences = new ArrayList<>();
-    
-        for (SessionHistory history : userHistory) {
-            Long gameSessionId = history.getGameSessionId();
-            List<Object> sequence = gameService.getSequence(gameSessionId);
-            allSequences.add(sequence);
+    public List<SessionHistory> getUserHistory(Long userId) {
+        return historyRepository.findByUserId(userId);
     }
-
-    return allSequences;
-    }
-
 
 }

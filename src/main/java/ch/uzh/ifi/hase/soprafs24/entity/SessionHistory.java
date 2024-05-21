@@ -17,6 +17,8 @@ public class SessionHistory {
     private Long userId;
 
     private Long gameSessionId;
+
+    private String historyName;
     
     // Getters and Setters
     public Long getHistoryId() {
@@ -51,4 +53,11 @@ public class SessionHistory {
         return gameSessionId;
     }
 
+    public String getHistoryName() {
+        return historyName;
+    }
+
+    public void setHistoryName(String historyName) {
+        this.historyName = historyName;
+    }
 }

@@ -153,10 +153,12 @@ public interface DTOMapper {
 
   @Mapping(source = "gameSession.gameSessionId", target = "gameSessionId")
   @Mapping(source = "userId", target = "userId")
+  @Mapping(source = "historyName", target = "historyName")
   SessionHistoryDTO convertEntityToHistoryDTO(SessionHistory history);
 
   @Mapping(source = "gameSessionId", target = "gameSession.gameSessionId")
   @Mapping(source = "userId", target = "userId")
+  @Mapping(source = "historyName", target = "historyName")
   SessionHistory convertHistoryDTOToEntity(SessionHistoryDTO dto);
 
 }
