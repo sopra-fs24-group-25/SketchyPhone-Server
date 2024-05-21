@@ -521,11 +521,7 @@ public class GameService {
 
             List<Drawing> availableDrawings = new ArrayList<Drawing>();
 
-            List<Drawing> lastDrawings = drawingRepository.findAll().stream()
-                .filter(draw -> draw.getAssignedTo() == null
-                        && draw.getRound() == gameSession.getRoundCounter() - 1
-                        && draw.getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList());
+            List<Drawing> lastDrawings = new ArrayList<Drawing>();
             
             SecureRandom random = new SecureRandom();
             int randomNumber = 0; 
@@ -544,6 +540,12 @@ public class GameService {
 
                 alreadyAssignedDrawings = drawingRepository.findAll().stream()
                 .filter(draw -> draw.getAssignedTo() != null
+                        && draw.getRound() == gameSession.getRoundCounter() - 1
+                        && draw.getGameSessionId().equals(gameSessionId))
+                .collect(Collectors.toList());
+
+                lastDrawings = drawingRepository.findAll().stream()
+                .filter(draw -> draw.getAssignedTo() == null
                         && draw.getRound() == gameSession.getRoundCounter() - 1
                         && draw.getGameSessionId().equals(gameSessionId))
                 .collect(Collectors.toList());
