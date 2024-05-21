@@ -430,13 +430,14 @@ public class GameService {
                     availablePrompts.get(randomNumber).setAssignedTo(dude.getUserId());
                 }
             }
+            textPromptRepository.flush();
+
+            if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
+                gameSession.setGameLoopStatus(GameLoopStatus.DRAWING);
+            }
         }
 
-        textPromptRepository.flush();
-
-        if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
-            gameSession.setGameLoopStatus(GameLoopStatus.DRAWING);
-        }
+        
 
         return text;
     }
@@ -562,13 +563,16 @@ public class GameService {
                     availableDrawings.get(randomNumber).setAssignedTo(dude.getUserId());
                 }               
             }
+
+            drawingRepository.flush();
+
+            if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
+                gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
+            }
+
         }
 
-        drawingRepository.flush();
-
-        if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
-            gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
-        }
+        
 
         return savedDrawing;
     }
