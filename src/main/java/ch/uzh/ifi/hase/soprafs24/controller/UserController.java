@@ -152,7 +152,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public void logoutUser(@RequestHeader("Authorization")String token){
-  
+    
     userService.logoutUser(token);
   }
 

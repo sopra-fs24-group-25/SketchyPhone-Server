@@ -9,7 +9,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @DataJpaTest
@@ -25,7 +25,7 @@ public class HistoryRepositoryIntegrationTest {
   public void findByGameSession_GameSessionId_success() {
     // given
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("test token");
     gameSession.setStatus(GameStatus.IN_PLAY);    
 

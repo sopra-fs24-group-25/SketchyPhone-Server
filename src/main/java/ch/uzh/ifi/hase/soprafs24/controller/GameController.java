@@ -294,8 +294,9 @@ public class GameController {
   @PostMapping("/users/{gameSessionId}/{userId}/history")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public void saveHistory(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestParam String historyName) {
-      historyService.saveHistory(gameSessionId, userId, historyName);
+  public void saveHistory(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestParam String historyName, @RequestHeader("Authorization")String token){
+    userService.authenticateUser(token, userService.getUserById(userId)); 
+    historyService.saveHistory(gameSessionId, userId, historyName);
   }
 
 
@@ -304,9 +305,10 @@ public class GameController {
   @GetMapping("/users/{userId}/history")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<List<SessionHistory>> getHistory(@PathVariable Long userId) {
-      List<SessionHistory> history = historyService.getUserHistory(userId);
-      return ResponseEntity.ok(history);  
+  public ResponseEntity<List<SessionHistory>> getHistory(@PathVariable Long userId, @RequestHeader("Authorization")String token){
+    userService.authenticateUser(token, userService.getUserById(userId));
+    List<SessionHistory> history = historyService.getUserHistory(userId);
+    return ResponseEntity.ok(history);  
   }
 
 }

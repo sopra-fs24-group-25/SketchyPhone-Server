@@ -17,6 +17,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.SessionHistory;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @Transactional
@@ -45,6 +46,15 @@ public class HistoryService {
         SessionHistory history = new SessionHistory();
         history.setGameSession(gameSession);
         history.setUserId(userId);
+
+        // in case history name has not been assigned any name
+        if (historyName == null || historyName.trim().isEmpty()) {
+            // Assuming GameSession has a getCreationDate() method that returns a LocalDateTime or similar
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String creationDate = gameSession.getCreationDate().format(formatter);
+            historyName = "History " + creationDate;
+        }
+        // else
         history.setHistoryName(historyName);
         historyRepository.save(history);
     }

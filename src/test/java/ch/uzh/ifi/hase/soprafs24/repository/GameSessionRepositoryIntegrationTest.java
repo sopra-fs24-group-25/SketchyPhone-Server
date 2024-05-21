@@ -10,7 +10,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @DataJpaTest
 public class GameSessionRepositoryIntegrationTest {
@@ -26,7 +26,7 @@ public class GameSessionRepositoryIntegrationTest {
     // given
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("test token");
     gameSession.setStatus(GameStatus.IN_PLAY);    
 
