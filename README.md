@@ -1,21 +1,44 @@
-# SoPra RESTful Service Template FS24
+# Sketchy Phone
 
-## Getting started with Spring Boot
--   Documentation: https://docs.spring.io/spring-boot/docs/current/reference/html/index.html
--   Guides: http://spring.io/guides
-    -   Building a RESTful Web Service: http://spring.io/guides/gs/rest-service/
-    -   Building REST services with Spring: https://spring.io/guides/tutorials/rest/
+This project aims to synthesise two classical games, namely the telephone game and the Exquisite Corpse game. First, participating users need to create a text prompt. Afterwards, each user will be shown another user’s text prompt and presented with a blank canvas on which they can draw the received text prompt. Then, the drawings are redistributed to users, which they have to describe in words, thus creating a new text prompt. This completes one of many cycles, each perturbing the original text prompt in some way. At the end, the cycles are shown to all users, showing the development from start to finish. This project works well as a web-application. Benefits are easy accessibility through web-browsers, low- barrier for entry (as only internet access is required), multiplayer capabilities and real-time synchronisation through web-services. The application will leverage external APIs, namely Web Speech API, Web Audio API and Canvas API.
 
-## Setup this Template with your IDE of choice
+## Technologies used
+- Spring Boot (Docs: https://docs.spring.io/spring-boot/docs/current/reference/html/index.html)
+- Gradle (Docs: https://gradle.org/docs/)
+- Google Cloud (Deployment)
+
+## High-level components
+1. **User Service**
+   - **Role:** Handles user registration, authentication, and profile management. This component ensures that users can securely sign up, log in, and manage their profiles.
+   - **Correlation:** Interacts with the Game Service to authenticate users and manage user data during gameplay.
+   - **Reference:** `UserService.java` - [UserService.java](https://github.com/sopra-fs24-group-25/SketchyPhone-Server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/UserService.java)
+
+2. **Game Service**
+   - **Role:** Manages the creation, updating, and retrieval of game instances. This service allows users to join existing game rooms or create new ones. This component is responsible for the game lifecycle, including setting game parameters and tracking game status. This service also handles the main game logic. 
+   - **Correlation:** Works closely with both the User Service for user management.
+   - **Reference:** `GameService.java` - [GameService.java](https://github.com/sopra-fs24-group-25/SketchyPhone-Server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/Game/GameService.java)
+
+3. **Game Controller**
+   - **Role:** Manages all Rest Endpoints concerning the game logic.
+   - **Correlation:** When Client sends http-requests concerning the game they go through game controller where the actual methods in the game service are called.
+   - **Reference:** `GameController.java` - [GameController.java](https://github.com/sopra-fs24-group-25/SketchyPhone-Server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/controller/GameController.java)
+
+4. **User Controller**
+   - **Role:** Manages all Rest Endpoints concerning the user managment.
+   - **Correlation:** When Client sends http-requests concerning the user managment they go through game controller where the actual methods in the user service are called.
+   - **Reference:** `UserController.java` - [UserController.java](https://github.com/sopra-fs24-group-25/SketchyPhone-Server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/controller/UserController.java)
+
+## Launch & Deployment
+
 Download your IDE of choice (e.g., [IntelliJ](https://www.jetbrains.com/idea/download/), [Visual Studio Code](https://code.visualstudio.com/), or [Eclipse](http://www.eclipse.org/downloads/)). Make sure Java 17 is installed on your system (for Windows, please make sure your `JAVA_HOME` environment variable is set to the correct version of Java).
 
-### IntelliJ
+#### IntelliJ
 If you consider to use IntelliJ as your IDE of choice, you can make use of your free educational license [here](https://www.jetbrains.com/community/education/#students).
 1. File -> Open... -> SoPra server template
 2. Accept to import the project as a `gradle project`
 3. To build right click the `build.gradle` file and choose `Run Build`
 
-### VS Code
+#### VS Code
 The following extensions can help you get started more easily:
 -   `vmware.vscode-spring-boot`
 -   `vscjava.vscode-spring-initializr`
@@ -24,21 +47,19 @@ The following extensions can help you get started more easily:
 
 **Note:** You'll need to build the project first with Gradle, just click on the `build` command in the _Gradle Tasks_ extension. Then check the _Spring Boot Dashboard_ extension if it already shows `soprafs24` and hit the play button to start the server. If it doesn't show up, restart VS Code and check again.
 
-## Building with Gradle
+### Building with Gradle
 You can use the local Gradle Wrapper to build the application.
 -   macOS: `./gradlew`
 -   Linux: `./gradlew`
 -   Windows: `./gradlew.bat`
 
-More Information about [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) and [Gradle](https://gradle.org/docs/).
-
-### Build
+#### Build
 
 ```bash
 ./gradlew build
 ```
 
-### Run
+#### Run
 
 ```bash
 ./gradlew bootRun
@@ -46,13 +67,13 @@ More Information about [Gradle Wrapper](https://docs.gradle.org/current/userguid
 
 You can verify that the server is running by visiting `localhost:8080` in your browser.
 
-### Test
+### Running the tests
 
 ```bash
 ./gradlew test
 ```
 
-### Development Mode
+#### Development Mode
 You can start the backend in development mode, this will automatically trigger a new build and reload the application
 once the content of a file has been changed.
 
@@ -68,10 +89,10 @@ If you want to avoid running all tests with every change, use the following comm
 
 `./gradlew build --continuous -xtest`
 
-## API Endpoint Testing with Postman
+### API Endpoint Testing with Postman
 We recommend using [Postman](https://www.getpostman.com) to test your API Endpoints.
 
-## Debugging
+### Debugging
 If something is not working and/or you don't know what is going on. We recommend using a debugger and step-through the process step-by-step.
 
 To configure a debugger for SpringBoot's Tomcat servlet (i.e. the process you start with `./gradlew bootRun` command), do the following:
@@ -83,5 +104,29 @@ To configure a debugger for SpringBoot's Tomcat servlet (i.e. the process you st
 5. Set breakpoints in the application where you need it
 6. Step through the process one step at a time
 
-## Testing
+### Testing
 Have a look here: https://www.baeldung.com/spring-boot-testing
+
+### Deployment
+
+By pushing your changes to the main branch three automated actions are ran:
+- SonarCloud Analysis: Checking the quality of your code and test coverage.
+- Deploying Project to App Engine / Test and Sonarqube: Checking if building works.
+- Deploying Project to App Engine / Deploying to Google Cloud: Deploying Project. 
+
+## Roadmap
+New developers who want to contribute could add the following features to our project:
+- Audio-Effects during gameplay.
+- Voice-Chat or message-chat to allow users to talk to each other in real time.
+
+## Authors
+
+* **Xindi Liu**  [Cindylliu](https://github.com/Cindylliu)
+* **Noah Isaak**  [guilloboi1917](https://github.com/guilloboi1917)
+* **Noé Matumona**  [noematumona](https://github.com/noematumona)
+* **Victor Cruz da Silva**  [vichcruz](https://github.com/vichcruz)
+
+## License
+
+This project is licensed under the GNU General Public License - see the [LICENSE.md](https://github.com/ansible/ansible/blob/devel/COPYING) file for details
+

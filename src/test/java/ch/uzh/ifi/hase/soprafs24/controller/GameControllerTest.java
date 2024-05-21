@@ -737,7 +737,49 @@ public class GameControllerTest {
     mockMvc.perform(putRequest)
       .andExpect(status().isOk());
   }
+
+  @Test
+  public void savehistory_successful() throws Exception {
+    // given
+    Game game = new Game();
+    game.setAdmin(2L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
     
+    User admin = new User();
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+    
+    GameSession gameSession = new GameSession();
+    gameSession.setGame(game);
+    gameSession.setGameSessionId(1L);
+
+    TextPrompt textPrompt = new TextPrompt();
+    textPrompt.setTextPromptId(2L);
+
+    Drawing drawing = new Drawing();
+    drawing.setDrawingId(2L);
+
+    // Create a list of objects to return
+    List<Object> historyList = new ArrayList<>();
+    historyList.add(textPrompt);
+    historyList.add(drawing);
+
+    given(historyService.saveHistory(Mockito.anyLong())).willReturn(historyList);
+
+    // when
+    MockHttpServletRequestBuilder postRequest = post(String.format("/games/%x/savehistory", gameSession.getGameSessionId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+    
+    // then
+    mockMvc.perform(postRequest)
+      .andExpect(status().isCreated());
+   }
+    
+  @Test  
   public void getTopThreeTextPrompts() throws Exception {
     // given
     Game game = new Game();
@@ -865,6 +907,32 @@ public class GameControllerTest {
     } catch (Exception e) {
         
     }
+    
+  @Test
+  public void openGameValidInput() throws Exception {
+    // given
+    Game game = new Game();
+    game.setAdmin(2L);
+    game.setGameId(1L);
+    game.setGamePin(666666L);
+    game.setStatus(GameStatus.OPEN);
+
+    User admin = new User();
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+
+    gameService.openGame(Mockito.any());
+
+    // when
+    MockHttpServletRequestBuilder putRequest = put(String.format("/games/%x", game.getGameId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+
+    // then
+    mockMvc.perform(putRequest)
+      .andExpect(status().isOk());
   }
 
   /**
