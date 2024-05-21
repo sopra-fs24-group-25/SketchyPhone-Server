@@ -369,9 +369,6 @@ public class GameService {
         // once every user has created a text prompt switch game loop status to drawing
         if (textPrompts.size() % gameSession.getUsersInSession().size() == 0) {
             startNextRound(gameSessionId);
-            if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
-                gameSession.setGameLoopStatus(GameLoopStatus.DRAWING);
-            }
             
             List<Long> usersInSession = new ArrayList<Long>();
             usersInSession = gameSession.getUsersInSession();
@@ -433,6 +430,10 @@ public class GameService {
                     availablePrompts.get(randomNumber).setAssignedTo(dude.getUserId());
                 }
             }
+        }
+
+        if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
+            gameSession.setGameLoopStatus(GameLoopStatus.DRAWING);
         }
 
         return text;
@@ -509,9 +510,6 @@ public class GameService {
         // check whether this was the last round and if so set the game loop status to PRESENTATION
         if (drawings.size() % gameSession.getUsersInSession().size() == 0) {
             startNextRound(gameSessionId);
-            if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
-                gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
-            }
 
             List<Long> usersInSession = new ArrayList<Long>();
             usersInSession = gameSession.getUsersInSession();
@@ -562,6 +560,10 @@ public class GameService {
                     availableDrawings.get(randomNumber).setAssignedTo(dude.getUserId());
                 }               
             }
+        }
+
+        if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
+            gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
         }
 
         return savedDrawing;
