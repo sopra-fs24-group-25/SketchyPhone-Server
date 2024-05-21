@@ -372,6 +372,64 @@ public class GameService {
             if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
                 gameSession.setGameLoopStatus(GameLoopStatus.DRAWING);
             }
+            
+            List<Long> usersInSession = new ArrayList<Long>();
+            usersInSession = gameSession.getUsersInSession();
+
+            // assign every text prompt to a user
+            List<TextPrompt> alreadyAssignedPrompts = new ArrayList<TextPrompt>();
+            alreadyAssignedPrompts = textPromptRepository.findAll().stream()
+                .filter(textprompt -> textprompt.getAssignedTo() != null
+                        && textprompt.getRound() == gameSession.getRoundCounter() - 1
+                        && textprompt.getGameSession().getGameSessionId().equals(gameSessionId))
+                .collect(Collectors.toList());
+
+            List<TextPrompt> availablePrompts = new ArrayList<TextPrompt>();
+
+            List<TextPrompt> lastPrompts = textPromptRepository.findAll().stream()
+                .filter(textPrompt -> textPrompt.getAssignedTo() == null
+                        && textPrompt.getRound() == gameSession.getRoundCounter() - 1
+                        && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
+                .collect(Collectors.toList());
+            
+            SecureRandom random = new SecureRandom();
+            int randomNumber = 0; 
+
+            for(int i = 0; i < usersInSession.size(); i++){
+                User dude = userRepository.findByUserId(usersInSession.get(i));
+
+                // find all text prompts that could be assigned to a user
+                if(gameSession.getRoundCounter() - 1 < 2){
+                    // first round
+                    availablePrompts = textPromptRepository.findAll().stream()
+                .filter(textprompt -> textprompt.getAssignedTo() == null
+                        && textprompt.getCreator() != dude
+                        && textprompt.getRound() == gameSession.getRoundCounter() - 1
+                        && textprompt.getGameSession().getGameSessionId().equals(gameSessionId))
+                .collect(Collectors.toList()); 
+                }
+                else{
+                    // from the second round on we don't want to get textprompts that were made from our drawings
+                    availablePrompts = textPromptRepository.findAll().stream()
+                .filter(textprompt -> textprompt.getAssignedTo() == null
+                        && textprompt.getCreator() != dude
+                        && textprompt.getRound() == gameSession.getRoundCounter() - 1
+                        && textprompt.getGameSession().getGameSessionId().equals(gameSessionId)
+                        && drawingRepository.findByDrawingId(textprompt.getPreviousDrawingId()).getCreator() != dude)
+                .collect(Collectors.toList()); 
+                }
+            
+                if (availablePrompts.isEmpty()) {
+                    randomNumber = random.nextInt(alreadyAssignedPrompts.size());
+                    TextPrompt assignedPrompt = alreadyAssignedPrompts.get(randomNumber);
+                    lastPrompts.get(0).setAssignedTo(assignedPrompt.getAssignedTo());
+                    assignedPrompt.setAssignedTo(dude.getUserId());
+                } else {
+                    // choose a random one
+                    randomNumber = random.nextInt(availablePrompts.size());
+                    availablePrompts.get(randomNumber).setAssignedTo(dude.getUserId());
+                }
+            }
         }
 
         return text;
@@ -385,60 +443,14 @@ public class GameService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        // get list of all available textprompts
-        // if it's the first time getting text prompts -> select all available text prompts
-        List<TextPrompt> availablePrompts = new ArrayList<TextPrompt>();
-        if(gameSession.getRoundCounter() - 1 < 2){
-            availablePrompts = textPromptRepository.findAll().stream()
-                .filter(textPrompt -> textPrompt.getAssignedTo() == null
-                        && !textPrompt.getCreator().getUserId().equals(userId)
-                        && textPrompt.getRound() == gameSession.getRoundCounter() - 1
-                        && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList());
-        }
-        // if it's the second, third, ... time -> select text prompt that wasn't created from a drawing of the creator
-        else {
-            availablePrompts = textPromptRepository.findAll().stream()
-                .filter(textPrompt -> textPrompt.getAssignedTo() == null
-                        && !textPrompt.getCreator().getUserId().equals(userId)
-                        && textPrompt.getRound() == gameSession.getRoundCounter() - 1
-                        && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId)
-                        && drawingRepository.findByDrawingId(textPrompt.getPreviousDrawingId()).getCreator() != user)
-                .collect(Collectors.toList());
-        }
-
-        List<TextPrompt> lastPrompts = textPromptRepository.findAll().stream()
-                .filter(textPrompt -> textPrompt.getAssignedTo() == null
-                        && textPrompt.getRound() == gameSession.getRoundCounter() - 1
-                        && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
+        // get list of text prompt assigned to user (should be just one)
+        List<TextPrompt> assigned = textPromptRepository.findAll().stream()
+                .filter(textprompt -> textprompt.getAssignedTo() == userId
+                        && textprompt.getRound() == gameSession.getRoundCounter() - 1
+                        && textprompt.getGameSession() == gameSession)
                 .collect(Collectors.toList());
 
-        List<TextPrompt> alreadyAssignedPrompts = textPromptRepository.findAll().stream()
-                .filter(textPrompt -> textPrompt.getAssignedTo() != null
-                        && textPrompt.getRound() == gameSession.getRoundCounter() - 1
-                        && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList());
-
-        int randomNumber = 0;
-        TextPrompt assignedPrompt = new TextPrompt();
-        // select random prompting
-        SecureRandom random = new SecureRandom();
-        if (!availablePrompts.isEmpty()){
-            randomNumber = random.nextInt(availablePrompts.size());
-            assignedPrompt = availablePrompts.get(randomNumber);
-        }
-        
-
-        // if last prompt would be the one userId drew -> choose random already assigned
-        // prompt
-        // and assign that one to userId and the last prompt to whoever had that prompt
-        if (availablePrompts.isEmpty()) {
-            randomNumber = random.nextInt(alreadyAssignedPrompts.size());
-            assignedPrompt = alreadyAssignedPrompts.get(randomNumber);
-            lastPrompts.get(0).setAssignedTo(assignedPrompt.getAssignedTo());
-        }
-
-        assignedPrompt.setAssignedTo(userId);
+        TextPrompt assignedPrompt = assigned.get(0);
 
         return assignedPrompt;
     }
@@ -491,20 +503,60 @@ public class GameService {
         int numCycles = gameSettingsRepository.findByGameSettingsId(gameSession.getGame().getGameSettingsId())
                 .getNumCycles();
 
-        // check whether this was the last round and if so set the game loop status to
-        // presentation
-        // if (gameSession.getRoundCounter() == 2* numCycles) {
-        // gameSession.setGameLoopStatus(GameLoopStatus.PRESENTATION);
-        // }
-        // once every user has created a drawings switch game loop status to text prompt
-        // else {
+        // check whether this was the last round and if so set the game loop status to PRESENTATION
         if (drawings.size() % gameSession.getUsersInSession().size() == 0) {
             startNextRound(gameSessionId);
             if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
                 gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
             }
+
+            List<Long> usersInSession = new ArrayList<Long>();
+            usersInSession = gameSession.getUsersInSession();
+
+            // assign every text prompt to a user
+            List<Drawing> alreadyAssignedDrawings = new ArrayList<Drawing>();
+            alreadyAssignedDrawings = drawingRepository.findAll().stream()
+                .filter(draw -> draw.getAssignedTo() != null
+                        && draw.getRound() == gameSession.getRoundCounter() - 1
+                        && draw.getGameSessionId().equals(gameSessionId))
+                .collect(Collectors.toList());
+
+            List<Drawing> availableDrawings = new ArrayList<Drawing>();
+
+            List<Drawing> lastDrawings = drawingRepository.findAll().stream()
+                .filter(draw -> draw.getAssignedTo() == null
+                        && draw.getRound() == gameSession.getRoundCounter() - 1
+                        && draw.getGameSessionId().equals(gameSessionId))
+                .collect(Collectors.toList());
+            
+            SecureRandom random = new SecureRandom();
+            int randomNumber = 0; 
+
+            for(int i = 0; i < usersInSession.size(); i++){
+                User dude = userRepository.findByUserId(usersInSession.get(i));
+
+                // find all drawings that could be assigned to a user
+                    availableDrawings = drawingRepository.findAll().stream()
+                .filter(draw -> draw.getAssignedTo() == null
+                        && draw.getCreator() != dude
+                        && draw.getRound() == gameSession.getRoundCounter() - 1
+                        && draw.getGameSessionId().equals(gameSessionId)
+                        && textPromptRepository.findByTextPromptId(draw.getPreviousTextPrompt()).getCreator() != dude)
+                .collect(Collectors.toList());
+                
+                if (availableDrawings.isEmpty()) {
+                    randomNumber = random.nextInt(alreadyAssignedDrawings.size());
+                    Drawing assignedDrawing = alreadyAssignedDrawings.get(randomNumber);
+                    lastDrawings.get(0).setAssignedTo(assignedDrawing.getAssignedTo());
+                    assignedDrawing.setAssignedTo(dude.getUserId());
+                }
+                else {
+                    // choose a random one
+                    randomNumber = random.nextInt(availableDrawings.size());
+                    availableDrawings.get(randomNumber).setAssignedTo(dude.getUserId());
+                }               
+            }
         }
-        // }
 
         return savedDrawing;
     }
@@ -517,54 +569,19 @@ public class GameService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        // get list of all available drawings from current round
-        List<Drawing> availableDrawings = drawingRepository.findAll().stream()
-                .filter(drawing -> drawing.getAssignedTo() == null && !drawing.getCreator().getUserId().equals(userId)
-                        && drawing.getRound() == gameSession.getRoundCounter() - 1
-                        && drawing.getGameSessionId().equals(gameSessionId) && textPromptRepository.findByTextPromptId(drawing.getPreviousTextPrompt()).getCreator() != user)
+        // get list of text prompt assigned to user (should be just one)
+        List<Drawing> assigned = drawingRepository.findAll().stream()
+                .filter(draw -> draw.getAssignedTo() == userId
+                        && draw.getRound() == gameSession.getRoundCounter() - 1
+                        && draw.getGameSessionId() == gameSession.getGameSessionId())
                 .collect(Collectors.toList());
 
-        List<Drawing> lastDrawings = drawingRepository.findAll().stream()
-                .filter(drawing -> drawing.getAssignedTo() == null
-                        && drawing.getRound() == gameSession.getRoundCounter() - 1
-                        && drawing.getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList());
-
-        List<Drawing> alreadyAssignedDrawings = drawingRepository.findAll().stream()
-                .filter(drawing -> drawing.getAssignedTo() != null
-                        && drawing.getRound() == gameSession.getRoundCounter() - 1
-                        && drawing.getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList());
-
-        // select random drawing
-        SecureRandom random = new SecureRandom();
-
-        int randomNumber = 0;
-        Drawing assignedDrawing = new Drawing();
-        if(!availableDrawings.isEmpty()){
-            randomNumber = random.nextInt(availableDrawings.size());
-            assignedDrawing = availableDrawings.get(randomNumber);
-        }
-        
-
-        // if last drawing would be the one userId drew -> choose random alreaday
-        // assigned drawing
-        // and assign that one to userId and the last drawing to whoever had that
-        // drawing
-
-        if (availableDrawings.isEmpty()) {
-            random.nextInt(alreadyAssignedDrawings.size());
-            assignedDrawing = alreadyAssignedDrawings.get(randomNumber);
-            lastDrawings.get(0).setAssignedTo(assignedDrawing.getAssignedTo());
-        }
-
-        assignedDrawing.setAssignedTo(userId);
+        Drawing assignedDrawing = assigned.get(0);
 
         return assignedDrawing;
 
     }
 
-    // TODO ending a game session should create a sessionHistory entity with all drawings and textprompts
     public void endGameSessionAndDeleteTextPrompts(Long gameSessionId) {
         // Check if the game session exists and whether it can be ended
         GameSession gameSession = gameSessionRepository.findByGameSessionId(gameSessionId);

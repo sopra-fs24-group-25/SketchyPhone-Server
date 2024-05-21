@@ -1321,88 +1321,89 @@ public class GameServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void getTextPrompt_Success() {
+  public void getTextPrompt_FirstCycle_Success() {
 
     User admin = new User();
     admin.setNickname("testNickname");
-    admin.setCreationDate(LocalDate.now());
-    admin.setToken("test token");
-    admin.setRole("admin");
-    admin.setStatus(UserStatus.ONLINE);
+    admin = userService.createUser(admin);
 
-    User createdAdmin = userRepository.save(admin);
-    userRepository.flush();
+    Game game = gameService.createGame(admin.getUserId());
 
     User player = new User();
     player.setNickname("testNickname");
-    player.setCreationDate(LocalDate.now());
-    player.setToken("test token 2");
-    player.setRole("player");
-    player.setStatus(UserStatus.ONLINE);
+    player = userService.createUser(player);
 
-    User createdPlayer = userRepository.save(player);
-    userRepository.flush();
+    gameService.joinGame(game.getGamePin(), player.getUserId());
 
-    GameSettings gameSettings = new GameSettings();
-    gameSettings.setGameSettingsId(2L);
+    gameService.createGameSession(game.getGameId());
 
-    List<User> users = new ArrayList<User>();
-    users.add(admin);
-    users.add(createdPlayer);
+    GameSession gameSession = game.getGameSessions().get(0);
 
-    List<Long> usersInSession = new ArrayList<Long>();
-    usersInSession.add(createdAdmin.getUserId());
-    usersInSession.add(createdPlayer.getUserId());
+    TextPrompt textPromptAdmin = gameService.createTextPrompt(gameSession.getGameSessionId(), admin.getUserId(), 777L, "admin content");
 
-    GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
-    gameSession.setToken("testtokens");
-    gameSession.setStatus(GameStatus.IN_PLAY);
-    gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
-    gameSession.setUsersInSession(usersInSession);
+    TextPrompt textPromptPlayer = gameService.createTextPrompt(gameSession.getGameSessionId(), player.getUserId(), 777L, "player content");
 
-    GameSession createdGameSession = gameSessionRepository.save(gameSession);
-    gameSessionRepository.flush();
+    TextPrompt text = gameService.getTextPrompt(gameSession.getGameSessionId(), admin.getUserId());
 
-    List<GameSession> gameSessions = new ArrayList<GameSession>();
-    gameSessions.add(createdGameSession);
+    assertEquals(text.getContent(), "player content");
+    assertEquals(text.getCreator(), player);
+    assertEquals(text.getAssignedTo(), admin.getUserId());
+  }
 
-    TextPrompt textPromptAdmin = new TextPrompt();
-    textPromptAdmin.setContent("Admin content");
-    textPromptAdmin.setCreator(createdAdmin);
-    textPromptAdmin.setGameSession(createdGameSession);
+  @Transactional
+  @Test
+  public void getTextPrompt_SecondCycle_Success() {
 
-    TextPrompt textPromptPlayer = new TextPrompt();
-    textPromptPlayer.setContent("Player content");
-    textPromptPlayer.setCreator(createdPlayer);
-    textPromptPlayer.setGameSession(createdGameSession);
+    User admin = new User();
+    admin.setNickname("testNickname");
+    admin = userService.createUser(admin);
 
-    TextPrompt createdTextPromptAdmin = textPromptRepository.save(textPromptAdmin);
-    TextPrompt createdTextPromptPlayer = textPromptRepository.save(textPromptPlayer);
-    textPromptRepository.flush();
+    Game game = gameService.createGame(admin.getUserId());
 
-    Game game = new Game();
-    game.setGamePin(777777L);
-    game.setGameToken("test token");
-    game.setStatus(GameStatus.OPEN);
-    game.setAdmin(createdAdmin.getUserId());
-    game.setGameSettingsId(gameSettings.getGameSettingsId());
-    game.setUsers(users);
-    game.setGameSessions(gameSessions);
+    User player = new User();
+    player.setNickname("testNickname");
+    player = userService.createUser(player);
 
-    Game foundGame = gameRepository.save(game);
-    gameRepository.flush();
+    User player2 = new User();
+    player2.setNickname("testNickname");
+    player2 = userService.createUser(player2);
 
-    
+    gameService.joinGame(game.getGamePin(), player.getUserId());
+    gameService.joinGame(game.getGamePin(), player2.getUserId());
 
-    // call function should reassign admin role to createdPlayer
-    TextPrompt text = gameService.getTextPrompt(createdGameSession.getGameSessionId(), createdAdmin.getUserId());
-    gameRepository.flush();
-    entityManager.flush();
+    gameService.createGameSession(game.getGameId());
 
-    assertEquals(text.getContent(), "Player content");
-    assertEquals(text.getCreator(), createdPlayer);
-    assertEquals(text.getAssignedTo(), createdAdmin.getUserId());
+    GameSession gameSession = game.getGameSessions().get(0);
+
+    // cycle 1
+
+    TextPrompt textPrompt1 = gameService.createTextPrompt(gameSession.getGameSessionId(), admin.getUserId(), 777L, "admin content");
+
+    TextPrompt textPrompt2 = gameService.createTextPrompt(gameSession.getGameSessionId(), player.getUserId(),777L, "player content");
+
+    TextPrompt textPrompt3 = gameService.createTextPrompt(gameSession.getGameSessionId(), player2.getUserId(),777L, "player2 content");
+
+    Drawing drawingAdmin = gameService.createDrawing(gameSession.getGameSessionId(), admin.getUserId(), gameService.getTextPrompt(gameSession.getGameSessionId(), admin.getUserId()).getTextPromptId(), "test encoded");
+
+    Drawing drawingPlayer = gameService.createDrawing(gameSession.getGameSessionId(), player.getUserId(), gameService.getTextPrompt(gameSession.getGameSessionId(), player.getUserId()).getTextPromptId(), "test encoded");
+
+    Drawing drawingPlayer2 = gameService.createDrawing(gameSession.getGameSessionId(), player2.getUserId(), gameService.getTextPrompt(gameSession.getGameSessionId(), player2.getUserId()).getTextPromptId(), "test encoded");
+
+    // cycle 2
+
+    gameService.createTextPrompt(gameSession.getGameSessionId(), admin.getUserId(), gameService.getDrawing(gameSession.getGameSessionId(), admin.getUserId()).getDrawingId(), "admin content");
+
+    gameService.createTextPrompt(gameSession.getGameSessionId(), player.getUserId(),gameService.getDrawing(gameSession.getGameSessionId(), player.getUserId()).getDrawingId(), "player content");
+
+    gameService.createTextPrompt(gameSession.getGameSessionId(), player2.getUserId(),gameService.getDrawing(gameSession.getGameSessionId(), player2.getUserId()).getDrawingId(), "player2 content");
+
+    TextPrompt text = gameService.getTextPrompt(gameSession.getGameSessionId(), admin.getUserId());
+
+    assertNotEquals(text.getContent(), "admin content");
+    assertNotEquals(text.getCreator(), admin);
+    assertEquals(text.getAssignedTo(), admin.getUserId());
+    assertNotEquals(drawingRepository.findByDrawingId(text.getPreviousDrawingId()).getCreator(), admin);
+
   }
 
   @Test
@@ -1561,349 +1562,44 @@ public class GameServiceIntegrationTest {
 
     User admin = new User();
     admin.setNickname("testNickname");
-    admin.setCreationDate(LocalDate.now());
-    admin.setToken("test token");
-    admin.setRole("admin");
-    admin.setStatus(UserStatus.ONLINE);
+    admin = userService.createUser(admin);
 
-    User createdAdmin = userRepository.save(admin);
-    userRepository.flush();
+    Game game = gameService.createGame(admin.getUserId());
 
     User player = new User();
     player.setNickname("testNickname");
-    player.setCreationDate(LocalDate.now());
-    player.setToken("test token 2");
-    player.setRole("player");
-    player.setStatus(UserStatus.ONLINE);
-
-    User createdPlayer = userRepository.save(player);
-    userRepository.flush();
-
-    GameSettings gameSettings = new GameSettings();
-    gameSettings.setEnableTextToSpeech(true);
-    gameSettings.setGameSpeed(40);
-    gameSettings.setNumCycles(4);
-
-    GameSettings createdGameSettings = gameSettingsRepository.save(gameSettings);
-    gameSettingsRepository.flush();
-
-    List<User> users = new ArrayList<User>();
-    users.add(admin);
-    users.add(createdPlayer);
-
-    List<Long> usersInSession = new ArrayList<Long>();
-    usersInSession.add(createdAdmin.getUserId());
-    usersInSession.add(createdPlayer.getUserId());
-
-    Game game = new Game();
-    game.setGamePin(777777L);
-    game.setGameToken("test token");
-    game.setStatus(GameStatus.OPEN);
-    game.setAdmin(createdAdmin.getUserId());
-    game.setGameSettingsId(createdGameSettings.getGameSettingsId());
-    game.setUsers(users);
-
-    Game foundGame = gameRepository.save(game);
-    gameRepository.flush();
-
-    GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
-    gameSession.setToken("testtokens");
-    gameSession.setStatus(GameStatus.IN_PLAY);
-    gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
-    gameSession.setUsersInSession(usersInSession);
-    gameSession.setGame(foundGame);
-
-    GameSession createdGameSession = gameSessionRepository.save(gameSession);
-    gameSessionRepository.flush();
-
-    List<GameSession> gameSessions = new ArrayList<GameSession>();
-    gameSessions.add(createdGameSession);
-
-    game.setGameSessions(gameSessions);
-
-    TextPrompt textPrompt1 = new TextPrompt();
-    textPrompt1.setContent("Admin content");
-    textPrompt1.setCreator(createdAdmin);
-    textPrompt1.setGameSession(createdGameSession);
-
-    TextPrompt textPrompt2 = new TextPrompt();
-    textPrompt2.setContent("Player content");
-    textPrompt2.setCreator(createdPlayer);
-    textPrompt2.setGameSession(createdGameSession);
-
-    TextPrompt createdTextPromptAdmin = textPromptRepository.save(textPrompt1);
-    TextPrompt createdTextPromptPlayer = textPromptRepository.save(textPrompt2);
-    textPromptRepository.flush();
-
-    Drawing drawingAdmin = new Drawing();
-    drawingAdmin.setEncodedImage("test encoded");
-    drawingAdmin.setCreator(createdAdmin);
-    drawingAdmin.setGameSessionId(createdGameSession.getGameSessionId());
-    drawingAdmin.setCreationDateTime(LocalDateTime.now());
-    drawingAdmin.setPreviousTextPrompt(textPrompt1.getTextPromptId());
-
-    Drawing drawingPlayer = new Drawing();
-    drawingPlayer.setEncodedImage("test encoded");
-    drawingPlayer.setCreator(createdPlayer);
-    drawingPlayer.setGameSessionId(createdGameSession.getGameSessionId());
-    drawingPlayer.setCreationDateTime(LocalDateTime.now());
-    drawingPlayer.setPreviousTextPrompt(textPrompt2.getTextPromptId());
-    
-    Drawing createdDrawingAdmin = drawingRepository.save(drawingAdmin);
-    Drawing createdDrawingPlayer = drawingRepository.save(drawingPlayer);
-    drawingRepository.flush();
-
-    Drawing drawing = gameService.getDrawing(createdGameSession.getGameSessionId(), createdAdmin.getUserId());
-    entityManager.flush();
-
-    assertEquals(drawing.getEncodedImage(), "test encoded");
-    assertEquals(drawing.getCreator(), createdPlayer);
-    assertEquals(drawing.getAssignedTo(), createdAdmin.getUserId());
-    assertNotEquals(textPromptRepository.findByTextPromptId(drawing.getPreviousTextPrompt()).getCreator(), createdAdmin);
-
-  }
-
-  @Transactional
-  @Test
-  public void getDrawing_AlreadyAssigned_Success() {
-
-    User admin = new User();
-    admin.setNickname("testNickname");
-    admin.setCreationDate(LocalDate.now());
-    admin.setToken("test token");
-    admin.setRole("admin");
-    admin.setStatus(UserStatus.ONLINE);
-
-    User createdAdmin = userRepository.save(admin);
-    userRepository.flush();
-
-    User player = new User();
-    player.setNickname("testNickname");
-    player.setCreationDate(LocalDate.now());
-    player.setToken("test token 2");
-    player.setRole("player");
-    player.setStatus(UserStatus.ONLINE);
-
-    User createdPlayer = userRepository.save(player);
-    userRepository.flush();
-
-    GameSettings gameSettings = new GameSettings();
-    gameSettings.setEnableTextToSpeech(true);
-    gameSettings.setGameSpeed(40);
-    gameSettings.setNumCycles(4);
-
-    GameSettings createdGameSettings = gameSettingsRepository.save(gameSettings);
-    gameSettingsRepository.flush();
-
-    List<User> users = new ArrayList<User>();
-    users.add(admin);
-    users.add(createdPlayer);
-
-    List<Long> usersInSession = new ArrayList<Long>();
-    usersInSession.add(createdAdmin.getUserId());
-    usersInSession.add(createdPlayer.getUserId());
-
-    Game game = new Game();
-    game.setGamePin(777777L);
-    game.setGameToken("test token");
-    game.setStatus(GameStatus.OPEN);
-    game.setAdmin(createdAdmin.getUserId());
-    game.setGameSettingsId(createdGameSettings.getGameSettingsId());
-    game.setUsers(users);
-
-    Game foundGame = gameRepository.save(game);
-    gameRepository.flush();
-
-    GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
-    gameSession.setToken("testtokens");
-    gameSession.setStatus(GameStatus.IN_PLAY);
-    gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
-    gameSession.setUsersInSession(usersInSession);
-    gameSession.setGame(foundGame);
-
-    GameSession createdGameSession = gameSessionRepository.save(gameSession);
-    gameSessionRepository.flush();
-
-    List<GameSession> gameSessions = new ArrayList<GameSession>();
-    gameSessions.add(createdGameSession);
-
-    game.setGameSessions(gameSessions);
-
-    TextPrompt textPrompt1 = new TextPrompt();
-    textPrompt1.setContent("Admin content");
-    textPrompt1.setCreator(createdAdmin);
-    textPrompt1.setGameSession(createdGameSession);
-
-    TextPrompt textPrompt2 = new TextPrompt();
-    textPrompt2.setContent("Player content");
-    textPrompt2.setCreator(createdPlayer);
-    textPrompt2.setGameSession(createdGameSession);
-
-    TextPrompt createdTextPromptAdmin = textPromptRepository.save(textPrompt1);
-    TextPrompt createdTextPromptPlayer = textPromptRepository.save(textPrompt2);
-    textPromptRepository.flush();
-
-    Drawing drawingAdmin = new Drawing();
-    drawingAdmin.setEncodedImage("test encoded");
-    drawingAdmin.setCreator(createdAdmin);
-    drawingAdmin.setGameSessionId(createdGameSession.getGameSessionId());
-    drawingAdmin.setCreationDateTime(LocalDateTime.now());
-    drawingAdmin.setAssignedTo(createdPlayer.getUserId());
-    drawingAdmin.setPreviousTextPrompt(textPrompt1.getTextPromptId());
-
-    Drawing drawingPlayer = new Drawing();
-    drawingPlayer.setEncodedImage("test encoded");
-    drawingPlayer.setCreator(createdPlayer);
-    drawingPlayer.setGameSessionId(createdGameSession.getGameSessionId());
-    drawingPlayer.setCreationDateTime(LocalDateTime.now());
-    drawingPlayer.setPreviousTextPrompt(textPrompt2.getTextPromptId());
-    
-    Drawing createdDrawingAdmin = drawingRepository.save(drawingAdmin);
-    Drawing createdDrawingPlayer = drawingRepository.save(drawingPlayer);
-    drawingRepository.flush();
-
-    Drawing drawing = gameService.getDrawing(createdGameSession.getGameSessionId(), createdAdmin.getUserId());
-    entityManager.flush();
-
-    assertEquals(drawing.getEncodedImage(), "test encoded");
-    assertEquals(drawing.getCreator(), createdPlayer);
-    assertEquals(drawing.getAssignedTo(), createdAdmin.getUserId());
-    assertNotEquals(textPromptRepository.findByTextPromptId(drawing.getPreviousTextPrompt()).getCreator(), createdAdmin);
-
-  }
-
-  @Transactional
-  @Test
-  public void getDrawing_LastDrawingOwn_Success() {
-
-    User admin = new User();
-    admin.setNickname("testNickname");
-    admin.setCreationDate(LocalDate.now());
-    admin.setToken("test token");
-    admin.setRole("admin");
-    admin.setStatus(UserStatus.ONLINE);
-
-    User createdAdmin = userRepository.save(admin);
-    userRepository.flush();
-
-    User player = new User();
-    player.setNickname("testNickname");
-    player.setCreationDate(LocalDate.now());
-    player.setToken("test token 2");
-    player.setRole("player");
-    player.setStatus(UserStatus.ONLINE);
-
-    User createdPlayer = userRepository.save(player);
-    userRepository.flush();
+    player = userService.createUser(player);
 
     User player2 = new User();
     player2.setNickname("testNickname");
-    player2.setCreationDate(LocalDate.now());
-    player2.setToken("test token 2");
-    player2.setRole("player");
-    player2.setStatus(UserStatus.ONLINE);
+    player2 = userService.createUser(player2);
 
-    User createdPlayer2 = userRepository.save(player);
-    userRepository.flush();
+    gameService.joinGame(game.getGamePin(), player.getUserId());
+    gameService.joinGame(game.getGamePin(), player2.getUserId());
 
-    GameSettings gameSettings = new GameSettings();
-    gameSettings.setEnableTextToSpeech(true);
-    gameSettings.setGameSpeed(40);
-    gameSettings.setNumCycles(4);
+    gameService.createGameSession(game.getGameId());
 
-    GameSettings createdGameSettings = gameSettingsRepository.save(gameSettings);
-    gameSettingsRepository.flush();
+    GameSession gameSession = game.getGameSessions().get(0);
 
-    List<User> users = new ArrayList<User>();
-    users.add(admin);
-    users.add(createdPlayer);
+    TextPrompt textPrompt1 = gameService.createTextPrompt(gameSession.getGameSessionId(), admin.getUserId(), 777L, "admin content");
 
-    List<Long> usersInSession = new ArrayList<Long>();
-    usersInSession.add(createdAdmin.getUserId());
-    usersInSession.add(createdPlayer.getUserId());
+    TextPrompt textPrompt2 = gameService.createTextPrompt(gameSession.getGameSessionId(), player.getUserId(),777L, "player content");
 
-    Game game = new Game();
-    game.setGamePin(777777L);
-    game.setGameToken("test token");
-    game.setStatus(GameStatus.OPEN);
-    game.setAdmin(createdAdmin.getUserId());
-    game.setGameSettingsId(createdGameSettings.getGameSettingsId());
-    game.setUsers(users);
+    TextPrompt textPrompt3 = gameService.createTextPrompt(gameSession.getGameSessionId(), player2.getUserId(),777L, "player2 content");
 
-    Game foundGame = gameRepository.save(game);
-    gameRepository.flush();
+    Drawing drawingAdmin = gameService.createDrawing(gameSession.getGameSessionId(), admin.getUserId(), gameService.getTextPrompt(gameSession.getGameSessionId(), admin.getUserId()).getTextPromptId(), "test encoded");
 
-    GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
-    gameSession.setToken("testtokens");
-    gameSession.setStatus(GameStatus.IN_PLAY);
-    gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
-    gameSession.setUsersInSession(usersInSession);
-    gameSession.setGame(foundGame);
+    Drawing drawingPlayer = gameService.createDrawing(gameSession.getGameSessionId(), player.getUserId(), gameService.getTextPrompt(gameSession.getGameSessionId(), player.getUserId()).getTextPromptId(), "test encoded");
 
-    GameSession createdGameSession = gameSessionRepository.save(gameSession);
-    gameSessionRepository.flush();
+    Drawing drawingPlayer2 = gameService.createDrawing(gameSession.getGameSessionId(), player2.getUserId(), gameService.getTextPrompt(gameSession.getGameSessionId(), player2.getUserId()).getTextPromptId(), "test encoded");
 
-    List<GameSession> gameSessions = new ArrayList<GameSession>();
-    gameSessions.add(createdGameSession);
+    Drawing drawing = gameService.getDrawing(gameSession.getGameSessionId(), admin.getUserId());
 
-    game.setGameSessions(gameSessions);
+    assertEquals(drawing.getEncodedImage(), "test encoded");
+    assertNotEquals(drawing.getCreator(), admin);
+    assertEquals(drawing.getAssignedTo(), admin.getUserId());
+    assertNotEquals(textPromptRepository.findByTextPromptId(drawing.getPreviousTextPrompt()).getCreator(), admin);
 
-    TextPrompt textPrompt1 = new TextPrompt();
-    textPrompt1.setContent("Admin content");
-    textPrompt1.setCreator(createdAdmin);
-    textPrompt1.setGameSession(createdGameSession);
-
-    TextPrompt textPrompt2 = new TextPrompt();
-    textPrompt2.setContent("Player content");
-    textPrompt2.setCreator(createdPlayer);
-    textPrompt2.setGameSession(createdGameSession);
-
-    TextPrompt textPrompt3 = new TextPrompt();
-    textPrompt3.setContent("Player content");
-    textPrompt3.setCreator(createdPlayer);
-    textPrompt3.setGameSession(createdGameSession);
-
-    TextPrompt createdTextPromptAdmin = textPromptRepository.save(textPrompt1);
-    TextPrompt createdTextPromptPlayer = textPromptRepository.save(textPrompt2);
-    TextPrompt createdTextPromptPlayer2 = textPromptRepository.save(textPrompt3);
-    textPromptRepository.flush();
-
-    Drawing drawingAdmin = new Drawing();
-    drawingAdmin.setEncodedImage("test encoded");
-    drawingAdmin.setCreator(createdAdmin);
-    drawingAdmin.setGameSessionId(createdGameSession.getGameSessionId());
-    drawingAdmin.setCreationDateTime(LocalDateTime.now());
-    drawingAdmin.setPreviousTextPrompt(textPrompt1.getTextPromptId());
-
-    Drawing drawingPlayer = new Drawing();
-    drawingPlayer.setEncodedImage("test encoded 1");
-    drawingPlayer.setCreator(createdPlayer);
-    drawingPlayer.setGameSessionId(createdGameSession.getGameSessionId());
-    drawingPlayer.setCreationDateTime(LocalDateTime.now());
-    drawingPlayer.setAssignedTo(createdPlayer2.getUserId());
-    drawingPlayer.setPreviousTextPrompt(textPrompt2.getTextPromptId());
-
-    Drawing drawingPlayer2 = new Drawing();
-    drawingPlayer2.setEncodedImage("test encoded 1");
-    drawingPlayer2.setCreator(createdPlayer);
-    drawingPlayer2.setGameSessionId(createdGameSession.getGameSessionId());
-    drawingPlayer2.setCreationDateTime(LocalDateTime.now());
-    drawingPlayer2.setAssignedTo(createdPlayer.getUserId());
-    drawingPlayer2.setPreviousTextPrompt(textPrompt3.getTextPromptId());
-    
-    Drawing createdDrawingAdmin = drawingRepository.save(drawingAdmin);
-    Drawing createdDrawingPlayer = drawingRepository.save(drawingPlayer);
-    Drawing createdDrawingPlayer2 = drawingRepository.save(drawingPlayer2);
-    drawingRepository.flush();
-
-    Drawing drawing = gameService.getDrawing(createdGameSession.getGameSessionId(), createdAdmin.getUserId());
-    entityManager.flush();
-
-    assertEquals(drawing.getEncodedImage(), "test encoded 1");
-    assertNotEquals(textPromptRepository.findByTextPromptId(drawing.getPreviousTextPrompt()).getCreator(), createdAdmin);
   }
   
 
