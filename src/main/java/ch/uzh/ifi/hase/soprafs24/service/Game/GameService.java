@@ -448,7 +448,7 @@ public class GameService {
 
         // get list of text prompt assigned to user (should be just one)
         List<TextPrompt> assigned = textPromptRepository.findAll().stream()
-                .filter(textprompt -> textprompt.getAssignedTo() == userId
+                .filter(textprompt -> textprompt.getAssignedTo().equals(userId)
                         && textprompt.getRound() == gameSession.getRoundCounter() - 1
                         && textprompt.getGameSession() == gameSession)
                 .collect(Collectors.toList());
@@ -577,9 +577,9 @@ public class GameService {
 
         // get list of text prompt assigned to user (should be just one)
         List<Drawing> assigned = drawingRepository.findAll().stream()
-                .filter(draw -> draw.getAssignedTo() == userId
+                .filter(draw -> draw.getAssignedTo().equals(userId)
                         && draw.getRound() == gameSession.getRoundCounter() - 1
-                        && draw.getGameSessionId() == gameSession.getGameSessionId())
+                        && draw.getGameSessionId().equals(gameSession.getGameSessionId()))
                 .collect(Collectors.toList());
 
         Drawing assignedDrawing = assigned.get(0);
