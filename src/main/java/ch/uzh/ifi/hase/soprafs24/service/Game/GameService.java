@@ -164,7 +164,7 @@ public class GameService {
 
         // create a game session and assign the according values
         GameSession gameSession = new GameSession();
-        gameSession.setCreationDate(LocalDate.now());
+        gameSession.setCreationDate(LocalDateTime.now());
         gameSession.setGame(game);
         gameSession.setStatus(GameStatus.IN_PLAY);
         gameSession.setToken(UUID.randomUUID().toString());

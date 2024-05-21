@@ -880,8 +880,14 @@ public class GameControllerTest {
 
   @Test
   public void saveHistory_successful(){
+    User user = new User();
+    user.setNickname("TestAdmin");
+    user.setToken("Test token");
+    user.setUserId(1L);
+
     MockHttpServletRequestBuilder postRequest = post("/users/1/1/history")
                 .param("historyName", "Test History")
+                .header("Authorization", user.getToken())
                 .contentType(MediaType.APPLICATION_JSON);
 
     // Mocking the service method to do nothing (void method)
@@ -898,12 +904,20 @@ public class GameControllerTest {
 
   @Test
   public void getUserHistory_successful(){
+    User user = new User();
+    user.setNickname("TestAdmin");
+    user.setToken("Test token");
+    user.setUserId(1L);
     // Mocking the service method to return an empty list
     given(historyService.getUserHistory(Mockito.anyLong())).willReturn(new ArrayList<>());
 
+    MockHttpServletRequestBuilder getRequest = get("/users/{userId}/history", 1)
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", "Bearer your_token_here");
+
     // Asserting the response
     try {
-        mockMvc.perform(get("/users/1/history"))
+        mockMvc.perform(getRequest)
                 .andExpect(status().isOk());
     } catch (Exception e) {
         

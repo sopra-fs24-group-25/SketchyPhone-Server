@@ -194,7 +194,7 @@ public class GameServiceIntegrationTest {
     gameSettings.setGameSettingsId(2L);
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setToken("test token");
 
@@ -232,7 +232,7 @@ public class GameServiceIntegrationTest {
     gameSettings.setGameSettingsId(2L);
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setToken("test token");
 
@@ -332,7 +332,7 @@ public class GameServiceIntegrationTest {
     gameSettings.setGameSettingsId(2L);
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setToken("test token");
 
@@ -659,7 +659,7 @@ public class GameServiceIntegrationTest {
     userIds.add(createdPlayer.getUserId());
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setToken("test token");
     gameSession.setUsersInSession(userIds);
@@ -1167,7 +1167,7 @@ public class GameServiceIntegrationTest {
     usersInSession.add(createdPlayer.getUserId());
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -1496,7 +1496,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -1655,7 +1655,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -1729,7 +1729,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -1792,7 +1792,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -1867,7 +1867,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -1957,7 +1957,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -2024,7 +2024,7 @@ public class GameServiceIntegrationTest {
     usersInSession.add(createdPlayer.getUserId());
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -2103,7 +2103,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setToken("test token");
 
@@ -2166,7 +2166,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -2227,7 +2227,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setToken("test token");
 
@@ -2290,7 +2290,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -2353,7 +2353,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setToken("test token");
 
@@ -2416,7 +2416,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -2478,7 +2478,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setToken("test token");
 
@@ -2541,7 +2541,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -2642,7 +2642,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -2764,7 +2764,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -2896,7 +2896,7 @@ public class GameServiceIntegrationTest {
     gameRepository.flush();
 
     GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDate.now());
+    gameSession.setCreationDate(LocalDateTime.now());
     gameSession.setToken("testtokens");
     gameSession.setStatus(GameStatus.IN_PLAY);
     gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);

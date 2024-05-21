@@ -4,7 +4,7 @@ import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameLoopStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
@@ -37,7 +37,7 @@ public class GameSession implements Serializable{
     private Long gameSessionId;
 
     @Column(nullable = false)
-    private LocalDate creationDate;
+    private LocalDateTime creationDate;
 
     @Column(nullable = false)
     private String token;
@@ -97,11 +97,11 @@ public class GameSession implements Serializable{
         this.gameSessionId = id;
     }
 
-    public LocalDate getCreationDate() {
+    public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(LocalDate creationDate) {
+    public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
 
