@@ -766,7 +766,7 @@ public class GameControllerTest {
     historyList.add(textPrompt);
     historyList.add(drawing);
 
-    given(historyService.saveHistory(Mockito.anyLong())).willReturn(historyList);
+    historyService.saveHistory(Mockito.anyLong(), Mockito.anyLong(), Mockito.any());
 
     // when
     MockHttpServletRequestBuilder postRequest = post(String.format("/games/%x/savehistory", gameSession.getGameSessionId()))
@@ -907,6 +907,7 @@ public class GameControllerTest {
     } catch (Exception e) {
         
     }
+  }
     
   @Test
   public void openGameValidInput() throws Exception {
