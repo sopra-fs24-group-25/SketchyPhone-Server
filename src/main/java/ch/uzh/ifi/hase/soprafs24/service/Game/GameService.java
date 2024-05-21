@@ -432,6 +432,8 @@ public class GameService {
             }
         }
 
+        textPromptRepository.flush();
+
         if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
             gameSession.setGameLoopStatus(GameLoopStatus.DRAWING);
         }
@@ -561,6 +563,8 @@ public class GameService {
                 }               
             }
         }
+
+        drawingRepository.flush();
 
         if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
             gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
