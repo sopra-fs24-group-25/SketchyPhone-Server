@@ -378,11 +378,6 @@ public class GameService {
 
             // assign every text prompt to a user
             List<TextPrompt> alreadyAssignedPrompts = new ArrayList<TextPrompt>();
-            alreadyAssignedPrompts = textPromptRepository.findAll().stream()
-                .filter(textprompt -> textprompt.getAssignedTo() != null
-                        && textprompt.getRound() == gameSession.getRoundCounter() - 1
-                        && textprompt.getGameSession().getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList());
 
             List<TextPrompt> availablePrompts = new ArrayList<TextPrompt>();
 
@@ -418,6 +413,12 @@ public class GameService {
                         && drawingRepository.findByDrawingId(textprompt.getPreviousDrawingId()).getCreator() != dude)
                 .collect(Collectors.toList()); 
                 }
+
+                alreadyAssignedPrompts = textPromptRepository.findAll().stream()
+                .filter(textprompt -> textprompt.getAssignedTo() != null
+                        && textprompt.getRound() == gameSession.getRoundCounter() - 1
+                        && textprompt.getGameSession().getGameSessionId().equals(gameSessionId))
+                .collect(Collectors.toList());
             
                 if (availablePrompts.isEmpty()) {
                     randomNumber = random.nextInt(alreadyAssignedPrompts.size());
@@ -515,11 +516,6 @@ public class GameService {
 
             // assign every text prompt to a user
             List<Drawing> alreadyAssignedDrawings = new ArrayList<Drawing>();
-            alreadyAssignedDrawings = drawingRepository.findAll().stream()
-                .filter(draw -> draw.getAssignedTo() != null
-                        && draw.getRound() == gameSession.getRoundCounter() - 1
-                        && draw.getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList());
 
             List<Drawing> availableDrawings = new ArrayList<Drawing>();
 
@@ -542,6 +538,12 @@ public class GameService {
                         && draw.getRound() == gameSession.getRoundCounter() - 1
                         && draw.getGameSessionId().equals(gameSessionId)
                         && textPromptRepository.findByTextPromptId(draw.getPreviousTextPrompt()).getCreator() != dude)
+                .collect(Collectors.toList());
+
+                alreadyAssignedDrawings = drawingRepository.findAll().stream()
+                .filter(draw -> draw.getAssignedTo() != null
+                        && draw.getRound() == gameSession.getRoundCounter() - 1
+                        && draw.getGameSessionId().equals(gameSessionId))
                 .collect(Collectors.toList());
                 
                 if (availableDrawings.isEmpty()) {
