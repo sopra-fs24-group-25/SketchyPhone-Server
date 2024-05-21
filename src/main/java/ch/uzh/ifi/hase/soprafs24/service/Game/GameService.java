@@ -381,11 +381,7 @@ public class GameService {
 
             List<TextPrompt> availablePrompts = new ArrayList<TextPrompt>();
 
-            List<TextPrompt> lastPrompts = textPromptRepository.findAll().stream()
-                .filter(textPrompt -> textPrompt.getAssignedTo() == null
-                        && textPrompt.getRound() == gameSession.getRoundCounter() - 1
-                        && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
-                .collect(Collectors.toList());
+            List<TextPrompt> lastPrompts = new ArrayList<TextPrompt>();
             
             SecureRandom random = new SecureRandom();
             int randomNumber = 0; 
@@ -418,6 +414,12 @@ public class GameService {
                 .filter(textprompt -> textprompt.getAssignedTo() != null
                         && textprompt.getRound() == gameSession.getRoundCounter() - 1
                         && textprompt.getGameSession().getGameSessionId().equals(gameSessionId))
+                .collect(Collectors.toList());
+
+                lastPrompts = textPromptRepository.findAll().stream()
+                .filter(textPrompt -> textPrompt.getAssignedTo() == null
+                        && textPrompt.getRound() == gameSession.getRoundCounter() - 1
+                        && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
                 .collect(Collectors.toList());
             
                 if (availablePrompts.isEmpty()) {
