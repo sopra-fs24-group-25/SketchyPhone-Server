@@ -44,7 +44,7 @@ public class HistoryService {
                 .orElseThrow(() -> new IllegalArgumentException("Game session not found"));
     
         SessionHistory history = new SessionHistory();
-        history.setGameSession(gameSession);
+        history.setGameSessionId(gameSessionId);
         history.setUserId(userId);
 
         // in case history name has not been assigned any name
@@ -56,7 +56,7 @@ public class HistoryService {
         }
         // else
         history.setHistoryName(historyName);
-        historyRepository.save(history);
+        historyRepository.saveAndFlush(history);
     }
 
     public List<SessionHistory> getUserHistory(Long userId) {

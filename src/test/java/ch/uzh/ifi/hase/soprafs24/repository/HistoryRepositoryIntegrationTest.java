@@ -33,7 +33,7 @@ public class HistoryRepositoryIntegrationTest {
     entityManager.flush();
 
     // when
-    List<SessionHistory> found = historyRepository.findByGameSession_GameSessionId(gameSession.getGameSessionId());
+    List<SessionHistory> found = historyRepository.findByGameSessionId(gameSession.getGameSessionId());
 
     // then
     assertNotNull(found);

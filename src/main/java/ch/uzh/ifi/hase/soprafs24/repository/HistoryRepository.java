@@ -8,10 +8,10 @@ import java.util.List; // Import the List class
 @Repository
 public interface HistoryRepository extends JpaRepository<SessionHistory, Long> {
     // Delete all HistoryItems associated with a specific GameSession ID
-    void deleteByGameSession_GameSessionId (Long gameSessionId);
+    void deleteByGameSessionId (Long gameSessionId);
 
     // Retrieve all HistoryItems associated with a specific GameSession ID
-    List<SessionHistory> findByGameSession_GameSessionId(Long gameSessionId);
+    List<SessionHistory> findByGameSessionId(Long gameSessionId);
 
     // Retrieve all HistoryItems associated with a specific User ID
     List<SessionHistory> findByUserId(Long userId);
