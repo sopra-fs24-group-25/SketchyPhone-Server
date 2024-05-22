@@ -408,7 +408,7 @@ public class GameService {
             }
 
             textPromptRepository.flush();
-
+            
             if(shift == 0) {
                 // Get a random index
                 Integer randomIndex = randomSeed.nextInt(usersInSession.size());
@@ -417,7 +417,11 @@ public class GameService {
                 Long assigned = availablePrompts.get(randomIndex).getAssignedTo();
 
                 // Get random swap index, between 1 and userInSession.size() (exclusive)
-                Integer swapIndex = randomSeed.nextInt(1, usersInSession.size());
+                Integer swapIndex = randomSeed.nextInt(0, usersInSession.size());
+
+                while(swapIndex == randomIndex){
+                    swapIndex = randomSeed.nextInt(0, usersInSession.size());
+                }
 
                 // Swap
                 availablePrompts.get(randomIndex).setAssignedTo(availablePrompts.get(swapIndex).getAssignedTo());
@@ -548,7 +552,7 @@ public class GameService {
 
             drawingRepository.flush();
 
-            // If shift were 0, we swap to random entries
+            // If shift were 0, we swap two random entries. But this also generates some unforeseen assignment issues (e.g. getting the same prompt again)
             if(shift == 0) {
                 // Get a random index
                 Integer randomIndex = randomSeed.nextInt(usersInSession.size());
@@ -557,7 +561,11 @@ public class GameService {
                 Long assigned = availableDrawings.get(randomIndex).getAssignedTo();
 
                 // Get random swap index, between 1 and userInSession.size() (exclusive)
-                Integer swapIndex = randomSeed.nextInt(1, usersInSession.size());
+                Integer swapIndex = randomSeed.nextInt(0, usersInSession.size());
+                
+                while(swapIndex == randomIndex){
+                    swapIndex = randomSeed.nextInt(0, usersInSession.size());
+                }
 
                 // Swap
                 availableDrawings.get(randomIndex).setAssignedTo(availableDrawings.get(swapIndex).getAssignedTo());
