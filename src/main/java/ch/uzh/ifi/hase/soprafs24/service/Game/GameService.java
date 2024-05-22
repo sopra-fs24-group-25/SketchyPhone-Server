@@ -251,6 +251,8 @@ public class GameService {
                 gameSessions.get(i).setGame(null);
             }
 
+            gameSessionRepository.flush();
+
             gameRepository.delete(game);
         } else {
             if (user.getRole().equals("admin")) {
@@ -421,6 +423,21 @@ public class GameService {
 
             textPromptRepository.flush();
 
+            List<TextPrompt> assignedTexPrompts = textPromptRepository.findAll().stream()
+                .filter(prompt -> prompt.getAssignedTo() != null
+                        && prompt.getGameSession().getGameSessionId().equals(gameSessionId)
+                        && prompt.getRound() == gameSession.getRoundCounter() - 1)
+                .collect(Collectors.toList());   
+
+            // wait for all drawings to be assigned
+            while (assignedTexPrompts.size() != gameSession.getUsersInSession().size()){
+                assignedTexPrompts = textPromptRepository.findAll().stream()
+                .filter(prompt -> prompt.getAssignedTo() != null
+                        && prompt.getGameSession().getGameSessionId().equals(gameSessionId)
+                        && prompt.getRound() == gameSession.getRoundCounter() - 1)
+                .collect(Collectors.toList()); 
+            }
+
             if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
                 gameSession.setGameLoopStatus(GameLoopStatus.DRAWING);
             }
@@ -541,6 +558,21 @@ public class GameService {
             }
 
             drawingRepository.flush();
+
+            List<Drawing> assignedDrawings = drawingRepository.findAll().stream()
+                .filter(draw -> draw.getAssignedTo() != null
+                        && draw.getGameSessionId().equals(gameSessionId)
+                        && draw.getRound() == gameSession.getRoundCounter() - 1)
+                .collect(Collectors.toList());   
+
+            // wait for all drawings to be assigned
+            while (assignedDrawings.size() != gameSession.getUsersInSession().size()){
+                assignedDrawings = drawingRepository.findAll().stream()
+                .filter(draw -> draw.getAssignedTo() != null
+                        && draw.getGameSessionId().equals(gameSessionId)
+                        && draw.getRound() == gameSession.getRoundCounter() - 1)
+                .collect(Collectors.toList()); 
+            }
 
             if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
                 gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
