@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
@@ -35,6 +36,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.stream.Collectors;
@@ -393,7 +395,8 @@ public class GameService {
                             && prompt.getGameSession().getGameSessionId().equals(gameSessionId))
                     .collect(Collectors.toList());
 
-            Integer randomShift = random.nextInt(1, usersInSession.size() - 1);
+            Integer shift = (gameSessionId.intValue() + gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1) + 1;
+
 
             Collections.sort(availablePrompts, new Comparator<TextPrompt>() {
                 @Override
@@ -403,7 +406,7 @@ public class GameService {
             });
 
             for (int i = 0; i < availablePrompts.size(); i++) {
-                availablePrompts.get(i).setAssignedTo(usersInSession.get((i + randomShift) % usersInSession.size()));
+                availablePrompts.get(i).setAssignedTo(usersInSession.get((i + shift) % usersInSession.size()));
             }
 
             textPromptRepository.flush();
@@ -511,7 +514,9 @@ public class GameService {
                             && draw.getGameSessionId().equals(gameSessionId))
                     .collect(Collectors.toList());
 
-            Integer randomShift = random.nextInt(1, usersInSession.size() - 1);
+            // What we want, is a pseudorandom shift, that doesn't change for the current
+            // session but increases for every round by one and a different base shift for every session
+            Integer shift = (gameSessionId.intValue() + gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1) + 1;
 
             Collections.sort(availableDrawings, new Comparator<Drawing>() {
                 @Override
@@ -521,7 +526,7 @@ public class GameService {
             });
 
             for (int i = 0; i < availableDrawings.size(); i++) {
-                availableDrawings.get(i).setAssignedTo(usersInSession.get((i + randomShift) % usersInSession.size()));
+                availableDrawings.get(i).setAssignedTo(usersInSession.get((i + shift) % usersInSession.size()));
             }
 
             drawingRepository.flush();
@@ -581,6 +586,8 @@ public class GameService {
 
         int nextRound = (gameSession.getRoundCounter() + 1);
         gameSession.setRoundCounter(nextRound);
+
+        gameSessionRepository.flush();
 
     }
 
