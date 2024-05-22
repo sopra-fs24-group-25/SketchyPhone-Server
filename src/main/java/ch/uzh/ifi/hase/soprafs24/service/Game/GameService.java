@@ -242,42 +242,54 @@ public class GameService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        //
-        if (user.getRole().equals("admin")) {
-            // if admin is the only player and leaves the room should be deleted
-            if (game.getUsers().size() == 1) {
-                gameRepository.delete(game);
-            } // else reassign admin role to random user in room
-            else {
-                SecureRandom random = new SecureRandom();
-                int randomNumber = random.nextInt(game.getUsers().size());
+        // if it's the last user -> delete game, else go through normal user removal process
+        if (game.getUsers().size() == 1) {
+            // go through all gameSessions and remove game reference from game sessions
+            List<GameSession> gameSessions = game.getGameSessions();
+            
+            for (int i = 0; i < gameSessions.size(); i++) {
+                gameSessions.get(i).setGame(null);
+            }
 
-                while (game.getUsers().get(randomNumber) == user) {
-                    randomNumber = random.nextInt(game.getUsers().size());
+            gameRepository.delete(game);
+        } else {
+            if (user.getRole().equals("admin")) {
+                // if admin is the only player and leaves the room should be deleted
+                if (game.getUsers().size() == 1) {
+                    gameRepository.delete(game);
+                } // else reassign admin role to random user in room
+                else {
+                    SecureRandom random = new SecureRandom();
+                    int randomNumber = random.nextInt(game.getUsers().size());
+    
+                    while (game.getUsers().get(randomNumber) == user) {
+                        randomNumber = random.nextInt(game.getUsers().size());
+                    }
+    
+                    game.getUsers().get(randomNumber).setRole("admin");
+                    game.setAdmin(game.getUsers().get(randomNumber).getUserId());
                 }
-
-                game.getUsers().get(randomNumber).setRole("admin");
-                game.setAdmin(game.getUsers().get(randomNumber).getUserId());
+            }
+            int size = game.getGameSessions().size();
+            // remove user from game session
+            if (size != 0) {
+                // last index would be the current game session
+                game.getGameSessions().get(size - 1).getUsersInSession().remove(user.getUserId());
+            }
+    
+            game.getUsers().remove(user);
+    
+            // revert back role to default
+            user.setRole(null);
+            userRepository.save(user);
+    
+            // if game status is CLOSED and there's now less than 8 players in the game ->
+            // set status back to OPEN
+            if (game.getStatus() == GameStatus.CLOSED && game.getUsers().size() < 8) {
+                game.setStatus(GameStatus.OPEN);
             }
         }
-        int size = game.getGameSessions().size();
-        // remove user from game session
-        if (size != 0) {
-            // last index would be the current game session
-            game.getGameSessions().get(size - 1).getUsersInSession().remove(user.getUserId());
-        }
-
-        game.getUsers().remove(user);
-
-        // revert back role to default
-        user.setRole(null);
-        userRepository.save(user);
-
-        // if game status is CLOSED and there's now less than 8 players in the game ->
-        // set status back to OPEN
-        if (game.getStatus() == GameStatus.CLOSED && game.getUsers().size() < 8) {
-            game.setStatus(GameStatus.OPEN);
-        }
+        
     }
 
     public Game getGameByGamePIN(Long gamePin) {

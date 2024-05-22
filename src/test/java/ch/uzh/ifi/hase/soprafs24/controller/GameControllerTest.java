@@ -5,6 +5,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Drawing;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
+import ch.uzh.ifi.hase.soprafs24.entity.SessionHistory;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
@@ -951,6 +952,31 @@ public class GameControllerTest {
       .andExpect(status().isOk());
   }
 
+  @Test
+  public void deleteHisoryValidInput() throws Exception {
+    //given
+    User admin = new User();
+    admin.setRole("admin");
+    admin.setNickname("TestAdmin");
+    admin.setToken("Test token");
+    admin.setUserId(1L);
+
+    SessionHistory history = new SessionHistory();
+    history.setGameSessionId(1L);
+    history.setHistoryId(2L);
+    history.setHistoryName("test name");
+    history.setUserId(3L);
+
+    // when
+    MockHttpServletRequestBuilder deleteRequest = delete(String.format("/games/history/%x/delete", history.getHistoryId()))
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", admin.getToken())
+      .header("X-User-ID", String.valueOf(admin.getUserId()));
+
+    // then
+    mockMvc.perform(deleteRequest)
+      .andExpect(status().isOk());
+  }
   /**
    * Helper Method to convert userPostDTO into a JSON string such that the input
    * can be processed

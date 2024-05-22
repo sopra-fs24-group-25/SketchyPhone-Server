@@ -6,15 +6,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.repository.GameSessionRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.TextPromptRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.DrawingRepository;
 import java.util.List;
+
 import ch.uzh.ifi.hase.soprafs24.service.Game.HistoryService;
 import ch.uzh.ifi.hase.soprafs24.repository.HistoryRepository;
-
 import java.util.Optional;
 
 public class HistoryServiceTest {
@@ -86,4 +86,44 @@ public class HistoryServiceTest {
         // then
         assertNull(result);
     }
+
+    // @Test
+    // public void deleteHistory_WrongUser() {
+    //     // setup
+    //     User admin = new User();
+    //     admin.setNickname("testNickname");
+    //     admin.setUserId(1L);
+
+    //     Game game = new Game();
+    //     game.setAdmin(admin.getUserId());
+
+    //     User player = new User();
+    //     player.setNickname("testNickname");
+    //     player = userService.createUser(player);
+
+    //     gameService.joinGame(game.getGamePin(), player.getUserId());
+
+    //     gameService.createGameSession(game.getGameId());
+
+    //     GameSession gameSession = game.getGameSessions().get(0);
+
+    //     // create Session history object
+    //     historyService.saveHistory(gameSession.getGameSessionId(), admin.getUserId(), "test history name");
+    //     List<SessionHistory> historyList = historyRepository.findByUserId(admin.getUserId());
+    //     SessionHistory history = historyList.get(0);
+
+    //     // assert whether creation worked
+    //     assertEquals(history.getUserId(), admin.getUserId());
+    //     assertEquals(history.getHistoryName(), "test history name");
+    //     assertEquals(history.getGameSessionId(), gameSession.getGameSessionId());
+
+    //     // delete hisory object
+    //     historyService.deleteHistory(history.getHistoryId(), admin.getUserId());
+    //     historyList = historyRepository.findByUserId(admin.getUserId());
+
+    //     // check whether deletion worked
+    //     assertEquals(historyList.size(), 0);
+    //     assertThrows(ResponseStatusException.class, () -> historyRepository.findByHistoryId(history.getHistoryId()));
+
+    // }
 }

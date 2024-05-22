@@ -15,4 +15,7 @@ public interface HistoryRepository extends JpaRepository<SessionHistory, Long> {
 
     // Retrieve all HistoryItems associated with a specific User ID
     List<SessionHistory> findByUserId(Long userId);
+
+    // Retrieve History item by their Id
+    SessionHistory findByHistoryId(Long historyId);
 }
