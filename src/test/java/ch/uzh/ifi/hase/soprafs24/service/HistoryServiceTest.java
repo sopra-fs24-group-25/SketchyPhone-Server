@@ -45,7 +45,7 @@ public class HistoryServiceTest {
         historyService.saveHistory(1L, 1L, "test history");
 
         // then
-        verify(historyRepository, times(1)).save(any());
+        verify(historyRepository, times(1)).saveAndFlush(any());
     }
 
     @Test

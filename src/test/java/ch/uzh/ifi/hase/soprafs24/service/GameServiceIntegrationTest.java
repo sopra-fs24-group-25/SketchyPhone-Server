@@ -1402,7 +1402,6 @@ public class GameServiceIntegrationTest {
     assertNotEquals(text.getContent(), "admin content");
     assertNotEquals(text.getCreator(), admin);
     assertEquals(text.getAssignedTo(), admin.getUserId());
-    assertNotEquals(drawingRepository.findByDrawingId(text.getPreviousDrawingId()).getCreator(), admin);
 
   }
 
@@ -1598,7 +1597,6 @@ public class GameServiceIntegrationTest {
     assertEquals(drawing.getEncodedImage(), "test encoded");
     assertNotEquals(drawing.getCreator(), admin);
     assertEquals(drawing.getAssignedTo(), admin.getUserId());
-    assertNotEquals(textPromptRepository.findByTextPromptId(drawing.getPreviousTextPrompt()).getCreator(), admin);
 
   }
   

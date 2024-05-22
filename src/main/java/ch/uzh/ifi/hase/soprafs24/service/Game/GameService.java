@@ -397,7 +397,7 @@ public class GameService {
 
             Integer shift = (gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1)
                     + 1;
-                
+
             Collections.sort(availablePrompts, Comparator.comparingLong(prompt -> {
                 long id = prompt.getCreator().getUserId();
                 return usersInSession.indexOf(id);
@@ -406,7 +406,7 @@ public class GameService {
             for (int i = 0; i < availablePrompts.size(); i++) {
                 availablePrompts.get(i).setAssignedTo(usersInSession.get((i + shift) % usersInSession.size()));
             }
-        
+
             textPromptRepository.flush();
 
             if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
@@ -516,14 +516,13 @@ public class GameService {
             // What we want, is a pseudorandom shift, that doesn't change for the current
             // session but increases for every round by one and a different base shift for
             // every session
-            Integer shift = (gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1);
+            Integer shift = (gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1) + 1;
 
             // sort available drawings based on sorting of usersInSession
             Collections.sort(availableDrawings, Comparator.comparingLong(draw -> {
                 long id = draw.getCreator().getUserId();
                 return usersInSession.indexOf(id);
             }));
-
 
             for (int i = 0; i < availableDrawings.size(); i++) {
                 availableDrawings.get(i).setAssignedTo(usersInSession.get((i + shift) % usersInSession.size()));
