@@ -138,7 +138,7 @@ public class GameService {
         // create game settings with some standard values
         GameSettings gameSettings = new GameSettings();
         gameSettings.setGameSpeed(25);
-        gameSettings.setNumCycles(3);
+        gameSettings.setNumCycles(2);
         gameSettings.setEnableTextToSpeech(true);
         gameSettingsRepository.save(gameSettings);
         gameSettingsRepository.flush();
@@ -406,28 +406,7 @@ public class GameService {
             for (int i = 0; i < availablePrompts.size(); i++) {
                 availablePrompts.get(i).setAssignedTo(usersInSession.get((i + shift) % usersInSession.size()));
             }
-
-            textPromptRepository.flush();
-            
-            if(shift == 0) {
-                // Get a random index
-                Integer randomIndex = randomSeed.nextInt(usersInSession.size());
-
-                // Get the assigned userId
-                Long assigned = availablePrompts.get(randomIndex).getAssignedTo();
-
-                // Get random swap index, between 1 and userInSession.size() (exclusive)
-                Integer swapIndex = randomSeed.nextInt(0, usersInSession.size());
-
-                while(swapIndex == randomIndex){
-                    swapIndex = randomSeed.nextInt(0, usersInSession.size());
-                }
-
-                // Swap
-                availablePrompts.get(randomIndex).setAssignedTo(availablePrompts.get(swapIndex).getAssignedTo());
-                availablePrompts.get(swapIndex).setAssignedTo(assigned);
-            }
-
+        
             textPromptRepository.flush();
 
             if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
@@ -548,28 +527,6 @@ public class GameService {
 
             for (int i = 0; i < availableDrawings.size(); i++) {
                 availableDrawings.get(i).setAssignedTo(usersInSession.get((i + shift) % usersInSession.size()));
-            }
-
-            drawingRepository.flush();
-
-            // If shift were 0, we swap two random entries. But this also generates some unforeseen assignment issues (e.g. getting the same prompt again)
-            if(shift == 0) {
-                // Get a random index
-                Integer randomIndex = randomSeed.nextInt(usersInSession.size());
-
-                // Get the assigned userId
-                Long assigned = availableDrawings.get(randomIndex).getAssignedTo();
-
-                // Get random swap index, between 1 and userInSession.size() (exclusive)
-                Integer swapIndex = randomSeed.nextInt(0, usersInSession.size());
-                
-                while(swapIndex == randomIndex){
-                    swapIndex = randomSeed.nextInt(0, usersInSession.size());
-                }
-
-                // Swap
-                availableDrawings.get(randomIndex).setAssignedTo(availableDrawings.get(swapIndex).getAssignedTo());
-                availableDrawings.get(swapIndex).setAssignedTo(assigned);
             }
 
             drawingRepository.flush();
