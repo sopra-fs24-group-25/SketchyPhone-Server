@@ -301,7 +301,6 @@ public class GameController {
 
 
   // get mapping to get the history of the game session
-  // can not be tested yet, because need implementation of persistent user in usercontroller
   @GetMapping("/users/{userId}/history")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
@@ -309,6 +308,14 @@ public class GameController {
     userService.authenticateUser(token, userService.getUserById(userId));
     List<SessionHistory> history = historyService.getUserHistory(userId);
     return ResponseEntity.ok(history);  
+  }
+
+  // delete mapping to delete history object when needed
+  @DeleteMapping("/games/history/{historyId}/delete")
+  @ResponseStatus(HttpStatus.OK)
+  public void deleteHistory(@PathVariable Long historyId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+    userService.authenticateUser(token, userService.getUserById(id));
+    historyService.deleteHistory(historyId, id);
   }
 
 }

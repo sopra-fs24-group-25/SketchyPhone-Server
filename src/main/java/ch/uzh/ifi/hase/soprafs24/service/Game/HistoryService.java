@@ -10,8 +10,11 @@ import ch.uzh.ifi.hase.soprafs24.repository.GameSessionRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 import ch.uzh.ifi.hase.soprafs24.entity.SessionHistory;
 import java.util.ArrayList;
@@ -61,6 +64,20 @@ public class HistoryService {
 
     public List<SessionHistory> getUserHistory(Long userId) {
         return historyRepository.findByUserId(userId);
+    }
+
+    public void deleteHistory(Long historyId, Long userId){
+        SessionHistory history = historyRepository.findByHistoryId(historyId);
+        // if history object wasn't found throw 404
+        if (history == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "History object not found.");
+        }
+        // if we're trying to delete a history object from another user throw 401
+        if (!history.getUserId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not allowed to delete this history object.");
+        }
+        // delete history object from repository
+        historyRepository.delete(history);
     }
 
 }
