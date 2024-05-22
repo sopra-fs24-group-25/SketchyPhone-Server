@@ -395,7 +395,7 @@ public class GameService {
                             && prompt.getGameSession().getGameSessionId().equals(gameSessionId))
                     .collect(Collectors.toList());
 
-            Integer shift = (gameSessionId.intValue() + gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1)
+            Integer shift = (gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1)
                     + 1;
                 
             Collections.sort(availablePrompts, Comparator.comparingLong(prompt -> {
@@ -405,6 +405,23 @@ public class GameService {
 
             for (int i = 0; i < availablePrompts.size(); i++) {
                 availablePrompts.get(i).setAssignedTo(usersInSession.get((i + shift) % usersInSession.size()));
+            }
+
+            textPromptRepository.flush();
+
+            if(shift == 0) {
+                // Get a random index
+                Integer randomIndex = randomSeed.nextInt(usersInSession.size());
+
+                // Get the assigned userId
+                Long assigned = availablePrompts.get(randomIndex).getAssignedTo();
+
+                // Get random swap index, between 1 and userInSession.size() (exclusive)
+                Integer swapIndex = randomSeed.nextInt(1, usersInSession.size());
+
+                // Swap
+                availablePrompts.get(randomIndex).setAssignedTo(availablePrompts.get(swapIndex).getAssignedTo());
+                availablePrompts.get(swapIndex).setAssignedTo(assigned);
             }
 
             textPromptRepository.flush();
@@ -516,18 +533,35 @@ public class GameService {
             // What we want, is a pseudorandom shift, that doesn't change for the current
             // session but increases for every round by one and a different base shift for
             // every session
-            Integer shift = (gameSessionId.intValue() + gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1)
-                    + 1;
+            Integer shift = (gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1);
 
             // sort available drawings based on sorting of usersInSession
             Collections.sort(availableDrawings, Comparator.comparingLong(draw -> {
                 long id = draw.getCreator().getUserId();
                 return usersInSession.indexOf(id);
             }));
-            System.out.println(shift);
+
 
             for (int i = 0; i < availableDrawings.size(); i++) {
                 availableDrawings.get(i).setAssignedTo(usersInSession.get((i + shift) % usersInSession.size()));
+            }
+
+            drawingRepository.flush();
+
+            // If shift were 0, we swap to random entries
+            if(shift == 0) {
+                // Get a random index
+                Integer randomIndex = randomSeed.nextInt(usersInSession.size());
+
+                // Get the assigned userId
+                Long assigned = availableDrawings.get(randomIndex).getAssignedTo();
+
+                // Get random swap index, between 1 and userInSession.size() (exclusive)
+                Integer swapIndex = randomSeed.nextInt(1, usersInSession.size());
+
+                // Swap
+                availableDrawings.get(randomIndex).setAssignedTo(availableDrawings.get(swapIndex).getAssignedTo());
+                availableDrawings.get(swapIndex).setAssignedTo(assigned);
             }
 
             drawingRepository.flush();
