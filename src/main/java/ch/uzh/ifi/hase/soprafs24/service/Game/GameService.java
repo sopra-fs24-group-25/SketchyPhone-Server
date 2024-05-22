@@ -18,6 +18,7 @@ import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.hibernate.mapping.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -29,9 +30,11 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.security.SecureRandom;
+import java.util.random.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -373,21 +376,18 @@ public class GameService {
         if (textPrompts.size() % gameSession.getUsersInSession().size() == 0) {
             startNextRound(gameSessionId);
 
-            List<Long> usersInSession = new ArrayList<Long>();
-            usersInSession = gameSession.getUsersInSession();
-
-            // assign every text prompt to a user
-            List<TextPrompt> alreadyAssignedPrompts = new ArrayList<TextPrompt>();
+            final List<Long> usersInSession = gameSession.getUsersInSession();
 
             List<TextPrompt> availablePrompts = new ArrayList<TextPrompt>();
 
-            List<TextPrompt> lastPrompts = new ArrayList<TextPrompt>();
+            // Seed to have the same shuffling everytime for the current session
+            long shuffleSeed = gameSessionId;
 
-            SecureRandom random = new SecureRandom();
-            int randomNumber = 0;
+            // This should ensure the shuffling is consistent during a gamesession
+            Random randomSeed = new Random(shuffleSeed);
 
-            // Sort user IDs
-            Collections.sort(usersInSession, Comparator.naturalOrder());
+            // Shuffle the users to be in random order for this gamesession
+            Collections.shuffle(usersInSession, randomSeed);
 
             availablePrompts = textPromptRepository.findAll().stream()
                     .filter(prompt -> prompt.getAssignedTo() == null
@@ -395,15 +395,13 @@ public class GameService {
                             && prompt.getGameSession().getGameSessionId().equals(gameSessionId))
                     .collect(Collectors.toList());
 
-            Integer shift = (gameSessionId.intValue() + gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1) + 1;
-
-
-            Collections.sort(availablePrompts, new Comparator<TextPrompt>() {
-                @Override
-                public int compare(TextPrompt u1, TextPrompt u2) {
-                    return (u1.getCreator().getUserId()).compareTo(u2.getCreator().getUserId());
-                }
-            });
+            Integer shift = (gameSessionId.intValue() + gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1)
+                    + 1;
+                
+            Collections.sort(availablePrompts, Comparator.comparingLong(prompt -> {
+                long id = prompt.getCreator().getUserId();
+                return usersInSession.indexOf(id);
+            }));
 
             for (int i = 0; i < availablePrompts.size(); i++) {
                 availablePrompts.get(i).setAssignedTo(usersInSession.get((i + shift) % usersInSession.size()));
@@ -492,18 +490,19 @@ public class GameService {
         if (drawings.size() % gameSession.getUsersInSession().size() == 0) {
             startNextRound(gameSessionId);
 
-            List<Long> usersInSession = new ArrayList<Long>();
-            usersInSession = gameSession.getUsersInSession();
+            final List<Long> usersInSession = gameSession.getUsersInSession();
 
             // assign every text prompt to a user
-            List<Drawing> alreadyAssignedDrawings = new ArrayList<Drawing>();
-
             List<Drawing> availableDrawings = new ArrayList<Drawing>();
 
-            List<Drawing> lastDrawings = new ArrayList<Drawing>();
+            // Seed to have the same shuffling everytime for the current session
+            long shuffleSeed = gameSessionId;
 
-            SecureRandom random = new SecureRandom();
-            int randomNumber = 0;
+            // This should ensure the shuffling is consistent during a gamesession
+            Random randomSeed = new Random(shuffleSeed);
+
+            // Shuffle the users to be in random order for this gamesession
+            Collections.shuffle(usersInSession, randomSeed);
 
             // Sort user IDs
             Collections.sort(usersInSession, Comparator.naturalOrder());
@@ -515,15 +514,17 @@ public class GameService {
                     .collect(Collectors.toList());
 
             // What we want, is a pseudorandom shift, that doesn't change for the current
-            // session but increases for every round by one and a different base shift for every session
-            Integer shift = (gameSessionId.intValue() + gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1) + 1;
+            // session but increases for every round by one and a different base shift for
+            // every session
+            Integer shift = (gameSessionId.intValue() + gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1)
+                    + 1;
 
-            Collections.sort(availableDrawings, new Comparator<Drawing>() {
-                @Override
-                public int compare(Drawing u1, Drawing u2) {
-                    return (u1.getCreator().getUserId()).compareTo(u2.getCreator().getUserId());
-                }
-            });
+            // sort available drawings based on sorting of usersInSession
+            Collections.sort(availableDrawings, Comparator.comparingLong(draw -> {
+                long id = draw.getCreator().getUserId();
+                return usersInSession.indexOf(id);
+            }));
+            System.out.println(shift);
 
             for (int i = 0; i < availableDrawings.size(); i++) {
                 availableDrawings.get(i).setAssignedTo(usersInSession.get((i + shift) % usersInSession.size()));
