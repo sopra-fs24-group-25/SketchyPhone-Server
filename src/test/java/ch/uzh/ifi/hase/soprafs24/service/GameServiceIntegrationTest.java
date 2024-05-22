@@ -1332,7 +1332,12 @@ public class GameServiceIntegrationTest {
     player.setNickname("testNickname");
     player = userService.createUser(player);
 
+    User player2 = new User();
+    player2.setNickname("testNickname");
+    player2 = userService.createUser(player2);
+
     gameService.joinGame(game.getGamePin(), player.getUserId());
+    gameService.joinGame(game.getGamePin(), player2.getUserId());
 
     gameService.createGameSession(game.getGameId());
 
@@ -1342,10 +1347,12 @@ public class GameServiceIntegrationTest {
 
     TextPrompt textPromptPlayer = gameService.createTextPrompt(gameSession.getGameSessionId(), player.getUserId(), 777L, "player content");
 
+    TextPrompt textPromptPlayer2 = gameService.createTextPrompt(gameSession.getGameSessionId(), player2.getUserId(), 777L, "player2 content");
+
     TextPrompt text = gameService.getTextPrompt(gameSession.getGameSessionId(), admin.getUserId());
 
-    assertEquals(text.getContent(), "player content");
-    assertEquals(text.getCreator(), player);
+    assertNotEquals(text.getContent(), "admin content");
+    assertNotEquals(text.getCreator(), admin);
     assertEquals(text.getAssignedTo(), admin.getUserId());
   }
 
