@@ -9,15 +9,13 @@ public class SessionHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long historyId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gameSession")
-    private GameSession gameSession;
-
     @Column(nullable = false)
     private Long userId;
 
+    @Column(nullable =  false)
     private Long gameSessionId;
 
+    @Column
     private String historyName;
     
     // Getters and Setters
@@ -27,14 +25,6 @@ public class SessionHistory {
 
     public void setHistoryId(Long historyId) {
         this.historyId = historyId;
-    }
-
-    public GameSession getGameSession() {
-        return gameSession;
-    }
-
-    public void setGameSession(GameSession gameSession) {
-        this.gameSession = gameSession;
     }
 
     public Long getUserId() {

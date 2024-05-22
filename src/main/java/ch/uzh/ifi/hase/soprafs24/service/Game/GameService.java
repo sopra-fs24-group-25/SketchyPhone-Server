@@ -18,23 +18,28 @@ import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.hibernate.mapping.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.security.SecureRandom;
+import java.util.random.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.stream.Collectors;
@@ -133,7 +138,7 @@ public class GameService {
         // create game settings with some standard values
         GameSettings gameSettings = new GameSettings();
         gameSettings.setGameSpeed(25);
-        gameSettings.setNumCycles(3);
+        gameSettings.setNumCycles(2);
         gameSettings.setEnableTextToSpeech(true);
         gameSettingsRepository.save(gameSettings);
         gameSettingsRepository.flush();
@@ -371,69 +376,38 @@ public class GameService {
         if (textPrompts.size() % gameSession.getUsersInSession().size() == 0) {
             startNextRound(gameSessionId);
 
-            List<Long> usersInSession = new ArrayList<Long>();
-            usersInSession = gameSession.getUsersInSession();
-
-            // assign every text prompt to a user
-            List<TextPrompt> alreadyAssignedPrompts = new ArrayList<TextPrompt>();
+            final List<Long> usersInSession = gameSession.getUsersInSession();
 
             List<TextPrompt> availablePrompts = new ArrayList<TextPrompt>();
 
-            List<TextPrompt> lastPrompts = new ArrayList<TextPrompt>();
+            // Seed to have the same shuffling everytime for the current session
+            long shuffleSeed = gameSessionId;
 
-            SecureRandom random = new SecureRandom();
-            int randomNumber = 0;
+            // This should ensure the shuffling is consistent during a gamesession
+            Random randomSeed = new Random(shuffleSeed);
 
-            for (int i = 0; i < usersInSession.size(); i++) {
-                User dude = userRepository.findByUserId(usersInSession.get(i));
+            // Shuffle the users to be in random order for this gamesession
+            Collections.shuffle(usersInSession, randomSeed);
 
-                // find all text prompts that could be assigned to a user
-                if (gameSession.getRoundCounter() - 1 < 2) {
-                    // first round
-                    availablePrompts = textPromptRepository.findAll().stream()
-                            .filter(textprompt -> textprompt.getAssignedTo() == null
-                                    && textprompt.getCreator() != dude
-                                    && textprompt.getRound() == gameSession.getRoundCounter() - 1
-                                    && textprompt.getGameSession().getGameSessionId().equals(gameSessionId))
-                            .collect(Collectors.toList());
-                } else {
-                    // from the second round on we don't want to get textprompts that were made from
-                    // our drawings
-                    availablePrompts = textPromptRepository.findAll().stream()
-                            .filter(textprompt -> textprompt.getAssignedTo() == null
-                                    && textprompt.getCreator() != dude
-                                    && textprompt.getRound() == gameSession.getRoundCounter() - 1
-                                    && textprompt.getGameSession().getGameSessionId().equals(gameSessionId)
-                                    && drawingRepository.findByDrawingId(textprompt.getPreviousDrawingId())
-                                            .getCreator() != dude)
-                            .collect(Collectors.toList());
-                }
+            availablePrompts = textPromptRepository.findAll().stream()
+                    .filter(prompt -> prompt.getAssignedTo() == null
+                            && prompt.getRound() == gameSession.getRoundCounter() - 1
+                            && prompt.getGameSession().getGameSessionId().equals(gameSessionId))
+                    .collect(Collectors.toList());
 
-                alreadyAssignedPrompts = textPromptRepository.findAll().stream()
-                        .filter(textprompt -> textprompt.getAssignedTo() != null
-                                && textprompt.getRound() == gameSession.getRoundCounter() - 1
-                                && textprompt.getGameSession().getGameSessionId().equals(gameSessionId))
-                        .collect(Collectors.toList());
+            Integer shift = (gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1)
+                    + 1;
 
-                lastPrompts = textPromptRepository.findAll().stream()
-                        .filter(textPrompt -> textPrompt.getAssignedTo() == null
-                                && textPrompt.getRound() == gameSession.getRoundCounter() - 1
-                                && textPrompt.getGameSession().getGameSessionId().equals(gameSessionId))
-                        .collect(Collectors.toList());
+            Collections.sort(availablePrompts, Comparator.comparingLong(prompt -> {
+                long id = prompt.getCreator().getUserId();
+                return usersInSession.indexOf(id);
+            }));
 
-                if (availablePrompts.isEmpty()) {
-                    randomNumber = random.nextInt(alreadyAssignedPrompts.size());
-                    TextPrompt assignedPrompt = alreadyAssignedPrompts.get(randomNumber);
-                    lastPrompts.get(0).setAssignedTo(assignedPrompt.getAssignedTo());
-                    assignedPrompt.setAssignedTo(dude.getUserId());
-                } else {
-                    // choose a random one
-                    randomNumber = random.nextInt(availablePrompts.size());
-                    availablePrompts.get(randomNumber).setAssignedTo(dude.getUserId());
-                }
-                textPromptRepository.flush();
-
+            for (int i = 0; i < availablePrompts.size(); i++) {
+                availablePrompts.get(i).setAssignedTo(usersInSession.get((i + shift) % usersInSession.size()));
             }
+
+            textPromptRepository.flush();
 
             if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
                 gameSession.setGameLoopStatus(GameLoopStatus.DRAWING);
@@ -516,57 +490,45 @@ public class GameService {
         if (drawings.size() % gameSession.getUsersInSession().size() == 0) {
             startNextRound(gameSessionId);
 
-            List<Long> usersInSession = new ArrayList<Long>();
-            usersInSession = gameSession.getUsersInSession();
+            final List<Long> usersInSession = gameSession.getUsersInSession();
 
             // assign every text prompt to a user
-            List<Drawing> alreadyAssignedDrawings = new ArrayList<Drawing>();
-
             List<Drawing> availableDrawings = new ArrayList<Drawing>();
 
-            List<Drawing> lastDrawings = new ArrayList<Drawing>();
+            // Seed to have the same shuffling everytime for the current session
+            long shuffleSeed = gameSessionId;
 
-            SecureRandom random = new SecureRandom();
-            int randomNumber = 0;
+            // This should ensure the shuffling is consistent during a gamesession
+            Random randomSeed = new Random(shuffleSeed);
 
-            for (int i = 0; i < usersInSession.size(); i++) {
-                User dude = userRepository.findByUserId(usersInSession.get(i));
+            // Shuffle the users to be in random order for this gamesession
+            Collections.shuffle(usersInSession, randomSeed);
 
-                // find all drawings that could be assigned to a user
-                availableDrawings = drawingRepository.findAll().stream()
-                        .filter(draw -> draw.getAssignedTo() == null
-                                && draw.getCreator() != dude
-                                && draw.getRound() == gameSession.getRoundCounter() - 1
-                                && draw.getGameSessionId().equals(gameSessionId)
-                                && textPromptRepository.findByTextPromptId(draw.getPreviousTextPrompt())
-                                        .getCreator() != dude)
-                        .collect(Collectors.toList());
+            // Sort user IDs
+            Collections.sort(usersInSession, Comparator.naturalOrder());
 
-                alreadyAssignedDrawings = drawingRepository.findAll().stream()
-                        .filter(draw -> draw.getAssignedTo() != null
-                                && draw.getRound() == gameSession.getRoundCounter() - 1
-                                && draw.getGameSessionId().equals(gameSessionId))
-                        .collect(Collectors.toList());
+            availableDrawings = drawingRepository.findAll().stream()
+                    .filter(draw -> draw.getAssignedTo() == null
+                            && draw.getRound() == gameSession.getRoundCounter() - 1
+                            && draw.getGameSessionId().equals(gameSessionId))
+                    .collect(Collectors.toList());
 
-                lastDrawings = drawingRepository.findAll().stream()
-                        .filter(draw -> draw.getAssignedTo() == null
-                                && draw.getRound() == gameSession.getRoundCounter() - 1
-                                && draw.getGameSessionId().equals(gameSessionId))
-                        .collect(Collectors.toList());
+            // What we want, is a pseudorandom shift, that doesn't change for the current
+            // session but increases for every round by one and a different base shift for
+            // every session
+            Integer shift = (gameSession.getRoundCounter() - 1) % (usersInSession.size() - 1) + 1;
 
-                if (availableDrawings.isEmpty()) {
-                    randomNumber = random.nextInt(alreadyAssignedDrawings.size());
-                    Drawing assignedDrawing = alreadyAssignedDrawings.get(randomNumber);
-                    lastDrawings.get(0).setAssignedTo(assignedDrawing.getAssignedTo());
-                    assignedDrawing.setAssignedTo(dude.getUserId());
-                } else {
-                    // choose a random one
-                    randomNumber = random.nextInt(availableDrawings.size());
-                    availableDrawings.get(randomNumber).setAssignedTo(dude.getUserId());
-                }
-                drawingRepository.flush();
+            // sort available drawings based on sorting of usersInSession
+            Collections.sort(availableDrawings, Comparator.comparingLong(draw -> {
+                long id = draw.getCreator().getUserId();
+                return usersInSession.indexOf(id);
+            }));
 
+            for (int i = 0; i < availableDrawings.size(); i++) {
+                availableDrawings.get(i).setAssignedTo(usersInSession.get((i + shift) % usersInSession.size()));
             }
+
+            drawingRepository.flush();
 
             if (gameSession.getGameLoopStatus() != GameLoopStatus.PRESENTATION) {
                 gameSession.setGameLoopStatus(GameLoopStatus.TEXTPROMPT);
@@ -620,9 +582,11 @@ public class GameService {
             int countRounds = gameSettingsRepository.findByGameSettingsId(gameSession.getGame().getGameSettingsId())
                     .getNumCycles();
         }
-        
+
         int nextRound = (gameSession.getRoundCounter() + 1);
         gameSession.setRoundCounter(nextRound);
+
+        gameSessionRepository.flush();
 
     }
 
