@@ -294,8 +294,7 @@ public class GameController {
   @PostMapping("/users/{gameSessionId}/{userId}/history")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  // TODO param zu body
-  public void saveHistory(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestParam String historyName, @RequestHeader("Authorization")String token){
+  public void saveHistory(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestBody String historyName, @RequestHeader("Authorization")String token){
     userService.authenticateUser(token, userService.getUserById(userId)); 
     historyService.saveHistory(gameSessionId, userId, historyName);
   }

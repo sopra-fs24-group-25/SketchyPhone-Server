@@ -774,7 +774,7 @@ public class GameControllerTest {
       .contentType(MediaType.APPLICATION_JSON)
       .header("Authorization", admin.getToken())
       .header("X-User-ID", String.valueOf(admin.getUserId()))
-      .param("historyName", "test name");
+      .content("test name");
     
     // then
     mockMvc.perform(postRequest)
@@ -887,7 +887,7 @@ public class GameControllerTest {
     user.setUserId(1L);
 
     MockHttpServletRequestBuilder postRequest = post("/users/1/1/history")
-                .param("historyName", "Test History")
+                .content("test name")
                 .header("Authorization", user.getToken())
                 .contentType(MediaType.APPLICATION_JSON);
 
