@@ -242,6 +242,10 @@ public class UserService {
     return avatar;
   }
 
+  public List<Avatar> getAllAvatars() {
+    return avatarRepository.findAll();
+  }
+
   /**
    * This is a helper method that will check the uniqueness criteria of the
    * username and the name

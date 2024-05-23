@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Avatar;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.AvatarRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -35,9 +35,13 @@ public class UserServiceIntegrationTest {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private AvatarRepository avatarRepository;
+
   @BeforeEach
   public void setup() {
     userRepository.deleteAll();
+    avatarRepository.deleteAll();
   }
 
   @Test
@@ -357,25 +361,22 @@ public class UserServiceIntegrationTest {
     assertEquals(UserStatus.OFFLINE, loggedOutUser.getStatus());
   }
 
+  @Test
+  public void getAllAvatar_validInputs_success() {
 
+    User testUser = new User();
+    testUser.setNickname("testNickname");
+    testUser = userService.createUser(testUser);
+
+    userService.createAvatar(testUser.getUserId(), "test content");
+
+    // when
+    List<Avatar> avatars = userService.getAllAvatars();
+
+    // then
+    assertEquals(testUser.getUserId(), avatars.get(0).getCreatorId());
+    assertEquals(avatars.size(), 1);
+  }
 
   
-  // @Test
-  // public void createUser_duplicateNickname_throwsException() {
-
-  //   User testUser = new User();
-  //   testUser.setNickname("testNickname");
-  //   testUser.setCreationDate(LocalDate.now());
-  //   testUser.setStatus(UserStatus.ONLINE);
-  //   User createdUser = userService.createUser(testUser);
-
-  //   // attempt to create second user with same name
-  //   User testUser2 = new User();
-  //   testUser2.setNickname("testNickname");
-  //   testUser.setCreationDate(LocalDate.now());
-  //   testUser.setStatus(UserStatus.ONLINE);
-
-  //   // check that an error is thrown
-  //   assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser2));
-  // }
 }

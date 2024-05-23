@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,16 +30,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.any;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-
-import static org.mockito.Mockito.when; // Import the necessary Mockito package
 
 
 /**
@@ -375,6 +369,38 @@ public class UserControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.avatarId", is(avatar.getAvatarId().intValue())))
         .andExpect(jsonPath("$.encodedImage", is(avatar.getEncodedImage())));
+  }
+
+  @Test
+  public void getAllAvatars_validInput() throws Exception {
+    // given
+    User user = new User();
+    user.setUserId(1L);
+    user.setNickname("Test User");
+    user.setToken("1");
+    user.setStatus(UserStatus.ONLINE);
+    
+    Avatar avatar = new Avatar();
+    avatar.setAvatarId(1L);
+    avatar.setEncodedImage("test encoded image");
+
+    List<Avatar> avatars = new ArrayList<>();
+    avatars.add(avatar);
+
+    given(userService.getAllAvatars()).willReturn(avatars);
+
+    // when/then -> do the request + validate the result
+    MockHttpServletRequestBuilder getRequest = get(String.format("/users/avatars", avatar.getAvatarId()))
+        .contentType(MediaType.APPLICATION_JSON)
+        .header("Authorization", "1")
+        .header("X-User-ID", "1");
+
+    // then
+    mockMvc.perform(getRequest)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(1)))
+        .andExpect(jsonPath("$[0].avatarId", is(avatar.getAvatarId().intValue())))
+        .andExpect(jsonPath("$[0].encodedImage", is(avatar.getEncodedImage())));
   }
 
   /**

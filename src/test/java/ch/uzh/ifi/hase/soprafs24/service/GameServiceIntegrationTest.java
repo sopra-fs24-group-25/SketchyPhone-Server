@@ -183,82 +183,61 @@ public class GameServiceIntegrationTest {
 
     User admin = new User();
     admin.setNickname("testNickname");
-    admin.setCreationDate(LocalDate.now());
-    admin.setToken("test token");
-    admin.setStatus(UserStatus.ONLINE);
+    admin = userService.createUser(admin);
 
-    User createdAdmin = userService.createUser(admin);
-
-    GameSettings gameSettings = new GameSettings();
-    gameSettings.setGameSettingsId(2L);
-
-    GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDateTime.now());
-    gameSession.setStatus(GameStatus.IN_PLAY);
-    gameSession.setToken("test token");
-
-    gameSessionRepository.save(gameSession);
-    gameSessionRepository.flush();
-
-    List<GameSession> gameSessions = new ArrayList<GameSession>();
-    gameSessions.add(gameSession);
-
-    Game game = gameService.createGame(createdAdmin.getUserId());
-    game.setGameSessions(gameSessions);
+    Game game = gameService.createGame(admin.getUserId());
 
     // when
-    Game createdGame = gameService.createGameSession(game.getGameId());
+    game = gameService.createGameSession(game.getGameId());
+
+    List<GameSession> gameSessions = game.getGameSessions();
 
     // then
-    assertEquals(gameSessions.size(), createdGame.getGameSessions().size());
+    assertEquals(gameSessions.size(), game.getGameSessions().size());
   }
 
+  @Transactional
   @Test
   public void createGameSession_validInputs_UsersInGame_success() {
 
     User admin = new User();
     admin.setNickname("testNickname");
-    admin.setCreationDate(LocalDate.now());
-    admin.setToken("test token");
-    admin.setStatus(UserStatus.ONLINE);
+    admin = userService.createUser(admin);
 
-    userRepository.save(admin);
-    userRepository.flush();
+    User player = new User();
+    player.setNickname("testNickname");
+    player = userService.createUser(player);
 
-    List<User> users = new ArrayList<User>();
+    User player2 = new User();
+    player2.setNickname("testNickname");
+    player2 = userService.createUser(player2);
 
-    GameSettings gameSettings = new GameSettings();
-    gameSettings.setGameSettingsId(2L);
+    Game game = gameService.createGame(admin.getUserId());
 
-    GameSession gameSession = new GameSession();
-    gameSession.setCreationDate(LocalDateTime.now());
-    gameSession.setStatus(GameStatus.IN_PLAY);
-    gameSession.setToken("test token");
+    gameService.joinGame(game.getGamePin(), player.getUserId());
+    gameService.joinGame(game.getGamePin(), player2.getUserId());
 
-    gameSessionRepository.save(gameSession);
-    gameSessionRepository.flush();
-
-    List<GameSession> gameSessions = new ArrayList<GameSession>();
-    gameSessions.add(gameSession);
-
-    Game game = new Game();
-    game.setGamePin(777777L);
-    game.setGameToken("test token");
-    game.setStatus(GameStatus.OPEN);
-    game.setAdmin(admin.getUserId());
-    game.setGameSettingsId(gameSettings.getGameSettingsId());
-    game.setGameSessions(gameSessions);
-    game.setUsers(users);
-
-    game = gameRepository.save(game);
-    gameRepository.flush();
+    game = gameService.createGameSession(game.getGameId());
+    GameSettings gameSettings = gameSettingsRepository.findByGameSettingsId(game.getGameSettingsId());
+    // create another gameSessoin to make sure settings stay the same during a game
+    game = gameService.createGameSession(game.getGameId());
 
     // when
-    Game createdGame = gameService.createGameSession(game.getGameId());
 
+    List<GameSession> gameSessions = gameSessionRepository.findAll();
+    List<Long> usersInSession = gameSessions.get(0).getUsersInSession();
+
+    gameSettings = gameSettingsRepository.findByGameSettingsId(game.getGameSettingsId());
+
+    int numCycles = gameSettingsRepository.findByGameSettingsId(game.getGameSettingsId()).getNumCycles();
+    int shouldBe = (int) Math.ceil((double) usersInSession.size() / 2);
     // then
-    assertEquals(gameSessions.size(), createdGame.getGameSessions().size());
-    assertEquals(createdGame.getUsers().size(), createdGame.getGameSessions().get(0).getUsersInSession().size());
+    assertEquals(gameSessions.size(), game.getGameSessions().size());
+    assertEquals(game.getUsers().size(), usersInSession.size());
+    assertEquals(numCycles, shouldBe);
+
+    game = gameService.createGameSession(game.getGameId());
+    assertEquals(numCycles, shouldBe);
   }
 
   @Test
@@ -1052,48 +1031,24 @@ public class GameServiceIntegrationTest {
 
     User admin = new User();
     admin.setNickname("testNickname");
-    admin.setCreationDate(LocalDate.now());
-    admin.setToken("test token 3");
-    admin.setRole("admin");
-    admin.setStatus(UserStatus.ONLINE);
+    admin = userService.createUser(admin);
 
-    User createdAdmin = userRepository.save(admin);
-    userRepository.flush();
-
-    GameSettings gameSettings = new GameSettings();
-    gameSettings.setEnableTextToSpeech(true);
-    gameSettings.setGameSpeed(40);
-    gameSettings.setNumCycles(4);
-
-    GameSettings createdGameSettings = gameSettingsRepository.save(gameSettings);
-    gameSettingsRepository.flush();
+    Game game = gameService.createGame(admin.getUserId());
 
     GameSettings update = new GameSettings();
     update.setEnableTextToSpeech(false);
     update.setGameSpeed(50);
     update.setNumCycles(2);
+    gameSettingsRepository.flush();
 
-    List<User> users = new ArrayList<User>();
-    users.add(createdAdmin);
+    game = gameService.updateGameSettings(game.getGameId(), update);
+    GameSettings updatedGameSettings = gameSettingsRepository.findByGameSettingsId(game.getGameSettingsId());
 
-    Game game = new Game();
-    game.setGamePin(777777L);
-    game.setGameToken("test token");
-    game.setStatus(GameStatus.OPEN);
-    game.setAdmin(createdAdmin.getUserId());
-    game.setGameSettingsId(gameSettings.getGameSettingsId());
-    game.setUsers(users);
-
-    Game foundGame = gameRepository.save(game);
-    gameRepository.flush();
-
-    Game updatedGame = gameService.updateGameSettings(foundGame.getGameId(), update);
-    GameSettings updatedGameSettings = gameSettingsRepository.findByGameSettingsId(updatedGame.getGameSettingsId());
-
+    assertEquals(game.getUsers().size(), 1);
     assertEquals(update.getEnableTextToSpeech(), updatedGameSettings.getEnableTextToSpeech());
+    assertEquals(update.getGameSpeed(), updatedGameSettings.getGameSpeed());
     assertEquals(update.getNumCycles(), updatedGameSettings.getNumCycles());
-    assertEquals(update.getGameSpeed(), updatedGameSettings.getGameSpeed());;
-
+    
   }
 
   @Test

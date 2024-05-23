@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 /**
@@ -166,6 +169,21 @@ public class UserController {
 
     userService.deleteUser(user);
   }
+
+  // Get mapping to get all avatars
+  @GetMapping("users/avatars")
+  public List<AvatarDTO> getAllAvatars(@RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+      userService.authenticateUser(token, userService.getUserById(id));
+      List<Avatar> avatars = userService.getAllAvatars();
+      
+      List<AvatarDTO> avatarDTOs = new ArrayList<>();
+      for (int i = 0; i < avatars.size(); i++) {
+        avatarDTOs.add(DTOMapper.INSTANCE.convertEntityToAvatarDTO(avatars.get(i)));
+      }
+
+      return avatarDTOs;
+  }
+  
   
 
 }

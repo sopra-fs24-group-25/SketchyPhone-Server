@@ -30,6 +30,9 @@ public class GameSettings implements Serializable {
   private int numCycles;
 
   @Column(nullable = false)
+  private int gameLength;
+
+  @Column(nullable = false)
   private Boolean enableTextToSpeech;
 
   public Long getGameSettingsId() {
@@ -54,7 +57,16 @@ public class GameSettings implements Serializable {
 
   public void setNumCycles(int numCycles){
     // Ensure numCycles is at least 1
-    this.numCycles = Math.max(numCycles,1);
+    this.numCycles = numCycles;
+  }
+
+  public int getGameLength(){
+    return gameLength;
+  }
+
+  public void setGameLength(int gameLength){
+    // Ensure numCycles is at least 1
+    this.gameLength = gameLength;
   }
 
   public Boolean getEnableTextToSpeech(){

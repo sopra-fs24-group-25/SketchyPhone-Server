@@ -2,14 +2,12 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Drawing;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
-import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.SessionHistory;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
@@ -20,13 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.ArrayList;
-
 import ch.uzh.ifi.hase.soprafs24.rest.dto.DrawingDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.SessionHistoryDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
