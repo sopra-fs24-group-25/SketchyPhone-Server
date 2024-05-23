@@ -53,7 +53,7 @@ public class HistoryService {
         // in case history name has not been assigned any name
         if (historyName == null || historyName.trim().isEmpty()) {
             // Assuming GameSession has a getCreationDate() method that returns a LocalDateTime or similar
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             String creationDate = gameSession.getCreationDate().format(formatter);
             historyName = "History " + creationDate;
         }
