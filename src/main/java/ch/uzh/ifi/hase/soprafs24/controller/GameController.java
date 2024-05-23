@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.SessionHistory;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.SessionHistoryDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 
@@ -287,9 +288,9 @@ public class GameController {
   @PostMapping("/users/{gameSessionId}/{userId}/history")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public void saveHistory(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestBody String historyName, @RequestHeader("Authorization")String token){
+  public void saveHistory(@PathVariable Long gameSessionId, @PathVariable Long userId, @RequestBody SessionHistoryDTO sessionHistory, @RequestHeader("Authorization")String token){
     userService.authenticateUser(token, userService.getUserById(userId)); 
-    historyService.saveHistory(gameSessionId, userId, historyName);
+    historyService.saveHistory(gameSessionId, userId, sessionHistory.getHistoryName());
   }
 
 
