@@ -139,6 +139,7 @@ public class GameService {
         GameSettings gameSettings = new GameSettings();
         gameSettings.setGameSpeed(25);
         gameSettings.setNumCycles(2);
+        gameSettings.setGameLength(1);
         gameSettings.setEnableTextToSpeech(true);
         gameSettingsRepository.save(gameSettings);
         gameSettingsRepository.flush();
@@ -182,6 +183,26 @@ public class GameService {
         for (int i = 0; i < game.getUsers().size(); i++) {
             gameSession.getUsersInSession().add(game.getUsers().get(i).getUserId());
         }
+
+        int numCycles = (int) Math.ceil((double) gameSession.getUsersInSession().size() / 2);
+
+        GameSettings gameSettings = gameSettingsRepository.findByGameSettingsId(game.getGameSettingsId());
+
+        if (gameSettings.getGameLength() == 1){
+
+            gameSettings.setNumCycles(numCycles);
+
+        } else if (gameSettings.getGameLength() == 2) {
+
+            gameSettings.setNumCycles(numCycles * 2);
+
+        } else if (gameSettings.getGameLength() == 3) {
+
+            gameSettings.setNumCycles(numCycles * 3);
+
+        }
+
+        gameSettingsRepository.flush();
 
         game.getGameSessions().add(gameSession);
         gameRepository.save(game);
@@ -346,12 +367,14 @@ public class GameService {
         return gameSettingsRepository.findByGameSettingsId(gameSettingsId);
     }
 
-    public Game updateGameSettings(Long gameRoomId, GameSettings gameSettings) {
+    public Game updateGameSettings(Long gameRoomId, GameSettings update) {
         Game game = gameRepository.findByGameId(gameRoomId);
         GameSettings oldSettings = gameSettingsRepository.findByGameSettingsId(game.getGameSettingsId());
-        oldSettings.setEnableTextToSpeech(gameSettings.getEnableTextToSpeech());
-        oldSettings.setGameSpeed(gameSettings.getGameSpeed());
-        oldSettings.setNumCycles(gameSettings.getNumCycles());
+        oldSettings.setEnableTextToSpeech(update.getEnableTextToSpeech());
+        oldSettings.setGameSpeed(update.getGameSpeed());
+        oldSettings.setGameLength(update.getNumCycles());
+
+        gameSettingsRepository.flush();
 
         return game;
     }
