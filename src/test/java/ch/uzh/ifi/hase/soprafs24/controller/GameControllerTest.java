@@ -40,7 +40,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import ch.uzh.ifi.hase.soprafs24.rest.dto.SessionHistoryDTO;
+import static org.mockito.Mockito.when; // Import the necessary Mockito class
+import static org.mockito.Mockito.doNothing; // Add this import statement
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.eq;
 /**
  * GameControllerTest
  * This is a WebMvcTest which allows to test the GameController i.e. GET/POST
@@ -61,6 +68,9 @@ public class GameControllerTest {
 
   @MockBean
   private HistoryService historyService;
+
+  @Autowired
+  private ObjectMapper objectMapper;
 
 
   @Test
@@ -739,47 +749,6 @@ public class GameControllerTest {
       .andExpect(status().isOk());
   }
 
-  @Test
-  public void savehistory_successful() throws Exception {
-    // given
-    Game game = new Game();
-    game.setAdmin(2L);
-    game.setGameId(1L);
-    game.setGamePin(666666L);
-    
-    User admin = new User();
-    admin.setNickname("TestAdmin");
-    admin.setToken("Test token");
-    admin.setUserId(1L);
-    
-    GameSession gameSession = new GameSession();
-    gameSession.setGame(game);
-    gameSession.setGameSessionId(1L);
-
-    TextPrompt textPrompt = new TextPrompt();
-    textPrompt.setTextPromptId(2L);
-
-    Drawing drawing = new Drawing();
-    drawing.setDrawingId(2L);
-
-    // Create a list of objects to return
-    List<Object> historyList = new ArrayList<>();
-    historyList.add(textPrompt);
-    historyList.add(drawing);
-
-    historyService.saveHistory(Mockito.anyLong(), Mockito.anyLong(), Mockito.any());
-
-    // when
-    MockHttpServletRequestBuilder postRequest = post(String.format("/users/%x/%x/history", gameSession.getGameSessionId(), admin.getUserId()))
-      .contentType(MediaType.APPLICATION_JSON)
-      .header("Authorization", admin.getToken())
-      .header("X-User-ID", String.valueOf(admin.getUserId()))
-      .content("test name");
-    
-    // then
-    mockMvc.perform(postRequest)
-      .andExpect(status().isCreated());
-   }
     
   @Test  
   public void getTopThreeTextPrompts() throws Exception {
@@ -881,26 +850,31 @@ public class GameControllerTest {
 
   @Test
   public void saveHistory_successful(){
-    User user = new User();
-    user.setNickname("TestAdmin");
-    user.setToken("Test token");
-    user.setUserId(1L);
+    Long gameSessionId = 1L;
+    Long userId = 1L;
+    String token = "Bearer test-token";
+    SessionHistoryDTO sessionHistoryDTO = new SessionHistoryDTO();
+    sessionHistoryDTO.setHistoryName("Test History");
 
-    MockHttpServletRequestBuilder postRequest = post("/users/1/1/history")
-                .content("test name")
-                .header("Authorization", user.getToken())
-                .contentType(MediaType.APPLICATION_JSON);
+    // Mock the userService behavior
+    when(userService.getUserById(userId)).thenReturn(new User());
+    doNothing().when(userService).authenticateUser(anyString(), any(User.class));
+    doNothing().when(historyService).saveHistory(gameSessionId, userId, sessionHistoryDTO.getHistoryName());
 
-    // Mocking the service method to do nothing (void method)
-    Mockito.doNothing().when(historyService).saveHistory(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString());
-
-    // Asserting the response
     try {
-        mockMvc.perform(postRequest)
-                .andExpect(status().isCreated());
+      mockMvc.perform(post("/users/{gameSessionId}/{userId}/history", gameSessionId, userId)
+          .header("Authorization", token)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(sessionHistoryDTO)))
+          .andExpect(status().isCreated());
     } catch (Exception e) {
-        
+      // Handle the exception
     }
+
+    // Verify that the services were called with expected arguments
+    verify(userService, times(1)).authenticateUser(eq(token), any(User.class));
+    verify(historyService, times(1)).saveHistory(gameSessionId, userId, sessionHistoryDTO.getHistoryName());
+
   }
 
   @Test
@@ -921,7 +895,6 @@ public class GameControllerTest {
         mockMvc.perform(getRequest)
                 .andExpect(status().isOk());
     } catch (Exception e) {
-        
     }
   }
     
