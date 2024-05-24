@@ -21,6 +21,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserSecurityDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.SessionHistoryDTO;
 
 import org.junit.jupiter.api.Test;
@@ -178,11 +179,12 @@ public class DTOMapperTest {
     User admin = new User();
     admin.setUserId(1L);
     admin.setNickname("test name");
+    UserSecurityDTO adminSecurityDTO = DTOMapper.INSTANCE.convertEntityToUserSecurityDTO(admin);
 
     // create TextPromptDTO
     TextPromptDTO textPromptDTO = new TextPromptDTO();
     textPromptDTO.setContent("test content");
-    textPromptDTO.setCreator(admin);
+    textPromptDTO.setCreator(adminSecurityDTO);
     textPromptDTO.setRound(2);
 
     // MAP -> Create textPrompt
@@ -190,7 +192,7 @@ public class DTOMapperTest {
 
     // check content
     assertEquals(textPromptDTO.getContent(), textPrompt.getContent());
-    assertEquals(textPromptDTO.getcreator(), textPrompt.getCreator());
+    assertEquals(textPromptDTO.getCreator().getNickname(), textPrompt.getCreator().getNickname());
     assertEquals(textPromptDTO.getRound(), textPrompt.getRound());
   }
 
@@ -306,6 +308,7 @@ public class DTOMapperTest {
     User admin = new User();
     admin.setUserId(1L);
     admin.setNickname("test name");
+    UserSecurityDTO adminSecurityDTO = DTOMapper.INSTANCE.convertEntityToUserSecurityDTO(admin);
 
     GameSession gameSession = new GameSession();
     gameSession.setGameSessionId(1L);
@@ -313,7 +316,7 @@ public class DTOMapperTest {
     // create DrawingDTO
     DrawingDTO drawingDTO = new DrawingDTO();
     drawingDTO.setEncodedImage("test content");
-    drawingDTO.setCreator(admin);
+    drawingDTO.setCreator(adminSecurityDTO);
     drawingDTO.setCreationDateTime(LocalDateTime.now());;
     drawingDTO.setGameSessionId(gameSession.getGameSessionId());
 
@@ -322,7 +325,7 @@ public class DTOMapperTest {
 
     // check content
     assertEquals(drawingDTO.getEncodedImage(), drawing.getEncodedImage());
-    assertEquals(drawingDTO.getCreator(), drawing.getCreator());
+    assertEquals(drawingDTO.getCreator().getNickname(), drawing.getCreator().getNickname());
     assertEquals(drawingDTO.getCreationDateTime(), drawing.getCreationDateTime());
     assertEquals(drawingDTO.getGameSessionId(), drawing.getGameSessionId());
   }

@@ -4,7 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 
 public class TextPromptDTO {
-    private User creator;
+    private UserSecurityDTO creator;
     private GameSession gameSession;
     private String content;
     private Long assignedTo;
@@ -23,11 +23,11 @@ public class TextPromptDTO {
     // }
 
     // Getters and Setters
-    public User getcreator() {
+    public UserSecurityDTO getCreator() {
         return creator;
     }
 
-    public void setCreator(User creator) {
+    public void setCreator(UserSecurityDTO creator) {
         this.creator = creator;
     }
 

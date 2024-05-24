@@ -9,6 +9,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.SessionHistory;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.SessionHistoryDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
@@ -88,7 +89,7 @@ public class GameController {
   @GetMapping("/gameRooms/{gameRoomId}/users")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public List<User> getGameRoomUsers(@PathVariable Long gameRoomId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
+  public List<UserGetDTO> getGameRoomUsers(@PathVariable Long gameRoomId, @RequestHeader("Authorization")String token, @RequestHeader("X-User-ID") Long id) {
     userService.authenticateUser(token, userService.getUserById(id));
 
     return gameService.getGameRoomUsers(gameRoomId);

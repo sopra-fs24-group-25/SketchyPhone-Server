@@ -14,6 +14,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.GamePostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserSecurityDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSessionDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.SessionHistoryDTO;
@@ -45,6 +46,7 @@ public interface DTOMapper {
   @Mapping(source = "username", target = "username")
   User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
+  @Named("UserGetDTO")
   @Mapping(source = "userId", target = "userId")
   @Mapping(source = "nickname", target = "nickname")
   @Mapping(source = "creationDate", target = "creationDate")
@@ -56,6 +58,13 @@ public interface DTOMapper {
   @Mapping(source = "gameRoom", target = "gameRoom")
   @Mapping(source = "username", target = "username")
   UserGetDTO convertEntityToUserGetDTO(User user);
+
+  @Named("UserSecurityDTO")
+  @Mapping(source = "userId", target = "userId")
+  @Mapping(source = "nickname", target = "nickname")
+  @Mapping(source = "avatarId", target = "avatarId")
+  @Mapping(source = "role", target = "role")
+  UserSecurityDTO convertEntityToUserSecurityDTO(User user);
 
   @Mapping(source = "admin", target = "admin")
   @Mapping(source = "gamePin", target = "gamePin")
