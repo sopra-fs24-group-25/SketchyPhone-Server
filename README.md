@@ -1,6 +1,6 @@
 # Sketchy Phone
 
-This project aims to synthesise two classical games, namely the telephone game and the Exquisite Corpse game. First, participating users need to create a text prompt. Afterwards, each user will be shown another user’s text prompt and presented with a blank canvas on which they can draw the received text prompt. Then, the drawings are redistributed to users, which they have to describe in words, thus creating a new text prompt. This completes one of many cycles, each perturbing the original text prompt in some way. At the end, the cycles are shown to all users, showing the development from start to finish. This project works well as a web-application. Benefits are easy accessibility through web-browsers, low- barrier for entry (as only internet access is required), multiplayer capabilities and real-time synchronisation through web-services. The application will leverage external APIs, namely Web Speech API, Web Audio API and Canvas API.
+This project aims to blend two classic games: the Telephone game and the Exquisite Corpse game. We allow players to sign up as persistent users or play as guest users. The primary difference is that persistent users can save and view their playing history. For the best experience, we recommend playing the game during a call with friends! Each game begins with players creating a text prompt. These prompts are then distributed to other players, who draw their interpretation of the received prompt. Next, these drawings are redistributed, and players must describe the drawing in words, forming a new text prompt. This completes one cycle of the game. The game progresses through multiple cycles, each one altering the original text prompt in unique ways. At the end, all cycles are displayed to the players, showing the evolution from start to finish. Additionally, we narrate text prompts to add humorous effects to the presentation at the of the game. Players can upvote text prompts and drawings. At the end of the game, the best text prompt writer and artist are revealed based on the votes.
 
 ## Technologies used
 - Spring Boot (Docs: https://docs.spring.io/spring-boot/docs/current/reference/html/index.html)
@@ -116,8 +116,10 @@ By pushing your changes to the main branch three automated actions are ran:
 
 ## Roadmap
 New developers who want to contribute could add the following features to our project:
-- Audio-Effects during gameplay.
-- Voice-Chat or message-chat to allow users to talk to each other in real time.
+- Implement microphone feature for all users in the game
+- Allow users to spend their accumulated votes to manipulate other user's microphone output with humorous effects.
+- Provide users with a account recovery service, in case they lost their account credentials.
+- Implement Websockets for better traffic control and bidirectional communication
 
 ## Authors
 
@@ -125,6 +127,9 @@ New developers who want to contribute could add the following features to our pr
 * **Noah Isaak**  [guilloboi1917](https://github.com/guilloboi1917)
 * **Noé Matumona**  [noematumona](https://github.com/noematumona)
 * **Victor Cruz da Silva**  [vichcruz](https://github.com/vichcruz)
+
+* ## Acknowledgements
+- [Template Server](https://github.com/HASEL-UZH/sopra-fs24-template-server)
 
 ## License
 
