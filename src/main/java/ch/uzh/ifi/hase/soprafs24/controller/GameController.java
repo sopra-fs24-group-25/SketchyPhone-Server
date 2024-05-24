@@ -129,7 +129,6 @@ public class GameController {
   }
 
   // Post Mapping to get the text prompt from the user with the text prompt
-  // tested with postman to create a text prompt, passed (201 Created)
   // for the very first text prompts -> insert 777 as previousDrawingId
   @PostMapping("/games/{gameSessionId}/prompts/{userId}/{previousDrawingId}")
   @ResponseStatus(HttpStatus.CREATED)
