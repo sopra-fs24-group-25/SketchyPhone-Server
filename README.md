@@ -128,5 +128,5 @@ New developers who want to contribute could add the following features to our pr
 
 ## License
 
-This project is licensed under the GNU General Public License - see the [LICENSE.md](https://github.com/ansible/ansible/blob/devel/COPYING) file for details
+This project is licensed under the Apache License - see the [LICENSE.md](LICENSE) file for details
 
