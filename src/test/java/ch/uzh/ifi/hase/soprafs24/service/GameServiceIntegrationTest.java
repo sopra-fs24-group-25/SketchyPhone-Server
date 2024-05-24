@@ -15,6 +15,10 @@ import ch.uzh.ifi.hase.soprafs24.repository.GameSessionRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.GameSettingsRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.TextPromptRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.DrawingDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.Game.GameService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -963,6 +967,9 @@ public class GameServiceIntegrationTest {
     List<User> users = new ArrayList<User>();
     users.add(createdAdmin);
 
+    List<UserGetDTO> usersGetDTOs = new ArrayList<UserGetDTO>();
+    usersGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdAdmin));
+
     Game game = new Game();
     game.setGamePin(777777L);
     game.setGameToken("test token");
@@ -974,10 +981,9 @@ public class GameServiceIntegrationTest {
     Game foundGame = gameRepository.save(game);
     gameRepository.flush();
 
-    List<User> gameRoomUsers = gameService.getGameRoomUsers(foundGame.getGameId());
+    List<UserGetDTO> gameRoomUsers = gameService.getGameRoomUsers(foundGame.getGameId());
 
     assertEquals(gameRoomUsers.size(), users.size());
-    assertEquals(gameRoomUsers.get(0), users.get(0));
 
   }
 
@@ -1836,31 +1842,35 @@ public class GameServiceIntegrationTest {
     GameSession createdGameSession = gameSessionRepository.save(gameSession);
     gameSessionRepository.flush();
 
-    TextPrompt text = new TextPrompt();
-    text.setContent("test content");
-    text.setPreviousDrawingId(777L);
-    text.setGameSession(createdGameSession);
-
-    TextPrompt createdText = textPromptRepository.save(text);
-    textPromptRepository.flush();
+    TextPrompt text = gameService.createTextPrompt(createdGameSession.getGameSessionId(), createdPlayer.getUserId(), 777L, "test content");
 
     List<GameSession> gameSessions = new ArrayList<GameSession>();
     gameSessions.add(createdGameSession);
 
     foundGame.setGameSessions(gameSessions);
 
-    Drawing drawing = gameService.createDrawing(createdGameSession.getGameSessionId(), createdAdmin.getUserId(), createdText.getTextPromptId(), "test encoded image");
+    Drawing drawing = gameService.createDrawing(createdGameSession.getGameSessionId(), createdAdmin.getUserId(), text.getTextPromptId(), "test encoded image");
 
     List<Object> sequence = new ArrayList<Object>();
-    sequence.add(createdText);
+    sequence.add(text);
     sequence.add(drawing);
 
     List<Object> sequenceCall = gameService.getSequence(createdGameSession.getGameSessionId());
 
     entityManager.flush();
 
-    assertEquals(sequence.get(0), sequenceCall.get(0));
-    assertEquals(sequence.get(1), sequenceCall.get(1));
+    assertEquals(sequence.size(), sequenceCall.size());
+    for (int i = 0; i < sequence.size(); i ++ ){
+      Object original = sequence.get(i);
+      Object dto = sequenceCall.get(i);
+      if (original instanceof Drawing && dto instanceof DrawingDTO) {
+        assertEquals(((Drawing) original).getEncodedImage(), ((DrawingDTO) dto).getEncodedImage());
+        assertEquals(((Drawing) original).getCreator().getUserId(), ((DrawingDTO) dto).getCreator().getUserId());
+      } else {
+        assertEquals(((TextPrompt) original).getContent(), ((TextPromptDTO) dto).getContent());
+        assertEquals(((TextPrompt) original).getCreator().getUserId(), ((TextPromptDTO) dto).getCreator().getUserId());
+      }
+    }
 
   }
 

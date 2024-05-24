@@ -27,6 +27,8 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 
 import java.util.List;
@@ -351,14 +353,19 @@ public class GameService {
         return false;
     }
 
-    public List<User> getGameRoomUsers(Long gameId) {
+    public List<UserGetDTO> getGameRoomUsers(Long gameId) {
         Game gameRoom = gameRepository.findByGameId(gameId);
 
         if (gameRoom == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game Room doesn't exist");
         }
 
-        return gameRoom.getUsers();
+        List<UserGetDTO> userGetDTOs = new ArrayList<>();
+        for (int i = 0; i < gameRoom.getUsers().size(); i++) {
+            userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(gameRoom.getUsers().get(i)));
+        }
+
+        return userGetDTOs;
     }
 
     public GameSettings getGameSettings(Long gameRoomId) {
@@ -685,10 +692,10 @@ public class GameService {
             assignedPrompt = availablePrompts.get(i);
             nextId = assignedPrompt.getTextPromptId();
             while (nextId != null) {
-                sequence.add(assignedPrompt);
+                sequence.add(DTOMapper.INSTANCE.convertEntityToTextPromptDTO(assignedPrompt));
                 if (assignedPrompt.getNextDrawingId() != null) {
                     drawing = drawingRepository.findByDrawingId(assignedPrompt.getNextDrawingId());
-                    sequence.add(drawing);
+                    sequence.add(DTOMapper.INSTANCE.convertEntityToDrawingDTO(drawing));
                     nextId = drawing.getNextTextPrompt();
                     if (nextId != null) {
                         assignedPrompt = textPromptRepository.findByTextPromptId(nextId);

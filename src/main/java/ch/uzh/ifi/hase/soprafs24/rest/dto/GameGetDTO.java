@@ -5,7 +5,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.uzh.ifi.hase.soprafs24.entity.GameSession;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
 
 public class GameGetDTO {
 
@@ -15,7 +14,7 @@ public class GameGetDTO {
   private Long gamePin;
   @JsonProperty("gameSessions")
   private List<GameSession> gameSessions;
-  private List<User> users;
+  private List<UserSecurityDTO> users;
   private Long gameSettingsId;
 
   public Long getGameId() {
@@ -50,11 +49,11 @@ public class GameGetDTO {
     this.status = status;
   }
 
-  public List<User> getUsers() {
+  public List<UserSecurityDTO> getUsers() {
     return users;
   }
 
-  public void setUsers(List<User> users){
+  public void setUsers(List<UserSecurityDTO> users){
     this.users = users;
   }
 

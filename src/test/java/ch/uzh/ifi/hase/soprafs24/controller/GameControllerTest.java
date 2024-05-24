@@ -10,7 +10,9 @@ import ch.uzh.ifi.hase.soprafs24.entity.TextPrompt;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.GameSettingsDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.TextPromptDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.Game.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.Game.HistoryService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
@@ -203,13 +205,17 @@ public class GameControllerTest {
 
     User createdNewUser = userService.createUser(newUser);
 
+    List<UserGetDTO> usersGetDTOs = new ArrayList<UserGetDTO>();
+    usersGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdAdmin));
+    usersGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdNewUser));
+
     List<User> users = new ArrayList<User>();
     users.add(createdAdmin);
     users.add(createdNewUser);
 
     game.setUsers(users);
 
-    given(gameService.getGameRoomUsers(Mockito.any())).willReturn(users);
+    given(gameService.getGameRoomUsers(Mockito.any())).willReturn(usersGetDTOs);
 
 
     // when

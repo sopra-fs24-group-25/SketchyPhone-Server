@@ -6,7 +6,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 public class DrawingDTO {
 
   private Long drawingId;
-  private User creator;
+  private UserSecurityDTO creator;
   private String encodedImage;
   private LocalDateTime creationDateTime;
   private Long previousTextPromptId;
@@ -32,11 +32,11 @@ public class DrawingDTO {
     this.numVotes = numVotes;
   }
 
-  public User getCreator() {
+  public UserSecurityDTO getCreator() {
     return creator;
   }
 
-  public void setCreator(User creator) {
+  public void setCreator(UserSecurityDTO creator) {
     this.creator = creator;
   }
 
